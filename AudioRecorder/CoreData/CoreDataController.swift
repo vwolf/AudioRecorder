@@ -90,10 +90,202 @@ class CoreDataController: DataControllerDelegate {
             }
         }
     }
+    
     // MARK: DataControllerDelegate
     
     func downloadStatus(status: String) {
         print("DataController.downloadStatus: \(status)")
+    }
+    // MARK: Take
+    
+    /**
+     Add new take to CoreData or update existing take
+     
+     - Parameters:
+        - name: file name of take
+        - filePath: path to file
+        - recordedAt: Date object
+        - latitude: latitude as Double
+        - longitude: longitude as Double
+    */
+    func seedTake(name: String,
+                  filePath: String,
+                  recordeAt: Date,
+                  latitude: Double?,
+                  longitude: Double?) -> Bool {
+
+        guard let newTake = NSEntityDescription.insertNewObject(forEntityName: "Take", into: managedObjectContext) as? TakeMO else {
+            print("Error seedTake")
+            return false
+        }
+        
+        newTake.name = name
+        newTake.filepath = filePath
+        newTake.recordedAt = recordeAt
+        if latitude != nil {
+            newTake.latitude = latitude!
+            newTake.longitude = longitude!
+        }
+        
+        saveContext()
+        
+        return true
+    }
+    
+    /**
+     Update existing take
+     
+     - Parameters:
+     - takeNameToUpdate: TakeMO name
+     */
+    func updateTake(takeNameToUpdate : String,
+                    name: String,
+                    filePath: String,
+                    recordedAt: Date,
+                    latitude: Double?,
+                    longitude: Double?) -> Bool {
+        
+        // does this take exist?
+        let takes = getTake(takeName: takeNameToUpdate)
+        if let take = takes.first {
+            take.name = name
+            take.filepath = filePath
+            take.recordedAt = recordedAt as NSDate? as Date?
+            take.latitude = latitude!
+            take.longitude = longitude!
+        }
+        
+        saveContext()
+        
+        return true
+    }
+       
+    /**
+     Return take with name takeName
+     
+     - Parameters:
+        - takeName: name in TakeMO
+    */
+    func getTake(takeName: String) -> [TakeMO] {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
+        let take = try! managedObjectContext.fetch(fetchRequest)
+        
+        return take
+    }
+    
+    /**
+     Return all takes
+     */
+    func getTakes() -> [TakeMO] {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        let take = try! managedObjectContext.fetch(fetchRequest)
+        
+        return take
+    }
+    
+    /**
+     
+     - parameter takeName: take name without file extension
+     */
+    func deleteTake( takeName: String) -> Bool {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
+        let take = try! managedObjectContext.fetch(fetchRequest)
+
+        if take.first != nil {
+            managedObjectContext.delete(take.first!)
+            do {
+                try managedObjectContext.save()
+                return true
+            } catch let error as NSError {
+                NSLog("Error while deleting take: \(error.userInfo)")
+            }
+        }
+        return false
+    }
+    
+    
+    // MARK: MetaData
+    
+    func seedMetadata(metadata: Dictionary<String, String>) {
+        let newMetadata = NSEntityDescription.insertNewObject(forEntityName: "Metadata", into: managedObjectContext) as! MetadataMO
+        
+        if let metadataName = metadata["name"] {
+            newMetadata.name = metadataName
+        }
+        saveContext()
+    }
+    
+    func seedMetadataForTake( takeName: String, metadata: Dictionary<String, String> ) {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
+        
+        do {
+            let take = try! managedObjectContext.fetch(fetchRequest)
+            if take.count > 0 {
+                for data in metadata {
+                    let newMetadata = NSEntityDescription.insertNewObject(forEntityName: "Metadata", into: managedObjectContext) as! MetadataMO
+                    newMetadata.name = data.key
+                    newMetadata.value = data.value
+                    take[0].addToMetadata(newMetadata)
+                }
+                saveContext()
+            }
+        }
+    }
+    
+    
+    func updateMetadataForTake( takeName: String, metadata: Dictionary<String, String> ) {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
+        
+        var md = metadata
+        do {
+            let take = try! managedObjectContext.fetch(fetchRequest)
+            if take.count > 0 {
+                //let takeMetadata = take.first?.metadata
+                let takeMetadata = take.first?.mutableSetValue(forKey: "metadata")
+                for item in takeMetadata!  {
+                    if let mItem = item as? MetadataMO {
+                        print( "\(String(describing: mItem.name))" )
+                        if metadata[mItem.name!] != nil {
+                            if mItem.value != metadata[mItem.name!] {
+                                mItem.value = metadata[mItem.name!]
+                            }
+                            md.removeValue(forKey: mItem.name!)
+                        }
+                    }
+                }
+                // any metadata entrys left
+                if md.count > 0 {
+                    for newItem in md {
+                        let newMetadataItem = NSEntityDescription.insertNewObject(forEntityName: "Metadata", into: managedObjectContext) as! MetadataMO
+                        newMetadataItem.name = newItem.key
+                        newMetadataItem.value = newItem.value
+                        take[0].addToMetadata(newMetadataItem)
+                    }
+                }
+              
+            }
+            saveContext()
+        }
+    }
+    
+    /**
+     Get metadata items for take
+     Add extension to name of take
+     
+     - Parameters:
+        takeName: name of take
+    */
+    func getMetadataForTake(takeName: String) -> [MetadataMO] {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
+        let take = try! managedObjectContext.fetch(fetchRequest)
+        let meta = take[0].metadata?.allObjects as! [MetadataMO]
+        
+        return meta
     }
     
     // MARK: Settings

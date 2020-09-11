@@ -64,4 +64,18 @@ enum Colors {
             }
         }
     }
+    
+    enum AVModal {
+        case background
+        case textColor
+        
+        func toUIColor() -> UIColor {
+            switch  self {
+            case .background :
+                return UIColor(red: 0x0f/255, green: 0x16/255, blue: 0x26/255, alpha: 1.0)
+            case .textColor :
+                return UIColor(red: 0xf5/255, green: 0xf5/255, blue: 0xf5/255, alpha: 1.0)
+            }
+        }
+    }
 }

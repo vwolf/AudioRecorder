@@ -1,5 +1,7 @@
 //
 //  SettingsVC.swift
+//  Settings as two sections: Recording Settings and User Settings
+//
 //  AudioRecorder
 //
 //  Created by Wolf on 04.08.20.
@@ -7,20 +9,45 @@
 //
 
 import UIKit
+import AVFoundation
 
 class SettingsVC: UIViewController {
-
+    
     //var tableData = [String]()
     // settings format: [[String, String], [],], idx 0 is name, 1 is value
     var tableData = [[["Name", "Default"], ["SampleRate", "44.100"]], [["RecordingSettings", "High"]]]
     var tableHeaders = ["Recording Settings", "User Settings"]
     
+    var takeNamePreset = "myRecording + timestamp"
+    
+    var settingData = [[[String]]]()
+    var settings: Settings?
+    var userSettings: UserSettings?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        
     }
     
+    
+    private func settingsToList() -> [[String]] {
+        let currentSetting = settings?.getCurrentSetting()
+        var settingsName = "Default"
+        
+        if settings?.currentSetting != nil  {
+            settingsName = (settings?.currentSetting)!
+        }
+        
+        let settingsList = [
+            ["Name", settingsName],
+            ["SampleRate", String(format: "%.3f", currentSetting?[AVSampleRateKey] as! CVarArg)],
+            ["Bitdepths", "\(currentSetting?[AVLinearPCMBitDepthKey] as! CVarArg)" ],
+            ["Channels", "\(currentSetting?[AVNumberOfChannelsKey] as! CVarArg)" ],
+            ["Format", "\(currentSetting?[AVFormatIDKey] as! CVarArg)" ],
+            ["Takename", "\(userSettings?.takeName)"]
+        ]
+        
+        return settingsList
+    }
 
     /*
     // MARK: - Navigation
@@ -37,11 +64,13 @@ class SettingsVC: UIViewController {
 extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tableData[section].count
+        return settingData[section].count
+//        return tableData[section].count
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return tableData.count
+        return settingData.count
+//        return tableData.count
     }
     
     
@@ -70,9 +99,10 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsTableViewCellIdentifier", for: indexPath) as? SettingsTableViewCell else {
             fatalError("The dequeued cell is not an instance of SettingTableViewCell")
         }
+       
+        cell.nameLabel.text = settingData[indexPath.section][indexPath.row][0]
+        cell.valueLabel.text = settingData[indexPath.section][indexPath.row][1]
         
-        cell.nameLabel.text = tableData[indexPath.section][indexPath.row][0]
-        cell.valueLabel.text = tableData[indexPath.section][indexPath.row][1]
         return cell
     }
     
@@ -80,7 +110,7 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("SettingsVC.selectRowAt: \(indexPath.row)")
         
-        print("Settings name: \(tableData[indexPath.section][indexPath.row][0])")
+        print("Settings name: \(settingData[indexPath.section][indexPath.row][0])")
         
     }
     

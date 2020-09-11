@@ -40,6 +40,7 @@ class UserSettings {
         }
     }
     
+    
     private func fetchUserSettings() {
         userSettings = (coreDataController?.fetchUserSettings())!
         
@@ -65,6 +66,19 @@ class UserSettings {
         coreDataController?.seedUserSettings(settings: defaultSettings)
     }
     
-    //func getUserSetting
+    
+    /**
+     Return array of user settings
+     
+     */
+    func getUserSettingsForDisplay() -> [[String]] {
+        
+        var userSettingsValues = [[String]]()
+        userSettingsValues.append(["Recording Settings", recordingsetting])
+        userSettingsValues.append(["Style", style])
+        userSettingsValues.append(["Take Name Preset",takeName])
+        
+        return userSettingsValues
+    }
 }
 

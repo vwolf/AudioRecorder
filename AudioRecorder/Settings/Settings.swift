@@ -76,6 +76,23 @@ class Settings {
     }
     
     
+    /**
+     Return current settings as array for display in table
+     
+     */
+    func getSettingForDisplay(name: String) -> [[String]] {
+        let setting = getSetting(name: name)
+        
+        let settingsDict = [
+            ["Name", currentSetting],
+            ["SampleRate", String(format: "%.3f", setting[AVSampleRateKey] as! CVarArg )],
+            ["Bitdepths", "\(setting[AVLinearPCMBitDepthKey] as! CVarArg)" ] ,
+            ["Channels", "\(setting[AVNumberOfChannelsKey] as! CVarArg)" ],
+            ["Format", "\(setting[AVFormatIDKey] as! CVarArg)" ]
+        ]
+        
+        return settingsDict
+    }
    
         
     
