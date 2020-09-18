@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import AVFoundation
 import UIKit
 import CoreLocation
 
@@ -38,6 +39,8 @@ class Take {
     var location: CLLocation?
     var newTake = true
     var takeSaved = false
+    
+    var takeFormat: AudioFormatDescription?
     
     var coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
     
@@ -76,6 +79,23 @@ class Take {
         
         // Default Metadata
         self.addDefaultMetaData()
+        
+        // take format info
+        self.takeFormat = self.getTakeFormat()
+        if self.takeFormat != nil {
+            let formatString = formatTakeFormat()
+            addAudioFormatData(formatString: formatString)
+        }
+//        let group = DispatchGroup()
+        
+//        group.enter()
+//        DispatchQueue.global(qos: .default).async {
+//            self.takeFormat = self.getTakeFormat()
+//            group.leave()
+//        }
+//        group.wait()
+//
+        print(self.takeFormat?.sampleRate ?? "no sampleRate value")
     }
     
     /**
@@ -114,10 +134,37 @@ class Take {
             addItem(item: categories, section: .METADATASECTION)
         }
         
-        if getItemForID(id: "addDescription", section: .METADATASECTION) == nil {
-            let description = addDescription()
+        if getItemForID(id: "description", section: .METADATASECTION) == nil {
+            let description = addDescription(description: "aDescription")
             addItem(item: description, section: .METADATASECTION)
         }
+        
+//        if getItemForID(id: "keyboard", section: .METADATASECTION) == nil {
+//            let descriptionDesc = MetaDataDefault().keyboard
+//            let keyboardItem  = MetaDataItem(description: descriptionDesc, value: "keyboard test item")
+//            addItem(item: keyboardItem, section: .METADATASECTION)
+//        }
+    }
+    
+    private func addAudioFormatData(formatString: String) {
+        if getItemForID(id: "addTakeFormat", section: .TAKEFORMAT) == nil {
+            let descriptionDesc = MetaDataDefault().takeFormat
+            let addTakeFormat = MetaDataItem(description: descriptionDesc, value: formatString)
+            addItem(item: addTakeFormat, section: .TAKEFORMAT)
+        }
+        
+        itemSections.append(MetaDataSections.TAKEFORMAT)
+    }
+    
+    private func formatTakeFormat() -> String {
+        return (takeFormat?.asString())!
+        
+//        var format = ""
+//        format.append("SampleRate: \(takeFormat?.sampleRate!)")
+//        format.append("\n")
+//        format.append("Bit per Channel: \(takeFormat?.bitPerChannel!)")
+//
+//        return format
     }
     
     /**
@@ -137,8 +184,8 @@ class Take {
         let takeNameItem = MetaDataItem(description: takeNameDesc, value: takeName!)
         metaDateItems.append(takeNameItem)
         
-        let pathDesc = MetaDataDefault().path
-        let pathItem = MetaDataItem(description: pathDesc, value: takeURL.path)
+        //let pathDesc = MetaDataDefault().path
+        //let pathItem = MetaDataItem(description: pathDesc, value: takeURL.path)
         //metaDateItems.append(pathItem)
         
         url = takeURL
@@ -336,6 +383,13 @@ class Take {
                 let categoryItem = addCategory(category: category!, subCategory: subCategory.value!)
                 
                 mdItems.append(categoryItem)
+                
+            case "description":
+                let description = mdItem.value
+                let descriptionItem = addDescription(description: description!)
+                
+                mdItems.append(descriptionItem)
+                
             default:
                 print("Unkown item name \(String(describing: mdItem.name))")
             }
@@ -344,6 +398,111 @@ class Take {
         itemSections.append(MetaDataSections.METADATASECTION)
         items.append(mdItems)
     }
+    
+    func getTakeFormat() -> AudioFormatDescription? {
+        let takeNameWithExtension = takeName! + "." + takeType!
+        let takeURL = Takes().getUrlforFile(fileName: takeNameWithExtension)
+        
+        let asset = AVAsset(url: takeURL!)
+        let assetTrack = asset.tracks
+        
+        var formatStruct = AudioFormatDescription()
+        
+        guard let firstTrack = assetTrack.first else {
+            return nil
+        }
+        
+        let audioFormatDescriptions = firstTrack.formatDescriptions as! [CMAudioFormatDescription]
+        guard let audioFormatDescription = audioFormatDescriptions.first else {
+            print("Error: Take has no CMAudioFormatDescription")
+            return formatStruct
+        }
+        
+        var formatList = [Int]()
+        let mediaSpecific = CMAudioFormatDescriptionGetFormatList(audioFormatDescription, sizeOut: &formatList)
+        // format lpcm == wav
+        let type = mediaSpecific?.pointee.mASBD.mFormatID
+        formatStruct.type = type!.toString()
+        
+        let sampleRate = mediaSpecific?.pointee.mASBD.mSampleRate
+        formatStruct.sampleRate = sampleRate!
+        
+        let channelsPerFrame = mediaSpecific?.pointee.mASBD.mChannelsPerFrame
+        formatStruct.channelsPerFrame = channelsPerFrame!
+        
+        let bitsPerChannel = mediaSpecific?.pointee.mASBD.mBitsPerChannel
+        formatStruct.bitPerChannel = bitsPerChannel
+        
+        let bytesPerFrame = mediaSpecific?.pointee.mASBD.mBytesPerFrame
+        formatStruct.bytesPerFrame = bytesPerFrame!
+        
+        return formatStruct
+        
+//        let workItem = DispatchWorkItem {
+//            print("dispatchWorkItem")
+//        }
+//
+//        let queue = DispatchQueue.global()
+//        queue.async {
+//            workItem.perform()
+//        }
+//
+//        workItem.notify(queue: DispatchQueue.main) {
+//
+//        }
+        
+//        let group = DispatchGroup()
+//        group.enter()
+//        DispatchQueue.global(qos: .default).async {
+//
+//            firstTrack.loadValuesAsynchronously(forKeys: ["estimatedDataRate"]) {
+//                var error: NSError? = nil
+//                let status = firstTrack.statusOfValue(forKey: "estimatedDataRate", error: &error)
+//
+//                if status == .loaded {
+//                    print("trackId: \(firstTrack.estimatedDataRate)")
+//                    print("formatDescription: \(firstTrack.formatDescriptions)")
+//                    print("preferredVolume: \(firstTrack.preferredVolume)")
+//                    //print("metadata: \(firstTrack.metadata)")
+//
+//                    //let formatDescription = firstTrack.formatDescriptions as! [CMFormatDescription]
+//                    let audioFormatDescriptions = firstTrack.formatDescriptions as! [CMAudioFormatDescription]
+//                    guard let audioFormatDescription = audioFormatDescriptions.first else {
+//                        print("Error: Take has no CMAudioFormatDescription")
+//                        return
+//                    }
+//
+//                    var formatList = [Int]()
+//                    let mediaSpecific = CMAudioFormatDescriptionGetFormatList(audioFormatDescription, sizeOut: &formatList)
+//                    // format lpcm == wav
+//                    let type = mediaSpecific?.pointee.mASBD.mFormatID
+//                    formatStruct.type = type!.toString()
+//
+//                    let sampleRate = mediaSpecific?.pointee.mASBD.mSampleRate
+//                    formatStruct.sampleRate = sampleRate!
+//
+//                    let channelsPerFrame = mediaSpecific?.pointee.mASBD.mChannelsPerFrame
+//                    formatStruct.channelsPerFrame = channelsPerFrame!
+//
+//                    let bitsPerChannel = mediaSpecific?.pointee.mASBD.mBitsPerChannel
+//                    formatStruct.bitPerChannel = bitsPerChannel
+//
+//                    let bytesPerFrame = mediaSpecific?.pointee.mASBD.mBytesPerFrame
+//                    formatStruct.bytesPerFrame = bytesPerFrame!
+//
+//                }
+//            }
+//
+//            group.leave()
+//        }
+//
+//        group.wait()
+//
+//        return formatStruct
+    }
+                
+
+    
     /**
      Save user generatet metadata
      [Category, SubCategory, Description, Image, Supporting Recording]
@@ -480,6 +639,13 @@ class Take {
         return "?"
     }
     
+    func getHeaderIDForSection(sectionIndex: Int) -> MetaDataSections? {
+        if sectionIndex < items.count {
+            return itemSections[sectionIndex]
+        }
+        return nil
+    }
+    
     
     func getItemSectionIndex(section: MetaDataSections) -> Int? {
         guard let sectionIndex = itemSections.firstIndex(of: section) else { return nil }
@@ -535,4 +701,21 @@ class Take {
         
     }
     
+}
+
+
+struct AudioFormatDescription {
+    var type: String?
+    var sampleRate: Float64?
+    var bitPerChannel: UInt32?
+    var channelsPerFrame: UInt32?
+    var bytesPerFrame: UInt32?
+    
+    func asString() -> String {
+        let s = "Type: \(type!) \nSampelRate: \(sampleRate!) \nBitPerChannel: \(bitPerChannel!) \nChannelsPerFrame: \(channelsPerFrame!) \nBytesPerFrame: \(bytesPerFrame!)"
+        
+        print(s)
+        
+        return s
+    }
 }

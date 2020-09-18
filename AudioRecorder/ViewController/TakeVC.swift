@@ -25,6 +25,8 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
     var modified = false
     var newTakeName = false
     
+    var selectedItemWithTextField: IndexPath?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -57,6 +59,7 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.keyboardDismissMode = .interactive
+        collectionView.endEditing(true)
         
         // categories
         categoryDict = CategoryParser().parseCategories()
@@ -66,7 +69,8 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         // register keyboard change notifications
         let notifictationCenter = NotificationCenter.default
         notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil )
-        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil )
+        //notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil )
+        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboarDidHide), name: UIResponder.keyboardDidHideNotification, object: nil )
         
     }
     
@@ -101,10 +105,6 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-//        if let vc = self.findParentController() as TakesVC? {
-//            print ("TakesVC: \(vc.takes.count)")
-//        }
         
         //self.findViewController()
         
@@ -144,6 +144,8 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
                 }
             }
         }
+        
+        //self.removeObserver(self, forKeyPath: <#T##String#>)
 //        if isMovingFromParent && modified == true {
 //            print("isMovingFromParent")
 //
@@ -240,32 +242,63 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         
     }
     
+    func presentMetadataAddPopover(typ: String) {
+        
+        let popoverContentController = MetadataAddPopoverVC(nibName: "MetadataAddPopoverView", bundle: nil)
+        
+        self.present(popoverContentController, animated: true)
+    }
+    
+    
     // MARK: Keyboard change notifications
     
     @objc func adjustForKeyboardWillShow(notification: Notification) {
         print("TakeVC: keyboardWillShow")
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             print("keyboard height: \(keyboardSize.height)")
-            let userInfo = notification.userInfo!
-            let animationDuration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-            
-            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
-            collectionView.isScrollEnabled = true
-            
-            UIView.animate(
-            withDuration: animationDuration) {
-//                               self.collectionView.layoutIfNeeded()
-                                self.view.layoutIfNeeded()
+//            let userInfo = notification.userInfo!
+//            let animationDuration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+//            let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+//            collectionView.contentInset = contentInset
+//            collectionView.isScrollEnabled = true
+//            collectionView.scrollIndicatorInsets = contentInset
+            if selectedItemWithTextField != nil {
+                collectionView.scrollToItem(at: selectedItemWithTextField!, at: .top, animated: true)
             }
+            //collectionView.scrollToItem(at: IndexPath(row: 1, section: 1), at: .top, animated: true)
+            //collectionView.setNeedsLayout()
+           
+            //collectionView.setContentOffset(<#T##contentOffset: CGPoint##CGPoint#>, animated: <#T##Bool#>)
+//            UIView.animate(
+//            withDuration: animationDuration) {
+////                               self.collectionView.layoutIfNeeded()
+////                                self.view.layoutIfNeeded()
+//            }
         }
     }
     
     @objc func adjustForKeyboardWillHide(notifiction: Notification) {
         print("keyboardWillHide")
         
+        selectedItemWithTextField = nil
         collectionView.contentInset = .zero
+        collectionView.scrollIndicatorInsets = .zero
+        
+        //collectionView.setNeedsLayout()
+        //collectionView.layoutIfNeeded()
     }
     
+    
+    @objc func adjustForKeyboarDidHide(notification: Notification) {
+        print("keyboardDidHide")
+        
+        selectedItemWithTextField = nil
+        //collectionView.contentInset = .zero
+        //collectionView.scrollIndicatorInsets = .zero
+        
+        collectionView.setNeedsLayout()
+        collectionView.layoutIfNeeded()
+    }
     // MARK: DELEGATE CategoryPopoverVC
     
     /**
@@ -322,12 +355,10 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             
             cell.nameLabel.text = takeItem.name
             cell.descriptionLabel.text = takeItem.description
-            
-            //cell.contentView.isUserInteractionEnabled = false
             cell.valueTextField.text = takeItem.value as! String?
             cell.originalValue = cell.valueTextField.text!
-            
             cell.maxWidth = collectionView.bounds.width - 16
+            cell.takeVC = self
             
             cell.updateValue = { value, id in
                 // validate new file name
@@ -411,15 +442,37 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
 //            }
             return cell
 
-//        case "description":
-//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataTextEditCell", for: indexPath) as! MDataTextEditCellController
-//            let takeItem = take.items[indexPath.section][indexPath.row]
-//
-//            cell.nameLabel.text = takeItem.name
-//            cell.descriptionLabel.text = takeItem.description
-//            cell.valueTextView.text = takeItem.value as! String?
-//
-//            return cell
+        case "description":
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataTextEditCell", for: indexPath) as! MDataTextEditCellController
+            let takeItem = take.items[indexPath.section][indexPath.row]
+
+            cell.nameLabel.text = takeItem.name
+            cell.descriptionLabel.text = takeItem.description
+            cell.valueTextView.text = takeItem.value as! String?
+            cell.originalValue = cell.valueTextView.text
+            cell.maxWidth = collectionView.bounds.width - 16
+            cell.takeVC = self
+            
+            cell.updateValue = { value, id in
+                self.take.getItemForID(id: id, section: MetaDataSections.METADATASECTION)?.value = value
+                self.modified = true
+            }
+            
+            cell.id = itemId
+            return cell
+         
+        case "keyboard" :
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataEditCell", for: indexPath) as! MDataEditCellController
+            let takeItem = take.items[indexPath.section][indexPath.row]
+            
+            cell.nameLabel.text = takeItem.name
+            cell.descriptionLabel.text = takeItem.description
+            cell.valueTextField.text = takeItem.value as! String?
+            cell.originalValue = cell.valueTextField.text!
+            
+            cell.maxWidth = collectionView.bounds.width - 16
+            
+            return cell
             
         default:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataStaticCell", for: indexPath) as! MDataStaticCellController
@@ -444,12 +497,26 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
         
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "MDataSectionHeader", for: indexPath) as! MDataSectionHeader
         
-        view.headerName.text = take.getHeaderForSection(sectionIndex: indexPath.section)
+        let sectionID = take.getHeaderIDForSection(sectionIndex: indexPath.section)
+        if sectionID != nil {
+            if sectionID != MetaDataSections.METADATASECTION {
+                view.headerBtn.isHidden = true
+            } else {
+                view.headerBtn.addTarget(self, action: #selector(metadataAddBtnTouched(_:)), for: .touchUpInside)
+            }
+            
+            view.headerName.text = sectionID?.rawValue
+        }
+        //view.headerName.text = take.getHeaderForSection(sectionIndex: indexPath.section)
         
         return view
     }
     
     
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        print("shouldSelectItemAt")
+        return true
+    }
 //    func collectionView(_ collectionView: UICollectionView,
 //                        layout collectionViewLayout: UICollectionViewLayout,
 //                        referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -467,30 +534,35 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     @objc func subcategoryBtnTouched(_ sender: UIButton) {
         presentCategoryPopover(cellIdx: sender.tag, categoryType: "subcategory")
     }
-}
-
-
-extension UIViewController {
-    func findParentController<T: UIViewController>() -> T? {
-        return self is T ? self as? T : self.parent?.findParentController() as T?
-    }
     
-    func findViewController() -> UIViewController? {
-        var traveled = false
-         var nextResponder = self.next
-        
-        while traveled == false {
-            nextResponder = nextResponder?.next
-            print(nextResponder.debugDescription)
-            
-            if nextResponder == nil { traveled = true }
-        }
-        
-        return nil
-//        if let nextResponder = self.next as? UIViewController {
-//            return nextResponder
-//        } else {
-//            return nil
-//        }
+    @objc func metadataAddBtnTouched(_ sender: UIButton) {
+        print("metadataAddBtnTouched")
+        presentMetadataAddPopover(typ: "metadata")
     }
 }
+
+
+//extension UIViewController {
+//    func findParentController<T: UIViewController>() -> T? {
+//        return self is T ? self as? T : self.parent?.findParentController() as T?
+//    }
+//
+//    func findViewController() -> UIViewController? {
+//        var traveled = false
+//         var nextResponder = self.next
+//
+//        while traveled == false {
+//            nextResponder = nextResponder?.next
+//            print(nextResponder.debugDescription)
+//
+//            if nextResponder == nil { traveled = true }
+//        }
+//
+//        return nil
+////        if let nextResponder = self.next as? UIViewController {
+////            return nextResponder
+////        } else {
+////            return nil
+////        }
+//    }
+//}

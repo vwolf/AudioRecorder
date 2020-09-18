@@ -15,7 +15,7 @@ class Takes {
     /**
      Get all takes in documents directory
      */
-    func getAllTakes( fileExtension: String, directory: String?, returnWithExtension: Bool = false) -> [String] {
+    func getAllTakeNames( fileExtension: String, directory: String?, returnWithExtension: Bool = false) -> [String] {
         var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         if (directory != nil) {
             documentPath = documentPath.appendingPathComponent(directory!).absoluteURL

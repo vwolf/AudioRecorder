@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		795A0DDD25134D9600DE340B /* WaveformImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DDC25134D9500DE340B /* WaveformImageView.swift */; };
+		795A0DDF25134DFD00DE340B /* WaveformImageDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */; };
+		795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */; };
+		795A0DE325135A7E00DE340B /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE225135A7E00DE340B /* ColorExtensions.swift */; };
+		795A0DE625149D0A00DE340B /* MetadataAddPopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */; };
+		795A0DE725149D0A00DE340B /* MetadataAddPopoverView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */; };
 		79825BA124D97B15008C0D04 /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79825BA024D97B15008C0D04 /* SettingsVC.swift */; };
 		79825BA324DA0D45008C0D04 /* TakesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79825BA224DA0D45008C0D04 /* TakesVC.swift */; };
 		79825BA524DA1082008C0D04 /* SettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79825BA424DA1082008C0D04 /* SettingsTableViewCell.swift */; };
@@ -16,6 +22,8 @@
 		798545B32506EBE800D6A1D2 /* CategoryPopoverView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798545B22506EBE800D6A1D2 /* CategoryPopoverView.xib */; };
 		798545B6250A16D800D6A1D2 /* MDataTextEditCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 798545B4250A16D800D6A1D2 /* MDataTextEditCellController.swift */; };
 		798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */; };
+		798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798656F42514A8C700DD610F /* MetadataAddCell.xib */; };
+		798656F72514A92800DD610F /* MetadataAddCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 798656F62514A92800DD610F /* MetadataAddCellController.swift */; };
 		79BDA06424FF94D60000B18B /* AudioInputVisualizer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79BDA06324FF94D60000B18B /* AudioInputVisualizer.xib */; };
 		79BDA06624FF958B0000B18B /* AudioInputVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BDA06524FF958B0000B18B /* AudioInputVisualizer.swift */; };
 		79BDA0682500C9F50000B18B /* AudioCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BDA0672500C9F50000B18B /* AudioCaptureSession.swift */; };
@@ -51,6 +59,12 @@
 		79D223F724D9600C00900F31 /* RecordVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223F624D9600C00900F31 /* RecordVC.swift */; };
 		79D223FC24D967DB00900F31 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223FB24D967DB00900F31 /* Colors.swift */; };
 		79D223FF24D975B500900F31 /* RecordingTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223FE24D975B500900F31 /* RecordingTimer.swift */; };
+		79DC8CE52510010300396FE1 /* ShareVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CE42510010200396FE1 /* ShareVC.swift */; };
+		79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CE7251003E800396FE1 /* CloudDataManager.swift */; };
+		79DC8CEC25100F3300396FE1 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC8CEB25100F3300396FE1 /* CloudKit.framework */; };
+		79DC8CEE25101CEC00396FE1 /* TakeCKRecordModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */; };
+		79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */; };
+		79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CF125116D6F00396FE1 /* TempiFFT.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +85,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		795A0DDC25134D9500DE340B /* WaveformImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageView.swift; sourceTree = "<group>"; };
+		795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageDrawer.swift; sourceTree = "<group>"; };
+		795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageTypes.swift; sourceTree = "<group>"; };
+		795A0DE225135A7E00DE340B /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
+		795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataAddPopoverVC.swift; sourceTree = "<group>"; };
+		795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MetadataAddPopoverView.xib; sourceTree = "<group>"; };
 		79825BA024D97B15008C0D04 /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
 		79825BA224DA0D45008C0D04 /* TakesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakesVC.swift; sourceTree = "<group>"; };
 		79825BA424DA1082008C0D04 /* SettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewCell.swift; sourceTree = "<group>"; };
@@ -80,6 +100,8 @@
 		798545B22506EBE800D6A1D2 /* CategoryPopoverView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryPopoverView.xib; sourceTree = "<group>"; };
 		798545B4250A16D800D6A1D2 /* MDataTextEditCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDataTextEditCellController.swift; sourceTree = "<group>"; };
 		798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataTextEditCell.xib; sourceTree = "<group>"; };
+		798656F42514A8C700DD610F /* MetadataAddCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MetadataAddCell.xib; sourceTree = "<group>"; };
+		798656F62514A92800DD610F /* MetadataAddCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataAddCellController.swift; sourceTree = "<group>"; };
 		79BDA06324FF94D60000B18B /* AudioInputVisualizer.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioInputVisualizer.xib; sourceTree = "<group>"; };
 		79BDA06524FF958B0000B18B /* AudioInputVisualizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioInputVisualizer.swift; sourceTree = "<group>"; };
 		79BDA0672500C9F50000B18B /* AudioCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSession.swift; sourceTree = "<group>"; };
@@ -121,6 +143,13 @@
 		79D223F624D9600C00900F31 /* RecordVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordVC.swift; sourceTree = "<group>"; };
 		79D223FB24D967DB00900F31 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		79D223FE24D975B500900F31 /* RecordingTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingTimer.swift; sourceTree = "<group>"; };
+		79DC8CE42510010200396FE1 /* ShareVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareVC.swift; sourceTree = "<group>"; };
+		79DC8CE7251003E800396FE1 /* CloudDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudDataManager.swift; sourceTree = "<group>"; };
+		79DC8CE925100F2C00396FE1 /* AudioRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AudioRecorder.entitlements; sourceTree = "<group>"; };
+		79DC8CEB25100F3300396FE1 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakeCKRecordModel.swift; sourceTree = "<group>"; };
+		79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformAnalyzer.swift; sourceTree = "<group>"; };
+		79DC8CF125116D6F00396FE1 /* TempiFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempiFFT.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +157,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79DC8CEC25100F3300396FE1 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,6 +183,10 @@
 			children = (
 				798545AE2506D6DB00D6A1D2 /* CategoryPopoverVC.swift */,
 				798545B22506EBE800D6A1D2 /* CategoryPopoverView.xib */,
+				795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */,
+				795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */,
+				798656F42514A8C700DD610F /* MetadataAddCell.xib */,
+				798656F62514A92800DD610F /* MetadataAddCellController.swift */,
 			);
 			path = Modals;
 			sourceTree = "<group>";
@@ -241,6 +275,12 @@
 			isa = PBXGroup;
 			children = (
 				79CDBBAC24FE650F005AA182 /* ModalAudioPlayerVC.swift */,
+				79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */,
+				79DC8CF125116D6F00396FE1 /* TempiFFT.swift */,
+				795A0DDC25134D9500DE340B /* WaveformImageView.swift */,
+				795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */,
+				795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */,
+				795A0DE225135A7E00DE340B /* ColorExtensions.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -252,6 +292,7 @@
 				79D223DA24D950D200900F31 /* AudioRecorderTests */,
 				79D223E524D950D200900F31 /* AudioRecorderUITests */,
 				79D223BF24D950D000900F31 /* Products */,
+				79DC8CEA25100F3300396FE1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -268,6 +309,8 @@
 		79D223C024D950D000900F31 /* AudioRecorder */ = {
 			isa = PBXGroup;
 			children = (
+				79DC8CE925100F2C00396FE1 /* AudioRecorder.entitlements */,
+				79DC8CE6251003C700396FE1 /* share */,
 				798545AB2506D41100D6A1D2 /* data */,
 				79BDA06E250125930000B18B /* Parser */,
 				79BDA06925011AE00000B18B /* MetaData */,
@@ -316,6 +359,7 @@
 				79825BA224DA0D45008C0D04 /* TakesVC.swift */,
 				79BDA07125022DFB0000B18B /* TakeVC.swift */,
 				79BDA0822503DA210000B18B /* TakeCollectionViewFlowLayout.swift */,
+				79DC8CE42510010200396FE1 /* ShareVC.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -346,6 +390,23 @@
 				79D223FE24D975B500900F31 /* RecordingTimer.swift */,
 			);
 			path = Timer;
+			sourceTree = "<group>";
+		};
+		79DC8CE6251003C700396FE1 /* share */ = {
+			isa = PBXGroup;
+			children = (
+				79DC8CE7251003E800396FE1 /* CloudDataManager.swift */,
+				79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */,
+			);
+			path = share;
+			sourceTree = "<group>";
+		};
+		79DC8CEA25100F3300396FE1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				79DC8CEB25100F3300396FE1 /* CloudKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -459,9 +520,11 @@
 				79D223C924D950D000900F31 /* Main.storyboard in Resources */,
 				798545AC2506D41100D6A1D2 /* data in Resources */,
 				79BDA08B2504B2690000B18B /* MDataSectionHeader.xib in Resources */,
+				795A0DE725149D0A00DE340B /* MetadataAddPopoverView.xib in Resources */,
 				79BDA07D250256900000B18B /* MDataStaticCell.xib in Resources */,
 				79BDA06424FF94D60000B18B /* AudioInputVisualizer.xib in Resources */,
 				79BDA0812503C0D40000B18B /* MDataEditCell.xib in Resources */,
+				798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */,
 				798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -490,16 +553,21 @@
 				79BDA07225022DFB0000B18B /* TakeVC.swift in Sources */,
 				79BDA06D25011D310000B18B /* MetaDataDescription.swift in Sources */,
 				79D223C224D950D000900F31 /* AppDelegate.swift in Sources */,
+				795A0DDF25134DFD00DE340B /* WaveformImageDrawer.swift in Sources */,
 				79C83DBA24DA92CE00B23001 /* UserSettings.swift in Sources */,
+				79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */,
 				798545B6250A16D800D6A1D2 /* MDataTextEditCellController.swift in Sources */,
 				79D223FC24D967DB00900F31 /* Colors.swift in Sources */,
 				79BDA0832503DA210000B18B /* TakeCollectionViewFlowLayout.swift in Sources */,
+				795A0DE625149D0A00DE340B /* MetadataAddPopoverVC.swift in Sources */,
 				79BDA0802503C0D40000B18B /* MDataEditCellController.swift in Sources */,
 				79BDA07C250256900000B18B /* MDataStaticCellController.swift in Sources */,
 				79BDA08D2506D2510000B18B /* CategoryParser.swift in Sources */,
 				79BDA0682500C9F50000B18B /* AudioCaptureSession.swift in Sources */,
+				795A0DDD25134D9600DE340B /* WaveformImageView.swift in Sources */,
 				79BDA06624FF958B0000B18B /* AudioInputVisualizer.swift in Sources */,
 				79BDA06B25011AFE0000B18B /* MetaDataItem.swift in Sources */,
+				79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */,
 				79CDBBA324FD63FA005AA182 /* TakesTableViewCell.swift in Sources */,
 				79BDA08A2504B2690000B18B /* MDataSectionHeader.swift in Sources */,
 				79BDA086250433370000B18B /* MDataActiveDoubleCellController.swift in Sources */,
@@ -507,15 +575,21 @@
 				79D223F524D95AFF00900F31 /* CoreDataController.swift in Sources */,
 				79D223FF24D975B500900F31 /* RecordingTimer.swift in Sources */,
 				79D223F724D9600C00900F31 /* RecordVC.swift in Sources */,
+				79DC8CE52510010300396FE1 /* ShareVC.swift in Sources */,
 				79825BA124D97B15008C0D04 /* SettingsVC.swift in Sources */,
+				79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */,
 				79D223CC24D950D000900F31 /* AudioRecorder.xcdatamodeld in Sources */,
 				79BDA070250125B00000B18B /* JSONParser.swift in Sources */,
 				79CDBBA824FE44E3005AA182 /* Extensions.swift in Sources */,
 				79825BA524DA1082008C0D04 /* SettingsTableViewCell.swift in Sources */,
+				798656F72514A92800DD610F /* MetadataAddCellController.swift in Sources */,
+				795A0DE325135A7E00DE340B /* ColorExtensions.swift in Sources */,
 				79825BA724DA145A008C0D04 /* Settings.swift in Sources */,
+				795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */,
 				79CDBBA524FDA7AE005AA182 /* Take.swift in Sources */,
 				79CDBBAA24FE5313005AA182 /* Takes.swift in Sources */,
 				79CDBBAD24FE650F005AA182 /* ModalAudioPlayerVC.swift in Sources */,
+				79DC8CEE25101CEC00396FE1 /* TakeCKRecordModel.swift in Sources */,
 				798545AF2506D6DB00D6A1D2 /* CategoryPopoverVC.swift in Sources */,
 				79D223C424D950D000900F31 /* SceneDelegate.swift in Sources */,
 			);
@@ -690,6 +764,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;
@@ -709,6 +784,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;

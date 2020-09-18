@@ -18,9 +18,13 @@ struct MetaDataDefault {
     var description = ["id": "description", "type": MetaDataTypes.STRING.rawValue, "name": "Description", "description": "Description 255 characters"]
     var image = ["id": "image", "type": MetaDataTypes.ANY.rawValue, "name": "Image", "description": "Add Image for recording"]
     var audio = ["id": "audio", "type": MetaDataTypes.ANY.rawValue, "name": "Audio", "description": "Record an audio for recording"]
+    var takeFormat = ["id": "takeFormat", "type": MetaDataTypes.STRING.rawValue, "name": "Format", "description": "Take Audioformat"]
+    var keyboard = ["id": "keyboard", "type": MetaDataTypes.STRING.rawValue, "name": "Keyboard", "description": "Keyboard test"]
 }
 
-
+struct MetaDataStrings {
+    let addMetadataInstruction = "Select the metadata types you want to add to take."
+}
 /**
  All posible CategoryItem types
  */
@@ -36,7 +40,7 @@ enum MetaDataTypes: String {
 //}
 
 enum MetaDataSections: String {
-    case RECORDINGDATA = "Take Recording Data"
-    case METADATASECTION = "METADATA"
-    case TAKEFORMAT = "Take Format"
+    case RECORDINGDATA = "Recording Data"
+    case METADATASECTION = "Metadata"
+    case TAKEFORMAT = "Format"
 }

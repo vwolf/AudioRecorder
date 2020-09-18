@@ -16,6 +16,8 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var valueTextField: UITextField!
     
+    var takeVC: TakeVC?
+    
     // closure to send value to parent view (value, id)
     var updateValue: ((String, String) -> ())?
     
@@ -46,13 +48,16 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
         //widthConstraint.constant = screenWidth //- (2 * 8)
         
         valueTextField.delegate = self
+        
+//        let notifictationCenter = NotificationCenter.default
+//        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil )
     }
 
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         setNeedsLayout()
         layoutIfNeeded()
         
-        descriptionLabel.preferredMaxLayoutWidth = maxWidth!
+        //descriptionLabel.preferredMaxLayoutWidth = maxWidth!
         layoutAttributes.bounds.size.width = maxWidth!
         layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
         
@@ -61,36 +66,48 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
     
     // MARK: Keyboard change notifications
     
-    @objc func adjustForKeyboardWillShow(notification: Notification) {
-        print("MDataEditController: keyboardWillShow")
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            let userInfo = notification.userInfo!
-            let animationDuration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-            
-            UIView.animate(withDuration: animationDuration) {
-                // self.layoutIfNeeded()
-            }
-        }
-        
-    }
+//    @objc func adjustForKeyboardWillShow(notification: Notification) {
+//        print("MDataEditController: keyboardWillShow")
+//
+//        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+//            let userInfo = notification.userInfo!
+//            let animationDuration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+//
+//            UIView.animate(withDuration: animationDuration) {
+//                // self.layoutIfNeeded()
+//            }
+//        }
+//
+//    }
     
     /**
      Keyboard hide notification - update value in item
      
     */
-    @objc func adjustForKeyboardWillHide(notifiction: Notification) {
-        print("keyboardWillHide")
-        print(valueTextField.text!)
-        
-        //updateValue!(valueTextField.text!, id!)
-    }
+//    @objc func adjustForKeyboardWillHide(notifiction: Notification) {
+//        print("keyboardWillHide")
+//        print(valueTextField.text!)
+//        
+//        //updateValue!(valueTextField.text!, id!)
+//    }
     
     
     // MARK: TextField Delegate
     
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        // send indexPath to TakeVC
+        let cv = self.superview as! UICollectionView
+        let idx = cv.indexPath(for: self)
+        takeVC?.selectedItemWithTextField = idx
+        
+        return true
+    }
+    
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         print("textFieldShouldReturn: \(valueTextField.text!)")
         
+       
 //        let checkResult = Takes().checkFileName(newTakeName: valueTextField.text!, takeName: originalValue)
 //
 //        switch checkResult {

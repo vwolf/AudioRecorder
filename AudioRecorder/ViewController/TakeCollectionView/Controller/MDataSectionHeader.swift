@@ -11,6 +11,7 @@ import UIKit
 class MDataSectionHeader: UICollectionReusableView {
 
     @IBOutlet weak var headerName: UILabel!
+    @IBOutlet weak var headerBtn: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -18,4 +19,7 @@ class MDataSectionHeader: UICollectionReusableView {
     }
     
     
+    @IBAction func headerBtnAction(_ sender: UIButton) {
+        
+    }
 }

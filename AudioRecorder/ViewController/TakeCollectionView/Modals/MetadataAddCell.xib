@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="MetadataAddCellIdentifier" id="0rJ-pL-gXp" customClass="MetadataAddCellController" customModule="AudioRecorder" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="0rJ-pL-gXp" id="eEX-GS-4O2">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RiU-HM-iHj">
+                        <rect key="frame" x="8" y="12" width="364" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="LQV-dx-GlL"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="contactAdd" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LSu-jd-58p">
+                        <rect key="frame" x="386" y="10" width="25" height="24"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="25" id="fUM-hu-l3d"/>
+                        </constraints>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="RiU-HM-iHj" secondAttribute="trailing" constant="42" id="0fc-yl-ZsJ"/>
+                    <constraint firstAttribute="bottom" secondItem="LSu-jd-58p" secondAttribute="bottom" constant="10" id="6YK-m4-pHg"/>
+                    <constraint firstItem="LSu-jd-58p" firstAttribute="top" secondItem="eEX-GS-4O2" secondAttribute="top" constant="10" id="9zu-rV-PMP"/>
+                    <constraint firstAttribute="trailing" secondItem="LSu-jd-58p" secondAttribute="trailing" constant="3" id="YVM-Na-QM3"/>
+                    <constraint firstItem="RiU-HM-iHj" firstAttribute="leading" secondItem="eEX-GS-4O2" secondAttribute="leading" constant="8" id="rH7-L6-5LZ"/>
+                    <constraint firstItem="RiU-HM-iHj" firstAttribute="top" secondItem="eEX-GS-4O2" secondAttribute="top" constant="12" id="xgK-FF-AEQ"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="nameLabel" destination="RiU-HM-iHj" id="IiC-24-kwh"/>
+            </connections>
+            <point key="canvasLocation" x="142.02898550724638" y="51.5625"/>
+        </tableViewCell>
+    </objects>
+</document>

@@ -20,7 +20,7 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
     }
     
     func reloadTakes() {
-        takes = Takes().getAllTakes(fileExtension: "wav", directory: nil, returnWithExtension: true)
+        takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
         takesTableView.reloadData()
     }
     
@@ -94,7 +94,7 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
         
         popoverContentController?.modalPresentationStyle = .popover
        // popoverContentController?.modalTransitionStyle = .crossDissolve
-        popoverContentController?.preferredContentSize = CGSize(width: self.view.frame.size.width - 20, height: 240)
+        popoverContentController?.preferredContentSize = CGSize(width: self.view.frame.size.width - 20, height: 320)
         popoverContentController?.view.backgroundColor = Colors.AVModal.background.toUIColor()
         
         if let popoverPresentationController = popoverContentController?.popoverPresentationController {

@@ -113,9 +113,12 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         case "ShowTakesSegueIdentifier" :
             let destination = segue.destination as? TakesVC
             
-            let takes = Takes().getAllTakes(fileExtension: "wav", directory: nil, returnWithExtension: true)
+            let takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
             
             destination?.takes = takes
+          
+        case "ShowShareSegueIdentifier":
+            let destination = segue.destination as? ShareVC
             
         default:
             NSLog("Navigation: Segue with unknown identifier")
@@ -191,13 +194,14 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             let take = makeTake(audioRecorder: audioRecorder, length: takeLength)
             take.saveTake()
             
-            recorded = true
+            recorded = false
         }
         
         audioRecorder.stop()
         recording = false
         recordingTimer.stopTimer()
         audioInputVisualizer.stopVisualize()
+        audioInputVisualizer.isHidden = true
     }
     
     /**
@@ -257,7 +261,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     func initCaptureSession() {
         
-        let dev = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone], mediaType: .audio, position: .unspecified).devices
+//        let dev = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone], mediaType: .audio, position: .unspecified).devices
        
         let captureSession = AVCaptureSession()
 //        guard let audioDevice = AVCaptureDevice.default(for: .audio) else { return }
