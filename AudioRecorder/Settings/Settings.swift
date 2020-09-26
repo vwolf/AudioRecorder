@@ -10,6 +10,11 @@ import Foundation
 import UIKit
 import AVFoundation
 
+/**
+ At first use, write predefined recording format setting into coreData
+ After that, fetch settings and use recording format which is saved in UserSetting-> recordingSetting
+ 
+ */
 class Settings {
     
     /// get CoreDataController
@@ -52,8 +57,10 @@ class Settings {
             return defaultSetting
         }
         
+//        AVAudioQuality : AVAudioQuality.high.rawValue,
         let settings = [
             AVFormatIDKey : Int(kAudioFormatLinearPCM),
+            
             AVSampleRateKey : setting.sampleRate,
             AVNumberOfChannelsKey : setting.channels,
             AVLinearPCMBitDepthKey: setting.bitDepth,
@@ -102,15 +109,73 @@ class Settings {
     */
     func seedPresetSettings() {
         var presets = [[String: Any]]()
-        presets.append(["name": "High", "type": "wav", "bitDepth": 24 as Int16, "sampleRate": 48.000, "channels": 1 as Int16])
-        presets.append(["name": "Middle", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 41.100, "channels": 1 as Int16])
-        presets.append(["name": "Low", "type": "wav", "bitDepth": 8 as Int16, "sampleRate": 22.050, "channels": 1 as Int16])
+        presets.append(["name": "high", "type": "wav", "bitDepth": 24 as Int16, "sampleRate": 48.000, "channels": 1 as Int16])
+        presets.append(["name": "middle", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 41.100, "channels": 1 as Int16])
+        presets.append(["name": "low", "type": "wav", "bitDepth": 8 as Int16, "sampleRate": 22.050, "channels": 1 as Int16])
         
         coreDataController?.seedSettings(settings: presets)
     }
     
     
 }
+
+/**
+ Setting data
+ */
+struct Setting {
+    
+    var name: String
+    var format: SettingDefinitions.SettingFormat
+    var value: String
+}
+
+/**
+ All predefined setting ( Format and User Settings)
+ 
+ */
+
+enum SettingDefinitions: CaseIterable {
+    // recording format
+    case recordingFormatName
+    case recordingFormatType
+    case bitDepth
+    case sampleRate
+    case channels
+    
+    // user settings
+    case takeName
+    case style
+    case recordingSetting
+    
+    func getSetting() -> Setting {
+        switch self {
+        case .recordingFormatName:
+            return Setting(name: "Preset Name", format: SettingFormat.fixed, value: "Default")
+        case .recordingFormatType:
+            return Setting(name: "Type", format: SettingFormat.fixed, value: "Default")
+        case .bitDepth:
+            return Setting(name: "Bitdepth", format: SettingFormat.fixed, value: "Default")
+        case .sampleRate:
+            return Setting(name: "SampleRate", format: SettingFormat.fixed, value: "Default")
+        case .channels:
+            return Setting(name: "Channels", format: SettingFormat.fixed, value: "Default")
+        case .takeName:
+            return Setting(name: "Preset Name", format: SettingFormat.userDefined, value: "Default")
+        case .style:
+            return Setting(name: "Style", format: SettingFormat.preset, value: "Default")
+        case .recordingSetting:
+            return Setting(name: "Name of recording Setting", format: SettingFormat.fixed, value: "Default")
+        }
+    }
+    
+    
+    enum SettingFormat: String {
+        case preset = "preset"
+        case userDefined = "userDefined"
+        case fixed = "fixed"
+    }
+}
+
 
 //enum Constants : String {
 //    case takesFolder = "takes"

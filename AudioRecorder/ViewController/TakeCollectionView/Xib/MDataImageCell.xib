@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" contentMode="center" id="GsI-Vn-IS0" customClass="MDataImageCellController" customModule="AudioRecorder" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="pdO-wx-Ic4">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yht-L2-9Qp">
+                        <rect key="frame" x="8" y="8" width="359" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" priority="999" constant="21" id="CXe-0i-EWw"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nU3-Ld-fgr">
+                        <rect key="frame" x="8" y="30" width="359" height="14.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" priority="999" constant="359" id="eVr-8n-3KK"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <color key="textColor" systemColor="systemGray2Color" red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" image="camera" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Gxc-C6-z0m">
+                        <rect key="frame" x="131" y="52" width="184" height="128"/>
+                        <constraints>
+                            <constraint firstAttribute="height" priority="999" constant="130" id="KRq-Pb-5Ny"/>
+                            <constraint firstAttribute="width" priority="999" constant="184" id="wDL-d4-xld"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="nU3-Ld-fgr" firstAttribute="top" secondItem="yht-L2-9Qp" secondAttribute="bottom" constant="1" id="2xq-yK-7Zg"/>
+                    <constraint firstAttribute="trailing" secondItem="nU3-Ld-fgr" secondAttribute="trailing" constant="8" id="72k-M8-WrW"/>
+                    <constraint firstItem="Gxc-C6-z0m" firstAttribute="leading" secondItem="pdO-wx-Ic4" secondAttribute="leading" constant="131" id="HQM-D0-Dn5"/>
+                    <constraint firstItem="Gxc-C6-z0m" firstAttribute="top" secondItem="nU3-Ld-fgr" secondAttribute="bottom" constant="7" id="XiX-o5-aAy"/>
+                    <constraint firstItem="nU3-Ld-fgr" firstAttribute="leading" secondItem="pdO-wx-Ic4" secondAttribute="leading" constant="8" id="YR1-dO-Xnn"/>
+                    <constraint firstAttribute="trailing" secondItem="yht-L2-9Qp" secondAttribute="trailing" constant="8" id="aui-wb-Gb5"/>
+                    <constraint firstItem="yht-L2-9Qp" firstAttribute="leading" secondItem="pdO-wx-Ic4" secondAttribute="leading" constant="8" id="cRP-uU-dwc"/>
+                    <constraint firstAttribute="trailing" secondItem="Gxc-C6-z0m" secondAttribute="trailing" priority="999" constant="60" id="eCF-gs-1t7"/>
+                    <constraint firstAttribute="bottom" secondItem="Gxc-C6-z0m" secondAttribute="bottom" constant="18.5" id="hDI-Sl-mca"/>
+                    <constraint firstItem="yht-L2-9Qp" firstAttribute="top" secondItem="pdO-wx-Ic4" secondAttribute="top" constant="8" id="hyR-7X-x0x"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <connections>
+                <outlet property="descriptionLabel" destination="nU3-Ld-fgr" id="OtY-6x-mWO"/>
+                <outlet property="imageView" destination="Gxc-C6-z0m" id="BAh-L9-eYN"/>
+                <outlet property="nameLabel" destination="yht-L2-9Qp" id="k74-uW-oZj"/>
+            </connections>
+            <point key="canvasLocation" x="-432.60869565217394" y="-388.39285714285711"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="camera" catalog="system" width="128" height="96"/>
+    </resources>
+</document>

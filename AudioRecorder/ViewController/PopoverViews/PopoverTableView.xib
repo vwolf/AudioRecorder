@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PopoverVC" customModule="AudioRecorder" customModuleProvider="target">
+            <connections>
+                <outlet property="instructionLabel" destination="AF6-rU-ipv" id="w6L-HW-0I4"/>
+                <outlet property="tableView" destination="U5v-lp-L1W" id="afm-nD-E10"/>
+                <outlet property="view" destination="iN0-l3-epB" id="KIZ-Ml-hWc"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AF6-rU-ipv">
+                    <rect key="frame" x="20" y="68" width="374" height="20.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="U5v-lp-L1W">
+                    <rect key="frame" x="20" y="131" width="374" height="731"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="cSy-6m-UhX"/>
+                        <outlet property="delegate" destination="-1" id="c0C-z5-RdB"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="U5v-lp-L1W" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="6Hb-Aa-ayR"/>
+                <constraint firstItem="AF6-rU-ipv" firstAttribute="trailing" secondItem="U5v-lp-L1W" secondAttribute="trailing" id="F2Y-JK-icO"/>
+                <constraint firstItem="AF6-rU-ipv" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leadingMargin" id="FAe-XY-C5l"/>
+                <constraint firstItem="AF6-rU-ipv" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="24" id="MaG-na-liq"/>
+                <constraint firstItem="AF6-rU-ipv" firstAttribute="leading" secondItem="U5v-lp-L1W" secondAttribute="leading" id="RNt-AK-uPh"/>
+                <constraint firstItem="AF6-rU-ipv" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailingMargin" id="VRI-W1-2Zm"/>
+                <constraint firstItem="U5v-lp-L1W" firstAttribute="top" secondItem="AF6-rU-ipv" secondAttribute="bottom" constant="42.5" id="zgm-Gp-2fR"/>
+            </constraints>
+            <point key="canvasLocation" x="140.57971014492756" y="73.660714285714278"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

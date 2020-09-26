@@ -49,15 +49,6 @@ class SettingsVC: UIViewController {
         return settingsList
     }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 
@@ -82,8 +73,9 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         label.text = tableHeaders[section]
         
         // label.font
-        label.textColor = Colors.Base.background.toUIColor()
+        label.textColor = Colors.Base.text_01.toUIColor()
         
+        headerView.backgroundColor = Colors.Base.background.toUIColor()
         headerView.addSubview(label)
         
         return headerView
@@ -112,7 +104,27 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         
         print("Settings name: \(settingData[indexPath.section][indexPath.row][0])")
         
+        editValue(index: indexPath)
+        // setting name:
     }
     
 
+    /**
+     User can edit settings values
+     
+     - parameter index: selected tableView cell
+     */
+    func editValue(index: IndexPath) {
+        
+        let popoverContentController = PopoverVC(nibName: "PopoverTableView", bundle: nil)
+        let section = tableHeaders[index.section]
+        
+        // what to edit
+        popoverContentController.instruction = section + ":" + settingData[index.section][index.row][0]
+        // preset values -> show tableView to select value
+        self.present(popoverContentController, animated: true)
+        
+        // user defined value -> show alert with textField to edit value
+        
+    }
 }

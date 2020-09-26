@@ -10,6 +10,8 @@ import UIKit
 
 class MDataActiveDoubleCellController: UICollectionViewCell {
 
+    //@IBOutlet weak var contentView: UIView!
+    @IBOutlet weak var ctView: UIView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel!
@@ -36,10 +38,10 @@ class MDataActiveDoubleCellController: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        self.contentView.translatesAutoresizingMaskIntoConstraints = false
+//        self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
-        let screenWidth = UIScreen.main.bounds.width
-        widthConstraint.constant = screenWidth //- (2 * 8)
+//        let screenWidth = UIScreen.main.bounds.width
+//        widthConstraint.constant = screenWidth //- (2 * 8)
         
         backgroundColor = Colors.Base.background.toUIColor()
     }

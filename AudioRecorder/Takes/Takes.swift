@@ -183,32 +183,32 @@ class Takes {
         if (loadedTake?.count)! > 0 {
             print("take loaded: \(String(describing: loadedTake?[0].name))")
             
-            let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeName)
+//            let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeName)
             
-            for mdItem in takeMetaDataItems! {
-                guard let itemName = mdItem.name else {
-                    break
-                }
-                
-//                // itemName from CoreData is item.id
-//                if getItemForID(id: itemName) != nil {
-//                    // remove item
-//                    deleteItem(id: itemName)
+//            for mdItem in takeMetaDataItems! {
+//                guard let itemName = mdItem.name else {
+//                    break
 //                }
-                
-                switch itemName {
-                case "addCategory":
-                    let category = mdItem.value
-                    guard let subCategory = takeMetaDataItems?.first(where: { $0.name == "addSubCategory"}) else {
-                        print("Subcategory not set")
-                        //self.addCategory()
-                        break
-                    }
-                    
-                default:
-                    print("Unkown item name \(String(describing: mdItem.name))")
-                }
-            }
+//
+////                // itemName from CoreData is item.id
+////                if getItemForID(id: itemName) != nil {
+////                    // remove item
+////                    deleteItem(id: itemName)
+////                }
+//
+//                switch itemName {
+//                case "addCategory":
+//                    let category = mdItem.value
+//                    guard let subCategory = takeMetaDataItems?.first(where: { $0.name == "addSubCategory"}) else {
+//                        print("Subcategory not set")
+//                        //self.addCategory()
+//                        break
+//                    }
+//
+//                default:
+//                    print("Unkown item name \(String(describing: mdItem.name))")
+//                }
+//            }
             return loadedTake?[0]
         }
         
@@ -233,6 +233,51 @@ class Takes {
             print(error.localizedDescription)
         }
         
+        return false
+    }
+    
+    func makeMetadataFile(takeName: String) -> Bool {
+        guard let md = loadTake(takeName: takeName) else {
+            return false
+        }
+        
+        let takeMD = md.metadata
+        //print("Custom metadata count: \(takeMD?.count)")
+        
+        var metaData = [String: String]()
+        
+        // add location
+//        if md.latitude != 0.0 {
+//            metaData["latitude"] = String(md.latitude)
+//            metaData["longitude"] = String(md.longitude)
+//        }
+        
+        for data in takeMD! {
+            if data is MetadataMO {
+                let dataMO = data as! MetadataMO
+               // print(dataMO.name)
+                metaData[dataMO.name!] = dataMO.value
+            }
+        }
+        
+        if JSONSerialization.isValidJSONObject(metaData) {
+            do {
+                let data = try JSONSerialization.data(withJSONObject: metaData, options: .prettyPrinted)
+                //let dataString = NSString(data: data, encoding: 8)
+                
+                let takeURL = Takes().getUrlforFile(fileName: takeName + ".wav")!
+                
+                if JSONParser().write(url: takeURL, data: data) == false {
+                    print("Error writing json")
+                    return false
+                }
+                return true
+            } catch {
+                print (error)
+            }
+            
+            
+        }
         return false
     }
 }

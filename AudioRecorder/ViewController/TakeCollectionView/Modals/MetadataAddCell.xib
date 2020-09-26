@@ -30,6 +30,9 @@
                         <constraints>
                             <constraint firstAttribute="width" constant="25" id="fUM-hu-l3d"/>
                         </constraints>
+                        <connections>
+                            <action selector="addBtnAction:" destination="0rJ-pL-gXp" eventType="touchUpInside" id="9Ck-NQ-1cx"/>
+                        </connections>
                     </button>
                 </subviews>
                 <constraints>
@@ -42,6 +45,7 @@
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="addBtn" destination="LSu-jd-58p" id="XBx-7J-o8W"/>
                 <outlet property="nameLabel" destination="RiU-HM-iHj" id="IiC-24-kwh"/>
             </connections>
             <point key="canvasLocation" x="142.02898550724638" y="51.5625"/>

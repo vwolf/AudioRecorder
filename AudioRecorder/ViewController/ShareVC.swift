@@ -12,7 +12,7 @@ import UIKit
 class ShareVC: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var ShareToolbar: UIToolbar!
+
     @IBOutlet weak var toolbarCancelBtn: UIBarButtonItem!
     @IBOutlet weak var toolbarSaveBtn: UIBarButtonItem!
     @IBOutlet weak var toolbarBottom: UIToolbar!
@@ -46,12 +46,19 @@ class ShareVC: UIViewController {
         if takeNames.count > 0 {
             takeNamesNew = takeCKRecordModel.getNewRecords(with: "name", in: takeNames)
         }
+        
+        takeCKRecordModel.refresh()
     }
     
     @IBAction func toolbarSaveBtnAction(_ sender: UIBarButtonItem) {
         let selected = tableView.indexPathsForSelectedRows
         if selected != nil {
             let selectedRows = selected?.map { $0.row }
+            for row in 0..<selectedRows!.count {
+                if let url = Takes().getUrlforFile(fileName: takeNames[row]) {
+                    takeCKRecordModel.addTake(url: url)
+                }
+            }
         }
     }
     
@@ -75,6 +82,11 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
         cell.takeNameLabel.text = takeNames[indexPath.row]
         cell.accessoryType = .none
         
+        if takeNamesNew.contains( takeNames[indexPath.row]) {
+            cell.takeStatusLabel.text = "not in Cloud"
+        } else {
+            cell.takeStatusLabel.text = "in Cloud"
+        }
         return cell
     }
     
@@ -96,7 +108,11 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
                     cell.accessoryType = .none
                 }
             } else {
-                
+                if cell.accessoryType == .none {
+                    cell.accessoryType = .detailButton
+                } else {
+                    cell.accessoryType = .none
+                }
             }
             
             if (tableView.indexPathsForSelectedRows != nil) {
@@ -118,4 +134,5 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
 class ShareTableViewCell: UITableViewCell {
     
     @IBOutlet weak var takeNameLabel: UILabel!
+    @IBOutlet weak var takeStatusLabel: UILabel!
 }

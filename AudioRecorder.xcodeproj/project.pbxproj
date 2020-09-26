@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7946F1AC251F1FA500EA9580 /* PopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1AB251F1FA500EA9580 /* PopoverVC.swift */; };
+		7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7946F1B0251F223E00EA9580 /* PopoverTableView.xib */; };
+		7946F1B6251F282600EA9580 /* PopoverCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1B5251F282600EA9580 /* PopoverCellController.swift */; };
+		7946F1BB251F2F9800EA9580 /* PopoverCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7946F1BA251F2F9800EA9580 /* PopoverCell.xib */; };
 		795A0DDD25134D9600DE340B /* WaveformImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DDC25134D9500DE340B /* WaveformImageView.swift */; };
 		795A0DDF25134DFD00DE340B /* WaveformImageDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */; };
 		795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */; };
@@ -42,6 +46,9 @@
 		79BDA08B2504B2690000B18B /* MDataSectionHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79BDA0892504B2690000B18B /* MDataSectionHeader.xib */; };
 		79BDA08D2506D2510000B18B /* CategoryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BDA08C2506D2510000B18B /* CategoryParser.swift */; };
 		79C83DBA24DA92CE00B23001 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79C83DB924DA92CE00B23001 /* UserSettings.swift */; };
+		79CA624A251BE9E300FB53A0 /* MDataImageCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CA6249251BE9E300FB53A0 /* MDataImageCellController.swift */; };
+		79CA624C251BEAAB00FB53A0 /* MDataImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79CA624B251BEAAA00FB53A0 /* MDataImageCell.xib */; };
+		79CA624F251BF7DD00FB53A0 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CA624E251BF7DD00FB53A0 /* ImagePicker.swift */; };
 		79CDBBA324FD63FA005AA182 /* TakesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CDBBA224FD63FA005AA182 /* TakesTableViewCell.swift */; };
 		79CDBBA524FDA7AE005AA182 /* Take.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CDBBA424FDA7AE005AA182 /* Take.swift */; };
 		79CDBBA824FE44E3005AA182 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CDBBA724FE44E3005AA182 /* Extensions.swift */; };
@@ -85,6 +92,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7946F1AB251F1FA500EA9580 /* PopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverVC.swift; sourceTree = "<group>"; };
+		7946F1B0251F223E00EA9580 /* PopoverTableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopoverTableView.xib; sourceTree = "<group>"; };
+		7946F1B5251F282600EA9580 /* PopoverCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverCellController.swift; sourceTree = "<group>"; };
+		7946F1BA251F2F9800EA9580 /* PopoverCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopoverCell.xib; sourceTree = "<group>"; };
 		795A0DDC25134D9500DE340B /* WaveformImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageView.swift; sourceTree = "<group>"; };
 		795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageDrawer.swift; sourceTree = "<group>"; };
 		795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageTypes.swift; sourceTree = "<group>"; };
@@ -120,6 +131,10 @@
 		79BDA0892504B2690000B18B /* MDataSectionHeader.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataSectionHeader.xib; sourceTree = "<group>"; };
 		79BDA08C2506D2510000B18B /* CategoryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryParser.swift; sourceTree = "<group>"; };
 		79C83DB924DA92CE00B23001 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		79CA6248251B470800FB53A0 /* AudioRecorderDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AudioRecorderDebug.entitlements; sourceTree = "<group>"; };
+		79CA6249251BE9E300FB53A0 /* MDataImageCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDataImageCellController.swift; sourceTree = "<group>"; };
+		79CA624B251BEAAA00FB53A0 /* MDataImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataImageCell.xib; sourceTree = "<group>"; };
+		79CA624E251BF7DD00FB53A0 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		79CDBBA224FD63FA005AA182 /* TakesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakesTableViewCell.swift; sourceTree = "<group>"; };
 		79CDBBA424FDA7AE005AA182 /* Take.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Take.swift; sourceTree = "<group>"; };
 		79CDBBA724FE44E3005AA182 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -178,6 +193,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7946F1AA251F1F6E00EA9580 /* PopoverViews */ = {
+			isa = PBXGroup;
+			children = (
+				7946F1AB251F1FA500EA9580 /* PopoverVC.swift */,
+				7946F1B0251F223E00EA9580 /* PopoverTableView.xib */,
+				7946F1BA251F2F9800EA9580 /* PopoverCell.xib */,
+				7946F1B5251F282600EA9580 /* PopoverCellController.swift */,
+			);
+			path = PopoverViews;
+			sourceTree = "<group>";
+		};
 		798545AD2506D69400D6A1D2 /* Modals */ = {
 			isa = PBXGroup;
 			children = (
@@ -237,6 +263,7 @@
 				79BDA084250433370000B18B /* MDataActiveDoubleCellController.swift */,
 				79BDA0882504B2690000B18B /* MDataSectionHeader.swift */,
 				798545B4250A16D800D6A1D2 /* MDataTextEditCellController.swift */,
+				79CA6249251BE9E300FB53A0 /* MDataImageCellController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -249,8 +276,17 @@
 				79BDA085250433370000B18B /* MDataActiveDoubleCell.xib */,
 				79BDA0892504B2690000B18B /* MDataSectionHeader.xib */,
 				798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */,
+				79CA624B251BEAAA00FB53A0 /* MDataImageCell.xib */,
 			);
 			path = Xib;
+			sourceTree = "<group>";
+		};
+		79CA624D251BF79300FB53A0 /* mediaAssets */ = {
+			isa = PBXGroup;
+			children = (
+				79CA624E251BF7DD00FB53A0 /* ImagePicker.swift */,
+			);
+			path = mediaAssets;
 			sourceTree = "<group>";
 		};
 		79CDBBA124FD63C2005AA182 /* Takes */ = {
@@ -309,6 +345,8 @@
 		79D223C024D950D000900F31 /* AudioRecorder */ = {
 			isa = PBXGroup;
 			children = (
+				79CA624D251BF79300FB53A0 /* mediaAssets */,
+				79CA6248251B470800FB53A0 /* AudioRecorderDebug.entitlements */,
 				79DC8CE925100F2C00396FE1 /* AudioRecorder.entitlements */,
 				79DC8CE6251003C700396FE1 /* share */,
 				798545AB2506D41100D6A1D2 /* data */,
@@ -353,6 +391,7 @@
 		79D223F824D965D400900F31 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				7946F1AA251F1F6E00EA9580 /* PopoverViews */,
 				79BDA0732502548E0000B18B /* TakeCollectionView */,
 				79D223F624D9600C00900F31 /* RecordVC.swift */,
 				79825BA024D97B15008C0D04 /* SettingsVC.swift */,
@@ -518,14 +557,17 @@
 				79D223CE24D950D200900F31 /* Assets.xcassets in Resources */,
 				79BDA087250433370000B18B /* MDataActiveDoubleCell.xib in Resources */,
 				79D223C924D950D000900F31 /* Main.storyboard in Resources */,
+				79CA624C251BEAAB00FB53A0 /* MDataImageCell.xib in Resources */,
 				798545AC2506D41100D6A1D2 /* data in Resources */,
 				79BDA08B2504B2690000B18B /* MDataSectionHeader.xib in Resources */,
 				795A0DE725149D0A00DE340B /* MetadataAddPopoverView.xib in Resources */,
 				79BDA07D250256900000B18B /* MDataStaticCell.xib in Resources */,
 				79BDA06424FF94D60000B18B /* AudioInputVisualizer.xib in Resources */,
+				7946F1BB251F2F9800EA9580 /* PopoverCell.xib in Resources */,
 				79BDA0812503C0D40000B18B /* MDataEditCell.xib in Resources */,
 				798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */,
 				798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */,
+				7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,10 +609,13 @@
 				795A0DDD25134D9600DE340B /* WaveformImageView.swift in Sources */,
 				79BDA06624FF958B0000B18B /* AudioInputVisualizer.swift in Sources */,
 				79BDA06B25011AFE0000B18B /* MetaDataItem.swift in Sources */,
+				79CA624A251BE9E300FB53A0 /* MDataImageCellController.swift in Sources */,
 				79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */,
+				7946F1AC251F1FA500EA9580 /* PopoverVC.swift in Sources */,
 				79CDBBA324FD63FA005AA182 /* TakesTableViewCell.swift in Sources */,
 				79BDA08A2504B2690000B18B /* MDataSectionHeader.swift in Sources */,
 				79BDA086250433370000B18B /* MDataActiveDoubleCellController.swift in Sources */,
+				7946F1B6251F282600EA9580 /* PopoverCellController.swift in Sources */,
 				79825BA324DA0D45008C0D04 /* TakesVC.swift in Sources */,
 				79D223F524D95AFF00900F31 /* CoreDataController.swift in Sources */,
 				79D223FF24D975B500900F31 /* RecordingTimer.swift in Sources */,
@@ -578,6 +623,7 @@
 				79DC8CE52510010300396FE1 /* ShareVC.swift in Sources */,
 				79825BA124D97B15008C0D04 /* SettingsVC.swift in Sources */,
 				79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */,
+				79CA624F251BF7DD00FB53A0 /* ImagePicker.swift in Sources */,
 				79D223CC24D950D000900F31 /* AudioRecorder.xcdatamodeld in Sources */,
 				79BDA070250125B00000B18B /* JSONParser.swift in Sources */,
 				79CDBBA824FE44E3005AA182 /* Extensions.swift in Sources */,
@@ -764,7 +810,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorder.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorderDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;

@@ -35,9 +35,9 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
                 let orginialImg = recordBtn.image(for: .normal)
                 let tintedImg = orginialImg?.withRenderingMode(.alwaysTemplate)
                 recordBtn.setImage(tintedImg, for: .normal)
-                recordBtn.tintColor = UIColor.orange
+                recordBtn.tintColor = Colors.Base.baseRed.toUIColor()
             } else {
-                recordBtn.tintColor = UIColor.white
+                recordBtn.tintColor = Colors.Base.baseGreen.toUIColor()
             }
         }
     }
@@ -59,10 +59,23 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     let locationManager = CLLocationManager()
     var userLocation: CLLocation?
     
+    /**
+     Set background color for main view and audioInputVisualizer
+     Initialize [recordBtn] to switch colors
+     
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = Colors.Base.background.toUIColor()
+        audioInputVisualizer.backgroundColor = Colors.Base.background.toUIColor()
+        
+        let orginialImg = recordBtn.image(for: .normal)
+        let tintedImg = orginialImg?.withRenderingMode(.alwaysTemplate)
+        recordBtn.setImage(tintedImg, for: .normal)
+        
         recordingTimer.isHidden = true
+        recording = false
         
         initSettings()
         
@@ -212,6 +225,10 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         - length: length of recording
     */
     private func makeTake(audioRecorder: AVAudioRecorder, length: Double) -> Take {
+        
+        if userLocation == nil {
+            userLocation = CLLocation()
+        }
         let take = Take(takeURL: audioRecorder.url, date: Date(), userLocation: userLocation!)
         
 //        _ = take.setURL(url: audioRecorder.url)
@@ -232,7 +249,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     // MARK: Settings And UserSettings
     
-    private func initSettings(name: String = "High") {
+    private func initSettings(name: String = "HIGH") {
         if userSettings == nil {
             userSettings = UserSettings.init()
         }

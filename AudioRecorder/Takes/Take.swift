@@ -39,6 +39,7 @@ class Take {
     var location: CLLocation?
     var newTake = true
     var takeSaved = false
+    var takeModified = false
     
     var takeFormat: AudioFormatDescription?
     
@@ -129,7 +130,7 @@ class Take {
      */
     private func addDefaultMetaData() {
        
-        if getItemForID(id: "addCategory", section: .METADATASECTION) == nil {
+        if getItemForID(id: "category", section: .METADATASECTION) == nil {
             let categories = addCategory()
             addItem(item: categories, section: .METADATASECTION)
         }
@@ -220,12 +221,12 @@ class Take {
     
     func addCategory(category: String = "", subCategory: String = "") -> MetaDataItem {
         
-        
-        let activeItemDescription = ["id": "addCategory",
-                                     "type": MetaDataTypes.STRING.rawValue,
-                                     "name": "Category",
-                                     "description": "Add Category"]
-        let activeItem = MetaDataItem(description: activeItemDescription, value: category)
+//        let activeItemDescription = ["id": "addCategory",
+//                                     "type": MetaDataTypes.STRING.rawValue,
+//                                     "name": "Category",
+//                                     "description": "Add Category"]
+        let categoryDesc = MetaDataOptional().category
+        let activeItem = MetaDataItem(description: categoryDesc, value: category)
         
         let subCategoryItem = getSubCategory(subCategory: subCategory)
         activeItem.addChild(child: subCategoryItem)
@@ -238,17 +239,26 @@ class Take {
      A sub category is a child of a category
     */
     func getSubCategory(subCategory: String = "") -> MetaDataItem {
-        let activeItemDesc = ["id": "addSubCategory", "type": MetaDataTypes.STRING.rawValue, "name": "Add Subcategory", "description": "Add a Subcategory"]
-        let activeItem = MetaDataItem(description: activeItemDesc, value: subCategory)
+        let subCategoryDesc = MetaDataOptionalSub().subCategory
+       // let activeItemDesc = ["id": "addSubCategory", "type": MetaDataTypes.STRING.rawValue, "name": "Add Subcategory", "description": "Add a Subcategory"]
+        let activeItem = MetaDataItem(description: subCategoryDesc, value: subCategory)
         return activeItem
     }
     
     func addDescription(description: String = "") -> MetaDataItem {
-        let descriptionDesc = MetaDataDefault().description
+        let descriptionDesc = MetaDataOptional().description
         let descriptionItem  = MetaDataItem(description: descriptionDesc, value: description)
         
         return descriptionItem
     }
+    
+    func addImage(imageURL: String = "") -> MetaDataItem {
+        let imageDesc = MetaDataOptional().image
+        let imageItem = MetaDataItem(description: imageDesc, value: imageURL)
+        
+        return imageItem
+    }
+    
     
     // MARK: CoreData
     
@@ -373,22 +383,29 @@ class Take {
             }
             
             switch itemName {
-            case "addCategory":
+            case "category":
                 let category = mdItem.value
                 
-                guard let subCategory = takeMetaDataItems?.first(where: { $0.name == "addSubCategory"}) else {
+                guard let subCategory = takeMetaDataItems?.first(where: { $0.name == "subCategory"}) else {
                     mdItems.append(addCategory(category: category!))
                     break
                 }
                 let categoryItem = addCategory(category: category!, subCategory: subCategory.value!)
                 
                 mdItems.append(categoryItem)
+    
                 
             case "description":
                 let description = mdItem.value
                 let descriptionItem = addDescription(description: description!)
                 
                 mdItems.append(descriptionItem)
+             
+            case "image" :
+                let image = mdItem.value
+                let imageItem = addImage(imageURL: image!)
+                
+                mdItems.append(imageItem)
                 
             default:
                 print("Unkown item name \(String(describing: mdItem.name))")
@@ -589,6 +606,11 @@ class Take {
     
     // MARK: Services
     
+    /**
+     Add a MetadataItem
+     
+     - parameters item: item objcect
+     */
     func addItem(item: MetaDataItem, section: MetaDataSections) {
         guard let sectionIndex = getItemSectionIndex(section: section) else {
             // no section, create section
@@ -598,6 +620,28 @@ class Take {
         }
         // section exist, add item
         items[sectionIndex].append(item)
+    }
+    
+    /**
+     Add new item to take
+     Create the item then add
+     */
+    func addItem(name: String, section: MetaDataSections) -> Bool {
+        if section == .METADATASECTION {
+            // get description from MetaDataOptional
+            switch name {
+            case "Image":
+                let itemDescription = MetaDataOptional().image
+                let item = MetaDataItem(description: itemDescription, value: "")
+                addItem(item: item, section: .METADATASECTION)
+            default:
+                print("Unknow item name \(name)")
+                return false
+            }
+            
+            updateTake()
+        }
+        return true
     }
     
     /**
@@ -651,6 +695,19 @@ class Take {
         guard let sectionIndex = itemSections.firstIndex(of: section) else { return nil }
         return sectionIndex
     }
+    
+    func getItemIndexInSection(id: String, section: MetaDataSections) -> Int? {
+        guard let sectionIndex = getItemSectionIndex(section: section ) else {
+            return nil
+        }
+        
+        guard let itemIndex = items[sectionIndex].firstIndex(where: {$0.id == id}) else {
+            return nil
+        }
+        
+        return itemIndex
+    }
+    
     
     // MARK: Take to Json
     

@@ -81,7 +81,8 @@ class AudioInputVisualizer: UIView {
             cornerRadii: CGSize(width: 2, height: 2))
             
             shape.path = shapePath.cgPath
-            shape.strokeColor = UIColor.white.cgColor
+//            shape.strokeColor = UIColor.white.cgColor
+            shape.strokeColor = Colors.Base.baseGreen.toUIColor().cgColor
             shape.fillColor = UIColor.black.cgColor
             shape.lineWidth = 1
             barView.layer.addSublayer(shape)

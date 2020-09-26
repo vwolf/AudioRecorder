@@ -27,6 +27,9 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
     
     var selectedItemWithTextField: IndexPath?
     
+    var imagePicker: ImagePicker!
+    var imageCell: MDataImageCellController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -34,6 +37,7 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         collectionView.register(UINib.init(nibName: "MDataEditCell", bundle: nil), forCellWithReuseIdentifier: "MDataEditCell")
         collectionView.register(UINib.init(nibName: "MDataActiveDoubleCell", bundle: nil), forCellWithReuseIdentifier: "MDataActiveDoubleCell")
         collectionView.register(UINib.init(nibName: "MDataTextEditCell", bundle: nil), forCellWithReuseIdentifier: "MDataTextEditCell")
+        collectionView.register(UINib.init(nibName: "MDataImageCell", bundle: nil), forCellWithReuseIdentifier: "MDataImageCell")
         
         collectionView.register(UINib.init(nibName: "MDataSectionHeader", bundle: nil), forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "MDataSectionHeader")
         
@@ -43,6 +47,7 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         }
         
         collectionView.contentInset = .zero
+        collectionView.backgroundColor = Colors.Base.background_item.toUIColor()
         
         let estimatedItemWidth = UIScreen.main.bounds.size.width
         print("estimatedItemWidth: \(estimatedItemWidth)")
@@ -221,7 +226,7 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         }
         
         if categoryType == "subcategory" {
-            let currentCategoryName = take.getItemForID(id: "addCategory", section: .METADATASECTION)?.value
+            let currentCategoryName = take.getItemForID(id: "category", section: .METADATASECTION)?.value
             if currentCategoryName != nil {
                 // is predefined category?
                 let currentCategory = categoryDict.first(where: { $0.key == currentCategoryName as! String})
@@ -245,10 +250,17 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
     func presentMetadataAddPopover(typ: String) {
         
         let popoverContentController = MetadataAddPopoverVC(nibName: "MetadataAddPopoverView", bundle: nil)
+        popoverContentController.take = take
+        popoverContentController.presentationController?.delegate = self
         
-        self.present(popoverContentController, animated: true)
+        self.present(popoverContentController, animated: true) {
+            print("MetadataAddPopover didAppear")
+        }
     }
     
+    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+        print("dismiss")
+    }
     
     // MARK: Keyboard change notifications
     
@@ -326,10 +338,10 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         
         //let idp = IndexPath(item: cellIdx, section: sectionIndex!)
         //collectionView.reloadItems(at: [idp])
-        collectionView.reloadSections(IndexSet(integer: sectionIndex!))
+        //collectionView.reloadSections(IndexSet(integer: sectionIndex!))
         modified = true
         
-        //collectionView.reloadData()
+        collectionView.reloadData()
     }
     
 }
@@ -353,8 +365,11 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataEditCell", for: indexPath) as! MDataEditCellController
             let takeItem = take.items[indexPath.section][indexPath.row]
             
+            cell.contentView.backgroundColor = Colors.Base.background_item.toUIColor()
             cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.valueTextField.text = takeItem.value as! String?
             cell.originalValue = cell.valueTextField.text!
             cell.maxWidth = collectionView.bounds.width - 16
@@ -392,16 +407,22 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.id = itemId
             return cell
             
-        case "addCategory":
+        case "category":
             // category item can have two items, category and subcategory
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataActiveDoubleCell", for: indexPath) as! MDataActiveDoubleCellController
             let takeItem = take.items[indexPath.section][indexPath.row]
+            
+            cell.ctView.backgroundColor = Colors.Base.background_item.toUIColor()
             cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.valueLabel.text = takeItem.value as! String?
+            cell.valueLabel.textColor = Colors.Base.text_01.toUIColor()
 
             //cell.contentView.isUserInteractionEnabled = false
             // use btn.tak to identify the cell later
+            cell.valueBtn.tintColor = Colors.Base.baseGreen.toUIColor()
             cell.valueBtn.tag = indexPath.row
             cell.valueBtn.addTarget(self, action: #selector(categoryBtnTouched(_:)), for: .touchUpInside)
 
@@ -418,7 +439,9 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                 if takeItem.children != nil {
                     if takeItem.children?.first != nil {
                         cell.subValueLabel.text = takeItem.children?.first?.value as! String?
+                        cell.subValueLabel.textColor = Colors.Base.text_01.toUIColor()
                         cell.subValueBtn.isEnabled = true
+                        cell.subValueBtn.tintColor = Colors.Base.baseGreen.toUIColor()
                         cell.subValueBtn.addTarget(self, action: #selector(subcategoryBtnTouched(_:)), for: .touchUpInside)
                     }
                 }
@@ -447,7 +470,9 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             let takeItem = take.items[indexPath.section][indexPath.row]
 
             cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.valueTextView.text = takeItem.value as! String?
             cell.originalValue = cell.valueTextView.text
             cell.maxWidth = collectionView.bounds.width - 16
@@ -460,7 +485,27 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             
             cell.id = itemId
             return cell
-         
+        
+        case "image" :
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataImageCell", for: indexPath) as! MDataImageCellController
+            let takeItem = take.items[indexPath.section][indexPath.row]
+            
+            cell.nameLabel.text = takeItem.name
+            cell.descriptionLabel.text = takeItem.description
+            
+           // cell.contentView.isUserInteractionEnabled = false
+            cell.imageView.isUserInteractionEnabled = true
+            
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageCellTouched( _:) ))
+            cell.imageView.addGestureRecognizer(tapGestureRecognizer)
+            imageCell = cell
+            
+            cell.maxWidth = collectionView.bounds.width - 16
+            
+            cell.setImage(urlString: takeItem.value as! String)
+            
+            return cell
+            
         case "keyboard" :
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataEditCell", for: indexPath) as! MDataEditCellController
             let takeItem = take.items[indexPath.section][indexPath.row]
@@ -479,8 +524,11 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             
             let takeItem = take.items[indexPath.section][indexPath.row]
             cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.ValueLabel.text = takeItem.value as! String?
+            cell.ValueLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.maxWidth = collectionView.bounds.width - 16
             
             return cell
@@ -499,12 +547,16 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
         
         let sectionID = take.getHeaderIDForSection(sectionIndex: indexPath.section)
         if sectionID != nil {
+            view.contentView.backgroundColor = Colors.Base.background.toUIColor()
+            view.headerBtn.tintColor = Colors.Base.baseGreen.toUIColor()
+            
             if sectionID != MetaDataSections.METADATASECTION {
                 view.headerBtn.isHidden = true
             } else {
                 view.headerBtn.addTarget(self, action: #selector(metadataAddBtnTouched(_:)), for: .touchUpInside)
             }
             
+            view.headerName.textColor = Colors.Base.text_02.toUIColor()
             view.headerName.text = sectionID?.rawValue
         }
         //view.headerName.text = take.getHeaderForSection(sectionIndex: indexPath.section)
@@ -513,10 +565,11 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        print("shouldSelectItemAt")
-        return true
-    }
+//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+//        print("shouldSelectItemAt")
+//        return true
+//    }
+    
 //    func collectionView(_ collectionView: UICollectionView,
 //                        layout collectionViewLayout: UICollectionViewLayout,
 //                        referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -528,20 +581,55 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     @objc func categoryBtnTouched(_ sender: UIButton) {
         // open category overlay
         print("categoryBtnTouched")
-        presentCategoryPopover(cellIdx: sender.tag, categoryType: "category")
+        let cellIdx = take.getItemIndexInSection(id: "category", section: .METADATASECTION)!
+        presentCategoryPopover(cellIdx: cellIdx, categoryType: "category")
     }
     
     @objc func subcategoryBtnTouched(_ sender: UIButton) {
-        presentCategoryPopover(cellIdx: sender.tag, categoryType: "subcategory")
+        let cellIdx = take.getItemIndexInSection(id: "category", section: .METADATASECTION)!
+        presentCategoryPopover(cellIdx: cellIdx, categoryType: "subcategory")
     }
     
     @objc func metadataAddBtnTouched(_ sender: UIButton) {
         print("metadataAddBtnTouched")
         presentMetadataAddPopover(typ: "metadata")
     }
+    
+    @objc func imageCellTouched(_ sender: AnyObject) {
+        print("imageCellTouched")
+        self.imagePicker = ImagePicker(presentationController: self, delegate: self)
+        imagePicker.present(from: self.view)
+    }
 }
 
+extension TakeVC: ImagePickerDelegate {
+    func didSelect(image: UIImage) {
+        imageCell?.imageView.image = image
+    }
+    
+    func didSelect(image: UIImage, imageURL: NSURL) {
+        imageCell?.imageView.image = image
+        
+        imageCell?.imageURL = imageURL
+        
+        let result = take.updateItem(id: "image", value: imageURL.absoluteString!, section: .METADATASECTION)
+        if result {
+            take.updateTake()
+        }
+    }
+}
 
+// MARK: PresentationControllerDelegate
+
+extension TakeVC: UIAdaptivePresentationControllerDelegate {
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        print("Presented view did dismiss")
+        
+        if take.takeModified {
+            collectionView.reloadData()
+        }
+    }
+}
 //extension UIViewController {
 //    func findParentController<T: UIViewController>() -> T? {
 //        return self is T ? self as? T : self.parent?.findParentController() as T?

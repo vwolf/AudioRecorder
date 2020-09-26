@@ -42,6 +42,16 @@ class MetaDataItem {
         self.value = value
     }
     
+    init(description: MetaDataDescription, value: String) {
+        self.id = description.id
+        self.name = description.name
+        self.type = description.type.rawValue
+        self.description = description.description
+        
+        self.value = value
+    }
+    
+    
      func addChild(child: MetaDataItem) {
            if children != nil {
                children?.append(child)

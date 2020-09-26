@@ -23,8 +23,8 @@ class TakeCKRecordModel {
     
     // all records in CKCloudkit Container
     var records = [CKRecord]()
-    var insertObjects = [TakeCKRecord]()
-    var deletedObjects = Set<CKRecord.ID>()
+    var insertedObjects = [TakeCKRecord]()
+    var deletedObjectIDs = Set<CKRecord.ID>()
     
     var takeRecords = [TakeCKRecord]() {
         didSet {
@@ -33,6 +33,56 @@ class TakeCKRecordModel {
             }
         }
     }
+    
+    
+    func addTake(url: URL) {
+        var takeRecord = TakeCKRecord()
+        takeRecord.name = url.lastPathComponent
+        
+        // recording (wav file)
+        let takeAsset = CKAsset(fileURL: url)
+        takeRecord.audioAsset = takeAsset
+        
+        // metadataFile? (*.json)
+        let metadataFileURL = url.deletingPathExtension().appendingPathExtension("json")
+        if FileManager.default.fileExists(atPath: metadataFileURL.path) {
+            takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
+        } else {
+            // no metadata json file, create one
+            let takeName = url.deletingPathExtension().lastPathComponent
+            
+            if (Takes().makeMetadataFile(takeName: takeName) == true) {
+                takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
+            }
+        }
+        
+        // update public CloudDatabase
+        database.save(takeRecord.record) { _, error in
+            guard error == nil else {
+                self.handle(error: error!)
+                return
+            }
+            
+            self.insertedObjects.append(takeRecord)
+            self.updateTakeRecords()
+        }
+        
+    }
+    
+    
+    func deleteTake(at index: Int) {
+        let recordID = self.takeRecords[index].record.recordID
+        database.delete(withRecordID: recordID) { _, error in
+            guard error == nil else {
+                self.handle(error: error!)
+                return
+            }
+        }
+        
+        deletedObjectIDs.insert(recordID)
+        updateTakeRecords()
+    }
+    
     
     /**
      Get records not in cloud storage.
@@ -61,14 +111,53 @@ class TakeCKRecordModel {
             self.onError?(error)
         }
     }
+    
+    
+    fileprivate func updateTakeRecords() {
+        var knownIDs = Set(records.map { $0.recordID })
+        
+        // remove objects form local list once the are returned from cloudkit storage
+        self.insertedObjects.removeAll { takeRecord in
+            knownIDs.contains(takeRecord.record.recordID)
+        }
+        knownIDs.formUnion(self.insertedObjects.map { $0.record.recordID })
+        
+        // remove objects form local list once we see them not being returned from storage anymore
+        self.deletedObjectIDs.formIntersection(knownIDs)
+        
+        var takeRecords = records.map { record in TakeCKRecord(record: record) }
+        
+        takeRecords.append(contentsOf: self.insertedObjects )
+        takeRecords.removeAll { takeRecord in
+            deletedObjectIDs.contains(takeRecord.record.recordID)
+        }
+        
+        self.takeRecords = takeRecords
+        
+        debugPrint("Tracking local objects \(self.insertedObjects) \(self.deletedObjectIDs)")
+    }
+    
+    
+    @objc func refresh() {
+        let query = CKQuery(recordType: TakeCKRecord.recordType, predicate: NSPredicate(value: true))
+        
+        database.perform(query, inZoneWith: nil) { records, error in
+            guard let records = records, error == nil else {
+                self.handle(error: error!)
+                return
+            }
+            self.records = records
+            self.updateTakeRecords()
+        }
+    }
 }
 
 
 struct TakeCKRecord {
-    fileprivate static let recordType = "Recording"
+    fileprivate static let recordType = "Take"
     fileprivate static let keyName = "name"
     fileprivate static let keyTake = "take"
-    fileprivate static let keyMetaData = "metaData"
+    fileprivate static let keyMetaData = "metadata"
     
     var record: CKRecord
     
@@ -95,6 +184,15 @@ struct TakeCKRecord {
         }
         set {
             self.record.setValue(newValue, forKey: TakeCKRecord.keyTake)
+        }
+    }
+    
+    var metadataAsset: CKAsset {
+        get {
+            return self.record.value(forKey: TakeCKRecord.keyMetaData) as! CKAsset
+        }
+        set {
+            self.record.setValue(newValue, forKey: TakeCKRecord.keyMetaData)
         }
     }
 }

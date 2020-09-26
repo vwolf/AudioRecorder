@@ -10,6 +10,7 @@ import UIKit
 
 class MDataSectionHeader: UICollectionReusableView {
 
+    @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var headerName: UILabel!
     @IBOutlet weak var headerBtn: UIButton!
     

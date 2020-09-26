@@ -12,6 +12,7 @@ import UIKit
 class MetadataAddCellController: UITableViewCell {
     
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var addBtn: UIButton!
     
     override func awakeFromNib() {
 //        self.contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -22,5 +23,7 @@ class MetadataAddCellController: UITableViewCell {
 //            contentView.topAnchor.constraint(equalTo: topAnchor),
 //            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
 //        ])
+    }
+    @IBAction func addBtnAction(_ sender: UIButton) {
     }
 }
