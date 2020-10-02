@@ -24,26 +24,19 @@ class MDataTextEditCellController: UICollectionViewCell, UITextViewDelegate {
     // closure to send value to parent view (value, id)
     var updateValue: ((String, String) -> ())?
     
-    var maxWidth: CGFloat? = nil {
-        didSet {
-            guard let maxWidth = maxWidth else {
-                return
-            }
-        }
-    }
-    
+    var maxWidth: CGFloat? = nil
     
     override func awakeFromNib() {
         super.awakeFromNib()
        
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            contentView.leftAnchor.constraint(equalTo: leftAnchor),
-            contentView.rightAnchor.constraint(equalTo: rightAnchor),
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+//        NSLayoutConstraint.activate([
+//            contentView.leftAnchor.constraint(equalTo: leftAnchor),
+//            contentView.rightAnchor.constraint(equalTo: rightAnchor),
+//            contentView.topAnchor.constraint(equalTo: topAnchor),
+//            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+//        ])
 //        let screenWidth = UIScreen.main.bounds.size.width
 //        widthConstraint.constant = screenWidth //- (2 * 8)
         

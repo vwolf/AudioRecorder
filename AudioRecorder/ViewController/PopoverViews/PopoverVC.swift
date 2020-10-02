@@ -15,7 +15,7 @@ class PopoverVC: UIViewController {
     @IBOutlet weak var instructionLabel: UILabel!
     
     //var tableData = [String]()
-    let tableData = ["Car", "Bike", "Bus", "Van", "Bicycle"]
+    var tableData = ["Car", "Bike", "Bus", "Van", "Bicycle"]
     var instruction: String = ""
     
     override func viewDidLoad() {
@@ -41,5 +41,7 @@ extension PopoverVC: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+    }
 }

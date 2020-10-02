@@ -48,7 +48,6 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
     func deleteTake(row: Int, cell: UITableViewCell ) {
         let takeName = takes[row]
         
-        
         let alertController = alertDeleteFile(name: takeName, completion: { deleteAction in
             if deleteAction {
                 // delete action
@@ -174,7 +173,6 @@ extension TakesVC: UITableViewDelegate, UITableViewDataSource {
             completionHandler(true)
         })
         
-//        action.title = "A"
         let configuration = UISwipeActionsConfiguration(actions: [action])
         return configuration
     }
@@ -186,9 +184,30 @@ extension TakesVC: UITableViewDelegate, UITableViewDataSource {
             completionHandler(true)
         })
         
-//        action.title = "B"
-//        action.image = UIImage(named: <#T##String#>)
         let configuration = UISwipeActionsConfiguration(actions: [action])
         return configuration
+    }
+    
+    
+    @available(iOS 10.0, *)
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        var actions = [UITableViewRowAction]()
+        
+        let actionDelete = UITableViewRowAction(style: .destructive, title: "Delete") { (action, indexPath) in
+            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
+        }
+        let actionMore = UITableViewRowAction(style: .normal, title: "More") { (action, indexPath) in
+            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
+        }
+        
+        actions.append(actionDelete)
+        actions.append(actionMore)
+        
+//        if #available(iOS 10.0, *) {
+//
+//
+//            return actions
+//        }
+        return actions
     }
 }

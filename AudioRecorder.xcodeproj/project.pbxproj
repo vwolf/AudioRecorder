@@ -17,6 +17,11 @@
 		795A0DE325135A7E00DE340B /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE225135A7E00DE340B /* ColorExtensions.swift */; };
 		795A0DE625149D0A00DE340B /* MetadataAddPopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */; };
 		795A0DE725149D0A00DE340B /* MetadataAddPopoverView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */; };
+		797505082523D011002C21C5 /* MDataAudioCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 797505072523D011002C21C5 /* MDataAudioCell.xib */; };
+		7975050D2523D22D002C21C5 /* MDataAudioCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7975050C2523D22D002C21C5 /* MDataAudioCellController.swift */; };
+		7975051325246B50002C21C5 /* MDataAudioPopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7975051125246B50002C21C5 /* MDataAudioPopoverVC.swift */; };
+		7975051425246B50002C21C5 /* MDataAudioPopover.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7975051225246B50002C21C5 /* MDataAudioPopover.xib */; };
+		7975051D2524DAE8002C21C5 /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7975051C2524DAE8002C21C5 /* Recorder.swift */; };
 		79825BA124D97B15008C0D04 /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79825BA024D97B15008C0D04 /* SettingsVC.swift */; };
 		79825BA324DA0D45008C0D04 /* TakesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79825BA224DA0D45008C0D04 /* TakesVC.swift */; };
 		79825BA524DA1082008C0D04 /* SettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79825BA424DA1082008C0D04 /* SettingsTableViewCell.swift */; };
@@ -102,6 +107,11 @@
 		795A0DE225135A7E00DE340B /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
 		795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataAddPopoverVC.swift; sourceTree = "<group>"; };
 		795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MetadataAddPopoverView.xib; sourceTree = "<group>"; };
+		797505072523D011002C21C5 /* MDataAudioCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataAudioCell.xib; sourceTree = "<group>"; };
+		7975050C2523D22D002C21C5 /* MDataAudioCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDataAudioCellController.swift; sourceTree = "<group>"; };
+		7975051125246B50002C21C5 /* MDataAudioPopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDataAudioPopoverVC.swift; sourceTree = "<group>"; };
+		7975051225246B50002C21C5 /* MDataAudioPopover.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataAudioPopover.xib; sourceTree = "<group>"; };
+		7975051C2524DAE8002C21C5 /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 		79825BA024D97B15008C0D04 /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
 		79825BA224DA0D45008C0D04 /* TakesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakesVC.swift; sourceTree = "<group>"; };
 		79825BA424DA1082008C0D04 /* SettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewCell.swift; sourceTree = "<group>"; };
@@ -204,6 +214,14 @@
 			path = PopoverViews;
 			sourceTree = "<group>";
 		};
+		7975051B2524DAC4002C21C5 /* Recorder */ = {
+			isa = PBXGroup;
+			children = (
+				7975051C2524DAE8002C21C5 /* Recorder.swift */,
+			);
+			path = Recorder;
+			sourceTree = "<group>";
+		};
 		798545AD2506D69400D6A1D2 /* Modals */ = {
 			isa = PBXGroup;
 			children = (
@@ -213,6 +231,8 @@
 				795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */,
 				798656F42514A8C700DD610F /* MetadataAddCell.xib */,
 				798656F62514A92800DD610F /* MetadataAddCellController.swift */,
+				7975051125246B50002C21C5 /* MDataAudioPopoverVC.swift */,
+				7975051225246B50002C21C5 /* MDataAudioPopover.xib */,
 			);
 			path = Modals;
 			sourceTree = "<group>";
@@ -264,6 +284,7 @@
 				79BDA0882504B2690000B18B /* MDataSectionHeader.swift */,
 				798545B4250A16D800D6A1D2 /* MDataTextEditCellController.swift */,
 				79CA6249251BE9E300FB53A0 /* MDataImageCellController.swift */,
+				7975050C2523D22D002C21C5 /* MDataAudioCellController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -277,6 +298,7 @@
 				79BDA0892504B2690000B18B /* MDataSectionHeader.xib */,
 				798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */,
 				79CA624B251BEAAA00FB53A0 /* MDataImageCell.xib */,
+				797505072523D011002C21C5 /* MDataAudioCell.xib */,
 			);
 			path = Xib;
 			sourceTree = "<group>";
@@ -353,6 +375,7 @@
 				79BDA06E250125930000B18B /* Parser */,
 				79BDA06925011AE00000B18B /* MetaData */,
 				79BDA06224FF94A50000B18B /* AudioVisualizer */,
+				7975051B2524DAC4002C21C5 /* Recorder */,
 				79CDBBAB24FE64EB005AA182 /* Player */,
 				79CDBBA624FE44C6005AA182 /* Extensions */,
 				79CDBBA124FD63C2005AA182 /* Takes */,
@@ -555,6 +578,7 @@
 				798545B32506EBE800D6A1D2 /* CategoryPopoverView.xib in Resources */,
 				79D223D124D950D200900F31 /* LaunchScreen.storyboard in Resources */,
 				79D223CE24D950D200900F31 /* Assets.xcassets in Resources */,
+				797505082523D011002C21C5 /* MDataAudioCell.xib in Resources */,
 				79BDA087250433370000B18B /* MDataActiveDoubleCell.xib in Resources */,
 				79D223C924D950D000900F31 /* Main.storyboard in Resources */,
 				79CA624C251BEAAB00FB53A0 /* MDataImageCell.xib in Resources */,
@@ -566,6 +590,7 @@
 				7946F1BB251F2F9800EA9580 /* PopoverCell.xib in Resources */,
 				79BDA0812503C0D40000B18B /* MDataEditCell.xib in Resources */,
 				798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */,
+				7975051425246B50002C21C5 /* MDataAudioPopover.xib in Resources */,
 				798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */,
 				7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */,
 			);
@@ -625,11 +650,14 @@
 				79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */,
 				79CA624F251BF7DD00FB53A0 /* ImagePicker.swift in Sources */,
 				79D223CC24D950D000900F31 /* AudioRecorder.xcdatamodeld in Sources */,
+				7975051325246B50002C21C5 /* MDataAudioPopoverVC.swift in Sources */,
+				7975050D2523D22D002C21C5 /* MDataAudioCellController.swift in Sources */,
 				79BDA070250125B00000B18B /* JSONParser.swift in Sources */,
 				79CDBBA824FE44E3005AA182 /* Extensions.swift in Sources */,
 				79825BA524DA1082008C0D04 /* SettingsTableViewCell.swift in Sources */,
 				798656F72514A92800DD610F /* MetadataAddCellController.swift in Sources */,
 				795A0DE325135A7E00DE340B /* ColorExtensions.swift in Sources */,
+				7975051D2524DAE8002C21C5 /* Recorder.swift in Sources */,
 				79825BA724DA145A008C0D04 /* Settings.swift in Sources */,
 				795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */,
 				79CDBBA524FDA7AE005AA182 /* Take.swift in Sources */,

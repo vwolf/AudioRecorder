@@ -20,32 +20,36 @@ class MDataActiveDoubleCellController: UICollectionViewCell {
     @IBOutlet weak var valueBtn: UIButton!
     @IBOutlet weak var subValueBtn: UIButton!
     
-    @IBOutlet weak var widthConstraint: NSLayoutConstraint!
+    //@IBOutlet weak var widthConstraint: NSLayoutConstraint!
     
     var valueBtnAction: (() -> ())?
     
     var id: String?
     
-    var maxWidth: CGFloat? = nil {
-        didSet {
-            guard let maxWidth = maxWidth else {
-                return
-            }
-        }
-    }
+    var maxWidth: CGFloat? = nil 
 
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
-//        self.contentView.translatesAutoresizingMaskIntoConstraints = false
+        self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
 //        let screenWidth = UIScreen.main.bounds.width
 //        widthConstraint.constant = screenWidth //- (2 * 8)
         
-        backgroundColor = Colors.Base.background.toUIColor()
+       // backgroundColor = Colors.Base.background.toUIColor()
     }
 
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        setNeedsLayout()
+        layoutIfNeeded()
+        
+        layoutAttributes.bounds.size.width = maxWidth!
+        layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        
+        return layoutAttributes
+    }
+    
     // target of button is added in CollectionViewController (TakeVC)
     @IBAction func valueBtnAction(_ sender: UIButton) {
         //valueBtnAction?()

@@ -64,10 +64,12 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         super.viewDidAppear(animated)
         
         //let waveformImageDrawer = WaveformImageDrawer()
-        let audioURL = Takes().getUrlforFile(fileName: takeName)
+        if takeURL == nil {
+            takeURL = Takes().getUrlforFile(fileName: takeName)
+        }
         
         middleWaveformView.waveformColor = UIColor.red
-        middleWaveformView.waveformAudioURL = audioURL
+        middleWaveformView.waveformAudioURL = takeURL
         
         currentPositionLine.frame.origin = middleWaveformView.frame.origin
         currentPositionLine.frame.size.height = middleWaveformView.frame.size.height
@@ -77,11 +79,13 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     
     
     @IBAction func playAudio(_ sender: UIBarButtonItem) {
-        guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
-            NSLog("Error playing \(takeName): No URL for takeName")
-            return
+        if takeURL == nil {
+            guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
+                NSLog("Error playing \(takeName): No URL for takeName")
+                return
+            }
+            takeURL = currentURL
         }
-        takeURL = currentURL
         
         // no audioPlayer - create AVAudioPlayer then start audio
         if audioPlayer == nil {
@@ -125,18 +129,20 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     func playSound() -> Bool {
         //let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         
-        guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
-            NSLog("Error playing \(takeName): No URL for takeName")
-            return false
-        }
-        print("playSound: \(currentURL)")
+//        guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
+//            NSLog("Error playing \(takeName): No URL for takeName")
+//            return false
+//        }
+//        print("playSound: \(currentURL)")
+        let currentURL = takeURL
+        
         do {
-            audioPlayer = try AVAudioPlayer(contentsOf: currentURL)
+            audioPlayer = try AVAudioPlayer(contentsOf: currentURL!)
             audioPlayer?.delegate = self
             
             let prepare = audioPlayer?.prepareToPlay()
             print("prepare result: \(String(describing: prepare))")
-            print("take with duration: \(audioPlayer?.duration)")
+//            print("take with duration: \(audioPlayer?.duration)")
             positionLineStep = (middleWaveformView.bounds.size.width / CGFloat(audioPlayer!.duration))
             
             // use for scrubbing timeline

@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import AVFoundation
 import CoreLocation
+
 /**
  
  */
@@ -113,13 +114,18 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
                 destination?.userSettings = userSettings
                 
                 if settings != nil {
-                    let settingData = settings!.getSettingForDisplay(name: userSettings?.recordingsetting ?? "default")
-                    destination?.settingData.append(settingData)
+//                    let settingData = settings!.getSettingForDisplay(name: userSettings?.recordingsetting ?? "default")
+                    let displaySettingData = settings!.settingForDisplay(name: userSettings?.recordingsetting ?? "default")
+                    //destination?.settingData.append(settingData)
+                    destination?.displaySetting.append(displaySettingData)
                 }
               
                 if userSettings != nil {
-                    let userSettingData = userSettings!.getUserSettingsForDisplay()
-                    destination?.settingData.append(userSettingData)
+//                    let userSettingData = userSettings!.getUserSettingsForDisplay()
+                    let userDisplayData = userSettings!.userSettingsForDisplay()
+                    let userDisplaySettingData = settings!.userSettingsForDisplay(data: userDisplayData)
+                    //destination?.settingData.append(userSettingData)
+                    destination?.displaySetting.append(userDisplaySettingData)
                 }
             }
             
@@ -130,8 +136,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             
             destination?.takes = takes
           
-        case "ShowShareSegueIdentifier":
-            let destination = segue.destination as? ShareVC
+//        case "ShowShareSegueIdentifier":
+//            let destination = segue.destination as? ShareVC
             
         default:
             NSLog("Navigation: Segue with unknown identifier")
@@ -149,21 +155,24 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
      
      InputDialog:cancel -> don't save take, which means delete take as the
      take is save during recording with default name
+     
+     - parameter sender: UIButton
     */
     @IBAction func recordBtnAction(_ sender: UIButton) {
         if !recording {
             if recorded == false || take?.takeSaved == true  {
                 startRecording()
-                //startCaptureSession()
-                //initCaptureSession()
             }
-            
-            
         } else {
             finishRecording(success: true)
         }
     }
     
+    /**
+     Start recording with [AVAudioRecorder](AVAudioRecorder).
+     Start input level metering and  record timer.
+     
+     */
     private func startRecording() {
         
         let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -223,6 +232,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
      - Parameters:
         - audioRecorder: AVAudioRecorder instance used for recording take
         - length: length of recording
+     
+     - Returns: Take object
     */
     private func makeTake(audioRecorder: AVAudioRecorder, length: Double) -> Take {
         
@@ -249,7 +260,12 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     // MARK: Settings And UserSettings
     
-    private func initSettings(name: String = "HIGH") {
+    /**
+     First get [UserSetting](UserSettings), then load audio format setting depending on userSettings
+     
+     - Parameter name: name of recording format setting
+     */
+    private func initSettings(name: String = "middle") {
         if userSettings == nil {
             userSettings = UserSettings.init()
         }
@@ -257,6 +273,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         if settings == nil {
             settings = Settings.init(name: userSettings?.recordingsetting ?? name)
         }
+        
+        // userSettings needs recording setting names
         
     }
  

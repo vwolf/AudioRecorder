@@ -81,6 +81,8 @@ class Take {
         // Default Metadata
         self.addDefaultMetaData()
         
+        self.sortMetadataForDisplay()
+        
         // take format info
         self.takeFormat = self.getTakeFormat()
         if self.takeFormat != nil {
@@ -96,7 +98,7 @@ class Take {
 //        }
 //        group.wait()
 //
-        print(self.takeFormat?.sampleRate ?? "no sampleRate value")
+//        print(self.takeFormat?.sampleRate ?? "no sampleRate value")
     }
     
     /**
@@ -259,6 +261,13 @@ class Take {
         return imageItem
     }
     
+    func addAudio(audioURL: String = "") -> MetaDataItem {
+        let audioDesc = MetaDataOptional().audio
+        let audioItem = MetaDataItem(description: audioDesc, value: audioURL)
+        
+        return audioItem
+    }
+    
     
     // MARK: CoreData
     
@@ -340,13 +349,14 @@ class Take {
     }
     
     /**
-     Is name in takeName item different to poperty takeName then try to rename
+     Is name in takeName item different to poperty takeName then try to rename.
+     Updata name of audio note.
      
      - Parameters:
      - takeURL:
      - newName: new name of take without extension
      */
-    private func renameTake(takeURL: URL) -> (result: Bool, name: String?) {
+    func renameTake(takeURL: URL) -> (result: Bool, name: String?) {
         // get takeName from item
         if items.isEmpty {
             return(false, nil)
@@ -361,6 +371,11 @@ class Take {
         if takeNameInItem != takeName {
             let renamed = Takes().renameTake(takeURL: takeURL, newTakeName: takeNameInItem)
             if renamed {
+                // rename take in CoreData
+                //coreDataController?.updateMetadataForTake(takeName: takeNameInItem, metadata: <#T##Dictionary<String, String>#>)
+//                if var noteURL = getNoteForTake() {
+//
+//                }
                 // update to new name and path
                 return (true, takeNameInItem)
             }
@@ -368,6 +383,28 @@ class Take {
         
         return (false, nil)
     }
+    
+    /**
+     Rename note file
+     
+     - parameters oldName: file name with extension
+     - parameters newName: file name without extension
+     */
+    func renameTakeNote(oldName: String, newName: String) {
+        if let noteURL = getNoteForTake() {
+            let fextension = noteURL.pathExtension
+            var newNoteURL = noteURL.deletingLastPathComponent()
+            newNoteURL.appendPathComponent(newName)
+            newNoteURL.appendPathExtension(fextension)
+            
+            do {
+                try FileManager.default.moveItem(at: noteURL, to: newNoteURL)
+            } catch {
+                print("Error renaming file: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     
     /**
      Read saved MetaData from CoreData MetaDataMO
@@ -406,6 +443,12 @@ class Take {
                 let imageItem = addImage(imageURL: image!)
                 
                 mdItems.append(imageItem)
+            
+            case "audio":
+                let audio = mdItem.value
+                let audioItem = addAudio(audioURL: audio!)
+                
+                mdItems.append(audioItem)
                 
             default:
                 print("Unkown item name \(String(describing: mdItem.name))")
@@ -634,6 +677,12 @@ class Take {
                 let itemDescription = MetaDataOptional().image
                 let item = MetaDataItem(description: itemDescription, value: "")
                 addItem(item: item, section: .METADATASECTION)
+                
+            case "Audio" :
+                let itemDescription = MetaDataOptional().audio
+                let item = MetaDataItem(description: itemDescription, value: "")
+                addItem(item: item, section: .METADATASECTION)
+                
             default:
                 print("Unknow item name \(name)")
                 return false
@@ -708,6 +757,33 @@ class Take {
         return itemIndex
     }
     
+    /**
+     Does a recorded note for take exist?
+     
+     - return URL?
+     */
+    func getNoteForTake() -> URL? {
+        let notesDirectoryName = RecordingTypes.NOTE.rawValue
+        var notesDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        notesDirectory.appendPathComponent(notesDirectoryName)
+        var noteForTakeURL = notesDirectory.appendingPathComponent(takeName!)
+        noteForTakeURL.appendPathExtension(takeType!)
+        if FileManager.default.fileExists(atPath: noteForTakeURL.path) {
+            return noteForTakeURL
+        }
+        return nil
+    }
+    
+    func sortMetadataForDisplay() -> Bool?{
+        let itemOrder = MetaDataOptional().itemOrder
+        
+        guard let sectionIdx = getItemSectionIndex(section: .METADATASECTION) else {
+            return nil
+        }
+        items[sectionIdx].sort(by: {itemOrder.firstIndex(of: $0.id)! < itemOrder.firstIndex(of: $1.id)! } )
+            
+        return true
+    }
     
     // MARK: Take to Json
     

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -16,37 +17,42 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="fhf-qr-SD9">
-            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="fhf-qr-SD9">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Explanation Text" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yy9-AW-OsN">
-                    <rect key="frame" x="8" y="68" width="398" height="20.5"/>
+                    <rect key="frame" x="8" y="72" width="359" height="20.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="0zu-40-fJI">
-                    <rect key="frame" x="0.0" y="129" width="414" height="733"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <rect key="frame" x="0.0" y="133" width="375" height="534"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <connections>
                         <outlet property="dataSource" destination="-1" id="YAd-6M-4OP"/>
                         <outlet property="delegate" destination="-1" id="RSo-Q0-ft9"/>
                     </connections>
                 </tableView>
             </subviews>
-            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+            <viewLayoutGuide key="safeArea" id="ZCX-xM-5bE"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
-                <constraint firstItem="Krk-rI-PeN" firstAttribute="trailing" secondItem="yy9-AW-OsN" secondAttribute="trailing" constant="8" id="BtX-4x-Uk8"/>
-                <constraint firstItem="yy9-AW-OsN" firstAttribute="leading" secondItem="Krk-rI-PeN" secondAttribute="leading" constant="8" id="X4j-ql-BOJ"/>
+                <constraint firstAttribute="trailing" secondItem="yy9-AW-OsN" secondAttribute="trailing" constant="8" id="BtX-4x-Uk8"/>
+                <constraint firstItem="yy9-AW-OsN" firstAttribute="leading" secondItem="fhf-qr-SD9" secondAttribute="leading" constant="8" id="X4j-ql-BOJ"/>
                 <constraint firstItem="0zu-40-fJI" firstAttribute="top" secondItem="yy9-AW-OsN" secondAttribute="bottom" constant="40.5" id="iqC-dm-WIV"/>
-                <constraint firstItem="0zu-40-fJI" firstAttribute="bottom" secondItem="Krk-rI-PeN" secondAttribute="bottom" id="lUM-ij-QNV"/>
-                <constraint firstItem="0zu-40-fJI" firstAttribute="trailing" secondItem="Krk-rI-PeN" secondAttribute="trailing" id="nhR-on-nT4"/>
-                <constraint firstItem="0zu-40-fJI" firstAttribute="leading" secondItem="Krk-rI-PeN" secondAttribute="leading" id="ox4-Fi-Xde"/>
-                <constraint firstItem="yy9-AW-OsN" firstAttribute="top" secondItem="Krk-rI-PeN" secondAttribute="top" constant="24" id="wCR-R4-ySJ"/>
+                <constraint firstItem="0zu-40-fJI" firstAttribute="bottom" secondItem="fhf-qr-SD9" secondAttribute="bottom" id="lUM-ij-QNV"/>
+                <constraint firstItem="0zu-40-fJI" firstAttribute="trailing" secondItem="fhf-qr-SD9" secondAttribute="trailing" id="nhR-on-nT4"/>
+                <constraint firstItem="0zu-40-fJI" firstAttribute="leading" secondItem="fhf-qr-SD9" secondAttribute="leading" id="ox4-Fi-Xde"/>
+                <constraint firstItem="yy9-AW-OsN" firstAttribute="top" secondItem="fhf-qr-SD9" secondAttribute="top" constant="72" id="wCR-R4-ySJ"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="Krk-rI-PeN"/>
             <point key="canvasLocation" x="597.10144927536237" y="32.8125"/>
         </view>
     </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

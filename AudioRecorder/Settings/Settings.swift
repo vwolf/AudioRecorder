@@ -32,15 +32,22 @@ class Settings {
         AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
     ] as [String : Any]
     
-    var currentSetting: String = "Default"
+    var currentSettingsName: String = "Default"
+    var currentSetting: [Setting]?
+    
+    /// order of items for display
+    let formatSettingsOrder = ["name", AVFormatIDKey, AVSampleRateKey, AVNumberOfChannelsKey, AVLinearPCMBitDepthKey, AVLinearPCMIsBigEndianKey]
+    let userSettingsOrder = ["takename", "recordingSettings", "style"]
     
     init(name: String) {
-        currentSetting = name
+        currentSettingsName = name
         recordingSettings = (coreDataController?.fetchSettings())!
         
         if recordingSettings.isEmpty {
             // no settings in coreData, seed presets
-            seedPresetSettings()
+            if seedPresetSettings() == true {
+                recordingSettings = (coreDataController?.fetchSettings())!
+            }
         }
     }
     
@@ -53,7 +60,7 @@ class Settings {
     func getSetting(name: String) -> [String: Any] {
         guard let setting = recordingSettings.first(where: {$0.name == name} ) else {
             print("No setting with name \(name)")
-            currentSetting = "Default"
+            currentSettingsName = "Default"
             return defaultSetting
         }
         
@@ -69,20 +76,22 @@ class Settings {
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
             ] as [String : Any]
         
-        currentSetting = setting.name!
+        currentSettingsName = setting.name!
         
         return settings
     }
     
     
     func getCurrentSetting() -> [String: Any] {
-        if currentSetting != "default" {
-            return getSetting(name: currentSetting)
+        if currentSettingsName != "default" {
+            return getSetting(name: currentSettingsName)
         }
         return defaultSetting
     }
     
-    
+    func updateSetting() {
+        
+    }
     /**
      Return current settings as array for display in table
      
@@ -91,7 +100,7 @@ class Settings {
         let setting = getSetting(name: name)
         
         let settingsDict = [
-            ["Name", currentSetting],
+            ["Name", currentSettingsName],
             ["SampleRate", String(format: "%.3f", setting[AVSampleRateKey] as! CVarArg )],
             ["Bitdepths", "\(setting[AVLinearPCMBitDepthKey] as! CVarArg)" ] ,
             ["Channels", "\(setting[AVNumberOfChannelsKey] as! CVarArg)" ],
@@ -101,32 +110,121 @@ class Settings {
         return settingsDict
     }
    
+    func getSettingsName() -> [String] {
+        var settingNames = [String]()
         
+        for setting in recordingSettings {
+            settingNames.append(setting.name!)
+        }
+        return settingNames
+    }
     
     /**
      Write presets to Coredata. This happens only at first application start
      
     */
-    func seedPresetSettings() {
+    func seedPresetSettings() -> Bool {
         var presets = [[String: Any]]()
+        //var settingStructs = [String: [Setting]]()
+        
         presets.append(["name": "high", "type": "wav", "bitDepth": 24 as Int16, "sampleRate": 48.000, "channels": 1 as Int16])
         presets.append(["name": "middle", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 41.100, "channels": 1 as Int16])
-        presets.append(["name": "low", "type": "wav", "bitDepth": 8 as Int16, "sampleRate": 22.050, "channels": 1 as Int16])
+        presets.append(["name": "low", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 22.050, "channels": 1 as Int16])
         
-        coreDataController?.seedSettings(settings: presets)
+        return ((coreDataController?.seedSettings(settings: presets)) != nil)
+    }
+    
+    /**
+     Return setting to be displayed in Settings Screen
+        Get the Settings Struct , then update value
+     
+     */
+    func settingForDisplay(name: String) -> [Setting] {
+        let currentSetting = getSetting(name: name)
+//        let currentSettingDisplay = getSettingForDisplay(name: name)
+//        var settingStructs = [String: [Setting]]()
+        var settingToAdd = [Setting]()
+        //
+        let recordingFormatNameSetting = SettingDefinitions.recordingFormatName.getSetting(value: name)
+        settingToAdd.append(recordingFormatNameSetting)
+        
+        for setting in currentSetting {
+            switch setting.key {
+            case AVFormatIDKey :
+                let format = formatTypeToExtension(format: setting.value as! Int)
+//                let settingValue = String(describing: setting.value as! CVarArg)
+                let settingStruct = SettingDefinitions.recordingFormatType.getSetting(value: format)
+                settingToAdd.append(settingStruct)
+            case AVLinearPCMBitDepthKey:
+                let settingValue = String(describing: setting.value as! CVarArg)
+                let settingStruct = SettingDefinitions.bitDepth.getSetting(value: settingValue)
+                settingToAdd.append(settingStruct)
+            case AVSampleRateKey:
+                let settingValue = String(format: "%.3f", setting.value as! CVarArg )
+                let settingStruct = SettingDefinitions.sampleRate.getSetting(value: settingValue)
+                settingToAdd.append(settingStruct)
+            case AVNumberOfChannelsKey:
+                let settingValue = String(describing: setting.value as! CVarArg)
+                let settingStruct = SettingDefinitions.channels.getSetting(value: settingValue)
+                settingToAdd.append(settingStruct)
+            case AVLinearPCMIsBigEndianKey:
+                let settingValue = String(describing: setting.value as! CVarArg)
+                let settingStruct = SettingDefinitions.bigEndian.getSetting(value: settingValue)
+                settingToAdd.append(settingStruct)
+            default:
+                print("Unknown")
+            }
+        }
+        
+        let sorted = settingToAdd.sorted { formatSettingsOrder.firstIndex(of: $0.id)! < formatSettingsOrder.firstIndex(of: $1.id)!}
+        return sorted
     }
     
     
+    func userSettingsForDisplay(data: [String: String]) -> [Setting] {
+        var settingToAdd = [Setting]()
+        
+        for set in data {
+            switch set.key {
+            case "takeNamePreset":
+                let settingStruct = SettingDefinitions.takeName.getSetting(value: set.value)
+                settingToAdd.append(settingStruct)
+            case "style":
+                let settingStruct = SettingDefinitions.style.getSetting(value: set.value)
+                settingToAdd.append(settingStruct)
+            case "recordingSetting":
+                let settingStruct = SettingDefinitions.recordingSetting.getSetting(value: set.value)
+                settingToAdd.append(settingStruct)
+            default:
+                print("Unknown")
+            }
+        }
+        
+        let sorted = settingToAdd.sorted { userSettingsOrder.firstIndex(of: $0.id)! < userSettingsOrder.firstIndex(of: $1.id)! }
+        
+        return sorted
+    }
+    
+    private func formatTypeToExtension(format: Int) -> String {
+        print(format)
+        print(kAudioFormatLinearPCM)
+        print(Int(kAudioFormatLinearPCM))
+        if format == kAudioFormatLinearPCM {
+            return "wav"
+        }
+        return String(format)
+    }
 }
 
 /**
  Setting data
  */
 struct Setting {
-    
     var name: String
     var format: SettingDefinitions.SettingFormat
     var value: String
+    
+    var id: String
 }
 
 /**
@@ -141,30 +239,33 @@ enum SettingDefinitions: CaseIterable {
     case bitDepth
     case sampleRate
     case channels
+    case bigEndian
     
     // user settings
     case takeName
     case style
     case recordingSetting
     
-    func getSetting() -> Setting {
+    func getSetting(value: String) -> Setting {
         switch self {
         case .recordingFormatName:
-            return Setting(name: "Preset Name", format: SettingFormat.fixed, value: "Default")
+            return Setting(name: "Preset Name", format: SettingFormat.fixed, value: value, id: "name")
         case .recordingFormatType:
-            return Setting(name: "Type", format: SettingFormat.fixed, value: "Default")
+            return Setting(name: "Type", format: SettingFormat.fixed, value: value, id: AVFormatIDKey)
         case .bitDepth:
-            return Setting(name: "Bitdepth", format: SettingFormat.fixed, value: "Default")
+            return Setting(name: "Bitdepth", format: SettingFormat.fixed , value: value, id: AVLinearPCMBitDepthKey)
         case .sampleRate:
-            return Setting(name: "SampleRate", format: SettingFormat.fixed, value: "Default")
+            return Setting(name: "Samplerate", format: SettingFormat.fixed, value: value, id: AVSampleRateKey)
         case .channels:
-            return Setting(name: "Channels", format: SettingFormat.fixed, value: "Default")
+            return Setting(name: "Channels", format: SettingFormat.fixed, value: value, id: AVNumberOfChannelsKey)
+        case .bigEndian:
+            return Setting(name: "Big Endian", format: SettingFormat.fixed, value: value, id: AVLinearPCMIsBigEndianKey)
         case .takeName:
-            return Setting(name: "Preset Name", format: SettingFormat.userDefined, value: "Default")
+            return Setting(name: "Preset Name", format: SettingFormat.userDefined, value: value, id: "takename")
         case .style:
-            return Setting(name: "Style", format: SettingFormat.preset, value: "Default")
+            return Setting(name: "Style", format: SettingFormat.preset, value: value, id: "style")
         case .recordingSetting:
-            return Setting(name: "Name of recording Setting", format: SettingFormat.fixed, value: "Default")
+            return Setting(name: "Name of Recording Setting", format: SettingFormat.preset, value: value, id: "recordingSettings")
         }
     }
     

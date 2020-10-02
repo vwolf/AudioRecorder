@@ -15,13 +15,14 @@ class CoreDataController: DataControllerDelegate {
     var managedObjectContext: NSManagedObjectContext!
     var managedObjectModel: NSManagedObjectModel!
     
+    var initialized = false
     // MARK: Initialization
     
     /**
      Initialze CoreData stack
      
-     - modelName:  CoreData Model name
-     - completionClosure
+     - parameter modelName:  CoreData Model name
+     - parameter completionClosure
     */
     init(modelName: String, completionClosure: @escaping () -> ()) {
         xcdatamodelName = modelName
@@ -30,6 +31,14 @@ class CoreDataController: DataControllerDelegate {
         guard let modelURL = Bundle.main.url(forResource: xcdatamodelName, withExtension: "momd" ) else {
             fatalError("Error loading model from bundle")
         }
+        
+//        var persistentContainer = NSPersistentContainer(name: "AudioRecorder")
+//        persistentContainer.loadPersistentStores() { (description, error) in
+//            if let error = error {
+//                fatalError("Failed to load CoreData stack: \(error)")
+//            }
+//            completionClosure()
+//        }
         
         // load managed object model for the application
         guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
@@ -46,7 +55,7 @@ class CoreDataController: DataControllerDelegate {
         managedObjectContext.persistentStoreCoordinator = psc
         
         let queue = DispatchQueue.global(qos: DispatchQoS.QoSClass.background)
-        queue.async {
+        queue.async { [self] in
             guard let docURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last
                 else {
                     fatalError("Unable to resolve document directory")
@@ -60,6 +69,7 @@ class CoreDataController: DataControllerDelegate {
                 //back on the main queue so that the user interface does not need to be concerned with
                 //which queue this call is coming from.
                 DispatchQueue.main.sync(execute: completionClosure)
+                self.initialized = true
             } catch {
                 fatalError("Error migrating store: \(error)")
             }
@@ -84,7 +94,11 @@ class CoreDataController: DataControllerDelegate {
         if managedObjectContext.hasChanges {
             print("saveContext")
             do {
+                if initialized {
                 try managedObjectContext?.save()
+                } else {
+                    print("CoreDate Stack not inialized!")
+                }
             } catch {
                 print("Unresoved error \(error)")
             }
@@ -309,7 +323,7 @@ class CoreDataController: DataControllerDelegate {
         return nil
     }
     
-    func seedSettings(settings: [[String: Any]]) {
+    func seedSettings(settings: [[String: Any]]) -> Bool {
         //let e = fetchSettings()
         
         for setting in settings {
@@ -323,9 +337,13 @@ class CoreDataController: DataControllerDelegate {
             saveContext()
         }
         
+        return true
     }
     
-    
+//    func updateSetting(name: String, value: Any) {
+//        let fetchRequest = NSFetchRequest<SettingsMO>(entityName: "Setting")
+//        
+//    }
     // MARK: User Settings
     
     func fetchUserSettings() -> [UserSettingsMO] {
@@ -342,6 +360,7 @@ class CoreDataController: DataControllerDelegate {
         newSetting.style = settings["style"]
         newSetting.recordingSettings = settings["recordingSettings"]
         
+        
         saveContext()
     }
     
@@ -350,6 +369,21 @@ class CoreDataController: DataControllerDelegate {
         let userSettings = try! managedObjectContext.fetch(fetchRequest)
         
         if let settings = userSettings.first {
+            switch name {
+            case "takename":
+                settings.takename = value
+            case "style":
+                settings.style = value
+            case "recordingSettings":
+                settings.recordingSettings = value
+
+            default:
+                print("Unknown name \(name)")
+            }
+//            let currentName = settings.value(forKey: name)
+//            if (settings.value(forKey: name) != nil) {
+//                settings.value(forKey: name) as! String = value
+//            }
             settings.takename = value
         }
         

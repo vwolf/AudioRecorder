@@ -24,8 +24,8 @@ struct MetaDataOptional {
     var category = MetaDataDescription(id: "category", type: MetaDataTypes.STRING, name: "Category", description: "Choose a category")
     var image = MetaDataDescription(id: "image", type: MetaDataTypes.ANY, name: "Image", description: "Add Image to take")
     var audio = MetaDataDescription(id: "audio", type: MetaDataTypes.ANY, name: "Audio", description: "Record audio for take")
-//    var image = ["id": "image", "type": MetaDataTypes.ANY.rawValue, "name": "Image", "description": "Add Image for recording"]
-//    var audio = ["id": "audio", "type": MetaDataTypes.ANY.rawValue, "name": "Audio", "description": "Record an audio for recording"]
+   
+    var itemOrder = ["category", "description", "image", "audio"]
     
     //var metadataNames = ["Description"]
     func getAllNames() -> [String] {

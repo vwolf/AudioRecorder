@@ -13,41 +13,76 @@ import AVFoundation
 
 class SettingsVC: UIViewController {
     
+    @IBOutlet weak var tableView: UITableView!
     //var tableData = [String]()
     // settings format: [[String, String], [],], idx 0 is name, 1 is value
-    var tableData = [[["Name", "Default"], ["SampleRate", "44.100"]], [["RecordingSettings", "High"]]]
+    //var tableData = [[["Name", "Default"], ["SampleRate", "44.100"]], [["RecordingSettings", "High"]]]
     var tableHeaders = ["Recording Settings", "User Settings"]
-    
     var takeNamePreset = "myRecording + timestamp"
+    var displaySetting = [[Setting]]()
     
-    var settingData = [[[String]]]()
     var settings: Settings?
     var userSettings: UserSettings?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //displaySetting = (settings?.settingForDisplay(name: settings!.currentSettingsName))!
     }
     
-    
-    private func settingsToList() -> [[String]] {
-        let currentSetting = settings?.getCurrentSetting()
-        var settingsName = "Default"
-        
-        if settings?.currentSetting != nil  {
-            settingsName = (settings?.currentSetting)!
+    /**
+     Settings value changed
+     Usersetting->Name of Recording Setting then update Format Settings
+     
+     - parameter indexPath: tableView indexPath of change setting
+     - parameter value: new value
+     */
+    private func settingValueUpdate(indexPath: IndexPath, value: String) {
+        switch displaySetting[indexPath.section][indexPath.row].id {
+        case "recordingSettings" :
+            self.displaySetting[indexPath.section][indexPath.row].value = value
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
+            // changed recording setting name, load new setting
+            _ = settings?.getSetting(name: value)
+            let displaySettingData = settings!.settingForDisplay(name: settings?.currentSettingsName ?? "Default")
+            displaySetting[0] = displaySettingData
+            tableView.reloadData()
+            
+            userSettings?.updateUserSetting(name: "recordingSettings", value: value)
+         
+        case "style":
+            self.displaySetting[indexPath.section][indexPath.row].value = value
+            userSettings?.updateUserSetting(name: "style", value: value)
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
+            
+        case "takename":
+            self.displaySetting[indexPath.section][indexPath.row].value = value
+            userSettings?.updateUserSetting(name: "takename", value: value)
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
+            
+        default:
+            print("nothing to update")
         }
-        
-        let settingsList = [
-            ["Name", settingsName],
-            ["SampleRate", String(format: "%.3f", currentSetting?[AVSampleRateKey] as! CVarArg)],
-            ["Bitdepths", "\(currentSetting?[AVLinearPCMBitDepthKey] as! CVarArg)" ],
-            ["Channels", "\(currentSetting?[AVNumberOfChannelsKey] as! CVarArg)" ],
-            ["Format", "\(currentSetting?[AVFormatIDKey] as! CVarArg)" ],
-            ["Takename", "\(userSettings?.takeName)"]
-        ]
-        
-        return settingsList
     }
+//    private func settingsToList() -> [[String]] {
+//        let currentSetting = settings?.getCurrentSetting()
+//        var settingsName = "Default"
+//
+//        if settings?.currentSettingsName != nil  {
+//            settingsName = (settings?.currentSettingsName)!
+//        }
+//
+//        let settingsList = [
+//            ["Name", settingsName],
+//            ["SampleRate", String(format: "%.3f", currentSetting?[AVSampleRateKey] as! CVarArg)],
+//            ["Bitdepths", "\(currentSetting?[AVLinearPCMBitDepthKey] as! CVarArg)" ],
+//            ["Channels", "\(currentSetting?[AVNumberOfChannelsKey] as! CVarArg)" ],
+//            ["Format", "\(currentSetting?[AVFormatIDKey] as! CVarArg)" ],
+//            ["Takename", "\(userSettings?.takeName)"]
+//        ]
+//
+//        return settingsList
+//    }
 
 
 }
@@ -55,13 +90,13 @@ class SettingsVC: UIViewController {
 extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return settingData[section].count
-//        return tableData[section].count
+//        return settingData[section].count
+        return displaySetting[section].count
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return settingData.count
-//        return tableData.count
+//        return settingData.count
+        return displaySetting.count
     }
     
     
@@ -92,8 +127,15 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             fatalError("The dequeued cell is not an instance of SettingTableViewCell")
         }
        
-        cell.nameLabel.text = settingData[indexPath.section][indexPath.row][0]
-        cell.valueLabel.text = settingData[indexPath.section][indexPath.row][1]
+        let set = displaySetting[indexPath.section][indexPath.row]
+        
+        cell.nameLabel.text = set.name
+        cell.valueLabel.text = set.value
+        if set.format == SettingDefinitions.SettingFormat.preset {
+            cell.backgroundColor = Colors.Base.baseGreen.toUIColor()
+        }
+//        cell.nameLabel.text = settingData[indexPath.section][indexPath.row][0]
+//        cell.valueLabel.text = settingData[indexPath.section][indexPath.row][1]
         
         return cell
     }
@@ -102,9 +144,34 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("SettingsVC.selectRowAt: \(indexPath.row)")
         
-        print("Settings name: \(settingData[indexPath.section][indexPath.row][0])")
+        //print("Settings name: \(settingData[indexPath.section][indexPath.row][0])")
         
-        editValue(index: indexPath)
+        if displaySetting[indexPath.section][indexPath.row].format == SettingDefinitions.SettingFormat.preset {
+            switch displaySetting[indexPath.section][indexPath.row].id {
+            case "recordingSettings" :
+                // get all awailable recording format preset names
+                let names = settings?.getSettingsName()
+                editValue(index: indexPath, values: names!)
+                
+            case "style" :
+                let styles = ["dark", "light"]
+                editValue(index: indexPath, values: styles)
+             
+                
+            default:
+                print("nothing to edit")
+            }
+            //editValue()
+        }
+        
+        if displaySetting[indexPath.section][indexPath.row].format == SettingDefinitions.SettingFormat.userDefined {
+            switch displaySetting[indexPath.section][indexPath.row].id {
+            case "takename" :
+                newValue(indexPath: indexPath, currentValue: displaySetting[indexPath.section][indexPath.row].value)
+            default:
+                print("nothing to edit")
+            }
+        }
         // setting name:
     }
     
@@ -113,18 +180,64 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
      User can edit settings values
      
      - parameter index: selected tableView cell
+     - parameter values: Values to display in alert
      */
-    func editValue(index: IndexPath) {
+    func editValue(index: IndexPath, values: [String]) {
         
-        let popoverContentController = PopoverVC(nibName: "PopoverTableView", bundle: nil)
-        let section = tableHeaders[index.section]
-        
-        // what to edit
-        popoverContentController.instruction = section + ":" + settingData[index.section][index.row][0]
-        // preset values -> show tableView to select value
-        self.present(popoverContentController, animated: true)
+//        let popoverContentController = PopoverVC(nibName: "PopoverTableView", bundle: nil)
+//        let section = tableHeaders[index.section]
         
         // user defined value -> show alert with textField to edit value
+        let alert = UIAlertController(title: "Select", message: nil, preferredStyle: .alert)
+        
+        let closure = { (action: UIAlertAction!) -> Void in
+            let indexSelected = alert.actions.firstIndex(where: { $0 === action})
+            if (indexSelected != nil) {
+                print("selected: \(values[indexSelected!])")
+                self.settingValueUpdate(indexPath: index, value: values[indexSelected!])
+            }
+        }
+        
+        
+        for item in values {
+            alert.addAction(UIAlertAction(title: item, style: .default, handler: closure))
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            
+        }
+        alert.addAction(cancelAction)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    /**
+     User can enter a new value for selected setting
+     
+     - parameter indexPath: selected tableView cell
+     - parameter currentValue: currently value of cell at indexPath
+     */
+    func newValue(indexPath: IndexPath, currentValue: String) {
+        
+        let alert = UIAlertController(title: "Enter Name Base", message: nil, preferredStyle: .alert)
+        alert.addTextField(configurationHandler: { textField in
+            textField.placeholder = currentValue
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            
+        }
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+            let textField = alert.textFields![0] as UITextField
+            print("Text in textField: \(String(describing: textField.text))")
+            self.settingValueUpdate(indexPath: indexPath, value: textField.text!)
+        }
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        self.present(alert, animated: true, completion: nil)
         
     }
 }

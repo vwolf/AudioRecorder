@@ -19,7 +19,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        coreDataController = CoreDataController(modelName: "AudioRecorder") {}
+        coreDataController = CoreDataController(modelName: "AudioRecorder") {
+            
+            print("coreDataController.completionClosure")
+            
+        }
         
         return true
     }

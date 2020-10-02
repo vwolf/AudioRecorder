@@ -6,13 +6,21 @@
 //  Copyright © 2020 Wolf. All rights reserved.
 //
 
+/**
+ 
+ */
 import Foundation
 import UIKit
 
 /**
  Take details
+ 
+ # Notes: #
+ Rename take needs an overhaul
+ 
+ - ToDo: rename take needs an overhaul
  */
-class TakeVC: UIViewController, CategoryPopoverDelegate  {
+class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  CategoryPopoverDelegate  {
   
     
     @IBOutlet weak var collectionView: UICollectionView!
@@ -30,6 +38,8 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
     var imagePicker: ImagePicker!
     var imageCell: MDataImageCellController?
     
+    @IBOutlet weak var navigationBar: UINavigationItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -38,6 +48,7 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         collectionView.register(UINib.init(nibName: "MDataActiveDoubleCell", bundle: nil), forCellWithReuseIdentifier: "MDataActiveDoubleCell")
         collectionView.register(UINib.init(nibName: "MDataTextEditCell", bundle: nil), forCellWithReuseIdentifier: "MDataTextEditCell")
         collectionView.register(UINib.init(nibName: "MDataImageCell", bundle: nil), forCellWithReuseIdentifier: "MDataImageCell")
+        collectionView.register(UINib.init(nibName: "MDataAudioCell", bundle: nil), forCellWithReuseIdentifier: "MDataAudioCell")
         
         collectionView.register(UINib.init(nibName: "MDataSectionHeader", bundle: nil), forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "MDataSectionHeader")
         
@@ -54,8 +65,8 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         //widthConstraint.constant = screenWidth - (2 * 8)
         
         if let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-            //flowLayout.estimatedItemSize = CGSize(width: estimatedItemWidth, height: 80)
+            //flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+            flowLayout.estimatedItemSize = CGSize(width: estimatedItemWidth, height: 80)
             flowLayout.headerReferenceSize = CGSize(width: self.view.frame.width, height: 60)
             
         }
@@ -74,8 +85,8 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         // register keyboard change notifications
         let notifictationCenter = NotificationCenter.default
         notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil )
-        //notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil )
-        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboarDidHide), name: UIResponder.keyboardDidHideNotification, object: nil )
+        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil )
+//        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboarDidHide), name: UIResponder.keyboardDidHideNotification, object: nil )
         
     }
     
@@ -116,6 +127,19 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
         if isMovingToParent {
             print("isMovingToParent")
         }
+        
+        modified = false
+        
+        // new take name then reload TakeVC table data
+        if self.newTakeName == true {
+            if let viewControllers = self.navigationController?.viewControllers {
+                if (viewControllers.count >= 1) {
+                    let previousViewController = viewControllers[viewControllers.count - 1] as! TakesVC
+                        previousViewController.reloadTakes()
+                }
+            }
+        }
+        
         
         if isMovingFromParent && modified == true {
             
@@ -250,16 +274,86 @@ class TakeVC: UIViewController, CategoryPopoverDelegate  {
     func presentMetadataAddPopover(typ: String) {
         
         let popoverContentController = MetadataAddPopoverVC(nibName: "MetadataAddPopoverView", bundle: nil)
-        popoverContentController.take = take
-        popoverContentController.presentationController?.delegate = self
+        if #available(iOS 13.0, *) {
+            popoverContentController.take = take
+            popoverContentController.modalPresentationStyle = .automatic
+            
+            popoverContentController.presentationController?.delegate = self
+        } else {
+            if #available(iOS 10.3, *) {
+                popoverContentController.take = take
+                //popoverContentController.delegate = self
+                popoverContentController.modalPresentationStyle = .popover
+                
+                if let popoverPresentationController = popoverContentController.popoverPresentationController {
+                    popoverPresentationController.sourceView = self.view
+                    //popoverPresentationController.sourceRect = (navigationController?.view.bounds)!
+                    popoverPresentationController.sourceRect = CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 20)
+                    popoverPresentationController.delegate = self
+                }
+            }
+        }
+        
+        
+        
+//        popoverContentController.presentationController?.containerView?.frame.size.height = 200
+//        popoverContentController.presentationController?.delegate = self
+        
+//        popoverContentController.popoverPresentationController?.delegate = self
+//        popoverContentController.popoverPresentationController?.sourceView = view
+//        popoverContentController.popoverPresentationController?.sourceRect = CGRect(x: view.frame.minX,
+//                                                                                    y: view.frame.midY,
+//                                                                                    width: view.frame.size.width,
+//                                                                                    height: view.frame.size.height - 50)
+//        popoverContentController.popoverPresentationController?.containerView?.frame.size.height = view.frame.size.height / 2
         
         self.present(popoverContentController, animated: true) {
             print("MetadataAddPopover didAppear")
         }
     }
     
+    
+    func presentMetadataAudioPopover() {
+        let popoverContentController = MDataAudioPopoverVC(nibName: "MDataAudioPopover", bundle: nil)
+        popoverContentController.take = take
+        popoverContentController.recordingType = .NOTE
+        
+        self.present(popoverContentController, animated: true) {
+            
+        }
+    }
+    
+    func preseentAudioPlayerPopover(audioURL: URL) {
+        let popoverContentController = self.storyboard?.instantiateViewController(withIdentifier: "ModalAudioPlayerView") as? ModalAudioPlayerVC
+        
+        popoverContentController?.modalPresentationStyle = .popover
+        popoverContentController?.preferredContentSize = CGSize(width: self.view.frame.size.width - 20, height: 320)
+        popoverContentController?.view.backgroundColor = Colors.AVModal.background.toUIColor()
+        
+        if let popoverPresentationController = popoverContentController?.popoverPresentationController {
+            popoverPresentationController.delegate = self
+            // no arrow on popover
+            popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
+            popoverPresentationController.backgroundColor = Colors.Base.background.toUIColor()
+            popoverPresentationController.sourceView = self.view
+            popoverPresentationController.sourceRect = CGRect(x: 10, y: self.view.bounds.height / 2 + 120, width: self.view.frame.size.width, height: 240)
+            
+            if let popoverController = popoverContentController {
+                present(popoverController, animated: true, completion: nil)
+                
+                popoverContentController?.takeURL = audioURL
+            }
+        }
+    }
+    
+    
     override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
         print("dismiss")
+    }
+    
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
     
     // MARK: Keyboard change notifications
@@ -371,6 +465,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.descriptionLabel.text = takeItem.description
             cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.valueTextField.text = takeItem.value as! String?
+            cell.valueTextField.textColor = Colors.Base.text_01.toUIColor()
             cell.originalValue = cell.valueTextField.text!
             cell.maxWidth = collectionView.bounds.width - 16
             cell.takeVC = self
@@ -393,9 +488,11 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                     print("show alert")
                     
                 default:
-                    let takeNameWithExtensions = self.take.takeName! + "." + (self.take.takeType ?? "wav")
-                    if Takes().renameTake(takeName: takeNameWithExtensions, newTakeName: value) {
+                    let takeNameWithExtension = self.take.takeName! + "." + (self.take.takeType ?? "wav")
+                    if Takes().renameTake(takeName: takeNameWithExtension, newTakeName: value) {
+                        self.take.renameTakeNote(oldName: takeNameWithExtension, newName: value)
                         self.take.getItemForID(id: id, section: MetaDataSections.RECORDINGDATA)?.value = value
+                        self.take.updateMetaDataForTake(takeNameWithExtension: takeNameWithExtension)
                         //self.take.takeName = value
                         self.modified = true
                         self.newTakeName = true
@@ -412,7 +509,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataActiveDoubleCell", for: indexPath) as! MDataActiveDoubleCellController
             let takeItem = take.items[indexPath.section][indexPath.row]
             
-            cell.ctView.backgroundColor = Colors.Base.background_item.toUIColor()
+            cell.contentView.backgroundColor = Colors.Base.background_item.toUIColor()
             cell.nameLabel.text = takeItem.name
             cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
@@ -491,7 +588,9 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             let takeItem = take.items[indexPath.section][indexPath.row]
             
             cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
             
            // cell.contentView.isUserInteractionEnabled = false
             cell.imageView.isUserInteractionEnabled = true
@@ -503,6 +602,33 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.maxWidth = collectionView.bounds.width - 16
             
             cell.setImage(urlString: takeItem.value as! String)
+            
+            return cell
+        
+        case "audio" :
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataAudioCell", for: indexPath) as! MDataAudioCellController
+            let takeItem = take.items[indexPath.section][indexPath.row]
+            
+            cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
+            cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
+            
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(recordAudioCellBtnTouched(_:)))
+            cell.audioRecordBtn.addGestureRecognizer(tapGestureRecognizer)
+            
+            cell.maxWidth = collectionView.bounds.width - 16
+            
+            if let noteURL = take.getNoteForTake() {
+                print("note for take exist!!!")
+                cell.audioPlayBtn.isEnabled = true
+                let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(recordAudioCellPlayBtntTouched(_:) ))
+                cell.audioPlayBtn.addGestureRecognizer(gestureRecognizer)
+                cell.audioPlayBtn.tag = indexPath.row
+                cell.audioURL = noteURL
+            } else {
+                cell.audioPlayBtn.isEnabled = false
+            }
             
             return cell
             
@@ -553,6 +679,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             if sectionID != MetaDataSections.METADATASECTION {
                 view.headerBtn.isHidden = true
             } else {
+                view.headerBtn.isHidden = false
                 view.headerBtn.addTarget(self, action: #selector(metadataAddBtnTouched(_:)), for: .touchUpInside)
             }
             
@@ -600,6 +727,15 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
         self.imagePicker = ImagePicker(presentationController: self, delegate: self)
         imagePicker.present(from: self.view)
     }
+    
+    @objc func recordAudioCellBtnTouched(_ sender: UIButton) {
+        presentMetadataAudioPopover()
+    }
+    
+    @objc func recordAudioCellPlayBtntTouched(_ sender: UIButton) {
+        guard let audioURL = take.getNoteForTake() else { return  }
+        preseentAudioPlayerPopover(audioURL: audioURL)
+    }
 }
 
 extension TakeVC: ImagePickerDelegate {
@@ -618,6 +754,7 @@ extension TakeVC: ImagePickerDelegate {
         }
     }
 }
+
 
 // MARK: PresentationControllerDelegate
 

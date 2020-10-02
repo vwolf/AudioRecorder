@@ -24,33 +24,27 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
     var originalValue: String = ""
     var id: String?
     
-    var maxWidth: CGFloat? = nil {
-        didSet {
-            guard let maxWidth = maxWidth else {
-                return
-            }
-        }
-    }
+    var maxWidth: CGFloat? = nil 
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            contentView.leftAnchor.constraint(equalTo: leftAnchor),
-            contentView.rightAnchor.constraint(equalTo: rightAnchor),
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+//        NSLayoutConstraint.activate([
+//            contentView.leftAnchor.constraint(equalTo: leftAnchor),
+//            contentView.rightAnchor.constraint(equalTo: rightAnchor),
+//            contentView.topAnchor.constraint(equalTo: topAnchor),
+//            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+//        ])
         
         //let screenWidth = UIScreen.main.bounds.width
         //widthConstraint.constant = screenWidth //- (2 * 8)
         
         valueTextField.delegate = self
         
-//        let notifictationCenter = NotificationCenter.default
-//        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil )
+        //let notifictationCenter = NotificationCenter.default
+        //notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardDidHide(notification:)), name: UIResponder.keyboardDidHideNotification, object: nil )
     }
 
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -84,12 +78,22 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
      Keyboard hide notification - update value in item
      
     */
-//    @objc func adjustForKeyboardWillHide(notifiction: Notification) {
-//        print("keyboardWillHide")
+    @objc func adjustForKeyboardDidHide(notification: Notification) {
+        print("keyboardDidHide")
+        //print("notification.name: \(notification.name)")
+        print(notification.userInfo!)
 //        print(valueTextField.text!)
-//        
-//        //updateValue!(valueTextField.text!, id!)
-//    }
+//
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            print(keyboardSize.size.height)
+            if keyboardSize.size.height == 0.0 {
+                //valueTextField.resignFirstResponder()
+                //updateValue!(valueTextField.text!, id!)
+            }
+        }
+        
+        
+    }
     
     
     // MARK: TextField Delegate
@@ -121,9 +125,15 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
 //            print("default")
 //        }
         
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        print("textFieldDidEndEditing")
+        
         updateValue!(valueTextField.text!, id!)
         
         textField.resignFirstResponder()
-        return true
     }
 }

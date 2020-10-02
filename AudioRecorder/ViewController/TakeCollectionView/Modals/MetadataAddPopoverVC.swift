@@ -37,9 +37,9 @@ class MetadataAddPopoverVC: UIViewController {
         }
     }
     
-//    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-//        super.dismiss(animated: flag, completion: completion)
-//    }
+    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+        super.dismiss(animated: flag, completion: completion)
+    }
     
     @objc func addAction(sender: UIButton) {
         print("addAction button tag: \(sender.tag)")

@@ -15,13 +15,7 @@ class MDataStaticCellController: UICollectionViewCell {
     @IBOutlet weak var ValueLabel: UILabel!
    // @IBOutlet weak var widthConstraint: NSLayoutConstraint!
     
-    var maxWidth: CGFloat? = nil {
-        didSet {
-            guard let maxWidth = maxWidth else {
-                return
-            }
-        }
-    }
+    var maxWidth: CGFloat? = nil 
 
     
     override func awakeFromNib() {
@@ -29,12 +23,12 @@ class MDataStaticCellController: UICollectionViewCell {
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            contentView.leftAnchor.constraint(equalTo: leftAnchor),
-            contentView.rightAnchor.constraint(equalTo: rightAnchor),
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+//        NSLayoutConstraint.activate([
+//            contentView.leftAnchor.constraint(equalTo: leftAnchor),
+//            contentView.rightAnchor.constraint(equalTo: rightAnchor),
+//            contentView.topAnchor.constraint(equalTo: topAnchor),
+//            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+//        ])
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
