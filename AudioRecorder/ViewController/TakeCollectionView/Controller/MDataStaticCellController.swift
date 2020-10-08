@@ -8,6 +8,10 @@
 
 import UIKit
 
+/**
+ CollectionViewCell to display static value
+ 
+ */
 class MDataStaticCellController: UICollectionViewCell {
 
     @IBOutlet weak var nameLabel: UILabel!

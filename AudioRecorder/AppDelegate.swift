@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import SwiftyDropbox
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,15 +20,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        coreDataController = CoreDataController(modelName: "AudioRecorder") {
-            
-            print("coreDataController.completionClosure")
-            
-        }
+        coreDataController = CoreDataController(modelName: "AudioRecorder") {print("coreDataController.completionClosure")}
+        
+        DropboxClientsManager.setupWithAppKey("7tt2r1ewvm0q9hm")
         
         return true
     }
 
+    /// Dorpbox redirect
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        let oauthCompletion: DropboxOAuthCompletion = {
+            if let authResult = $0 {
+                switch authResult {
+                case .success:
+                    print("Success! User is logged into DropboxClientsManager")
+                case .cancel :
+                    print("Autorization flow was manuelly canceled by user")
+                case .error(_, let description) :
+                    print("Error: \(String(describing: description))")
+                }
+            }
+        }
+        
+        let canHandleUrl = DropboxClientsManager.handleRedirectURL(url, completion: oauthCompletion)
+        return canHandleUrl
+    }
+    
+//    func application(_ app: UIApplication, canOpen url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
+//
+//        return true
+//    }
     // MARK: Pre iOS 13.0
     
     @available(iOS 10.3, *)

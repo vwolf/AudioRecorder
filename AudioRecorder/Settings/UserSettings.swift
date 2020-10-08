@@ -35,6 +35,7 @@ class UserSettings {
     
     var style = "dark"
     var recordingsetting = "middle"
+    var shareClient = "iCloud"
     
     init() {
         readSettingsDefinitions()
@@ -65,6 +66,7 @@ class UserSettings {
         defaultSettings["takeName"] = takeName
         defaultSettings["style"] = style
         defaultSettings["recordingSettings"] = recordingsetting
+        defaultSettings["shareClient"] = shareClient
         
         coreDataController?.seedUserSettings(settings: defaultSettings)
     }
@@ -77,6 +79,9 @@ class UserSettings {
             style = value
         case "recordingSettings":
             recordingsetting = value
+        case "shareClient":
+            shareClient = value
+            
         default:
             print("Unknown setting name: \(name)")
         }
@@ -104,7 +109,11 @@ class UserSettings {
     }
     
     func userSettingsForDisplay() -> [String: String] {
-        return ["takeNamePreset": takeName, "style": style, "recordingSetting": recordingsetting]
+        return ["takeNamePreset": takeName,
+                "style": style,
+                "recordingSetting": recordingsetting,
+                "shareClient": shareClient
+        ]
     }
     /**
      Read UserSettings into dict
@@ -123,12 +132,13 @@ enum UserSettingsDefinitions: CaseIterable {
     case takeName
     case style
     case recordingSetting
-
+    case shareClient
+    
     func getType() -> SettingType {
         switch self {
         case .takeName:
             return SettingType.userDefined
-        case .style:
+        case .style, .shareClient :
             return SettingType.preset
         default:
             return SettingType.fixed
@@ -143,6 +153,8 @@ enum UserSettingsDefinitions: CaseIterable {
             return ["name": "Style", "type": getType().rawValue, "default": "dark"]
         case .recordingSetting:
             return ["name": "Recording Setting", "type": getType().rawValue, "default": "middle"]
+        case .shareClient:
+            return ["name": "Service for sharing", "type": getType().rawValue, "default": "iCloud"]
         }
     }
     
@@ -154,6 +166,8 @@ enum UserSettingsDefinitions: CaseIterable {
             return UserSetting(name: "Style", type: getType().self, value: "dark")
         case .recordingSetting:
             return UserSetting(name: "RecordingSetting", type: getType().self, value: "middle")
+        case .shareClient:
+            return UserSetting(name: "Service for sharing", type: getType().self, value: "iCloud")
         }
     }
     

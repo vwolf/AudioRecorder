@@ -37,7 +37,7 @@ class Settings {
     
     /// order of items for display
     let formatSettingsOrder = ["name", AVFormatIDKey, AVSampleRateKey, AVNumberOfChannelsKey, AVLinearPCMBitDepthKey, AVLinearPCMIsBigEndianKey]
-    let userSettingsOrder = ["takename", "recordingSettings", "style"]
+    let userSettingsOrder = ["takename", "recordingSettings", "style", "shareClient"]
     
     init(name: String) {
         currentSettingsName = name
@@ -195,6 +195,9 @@ class Settings {
             case "recordingSetting":
                 let settingStruct = SettingDefinitions.recordingSetting.getSetting(value: set.value)
                 settingToAdd.append(settingStruct)
+            case "shareClient":
+                let settingStruct = SettingDefinitions.shareClient.getSetting(value: set.value)
+                settingToAdd.append(settingStruct)
             default:
                 print("Unknown")
             }
@@ -245,6 +248,7 @@ enum SettingDefinitions: CaseIterable {
     case takeName
     case style
     case recordingSetting
+    case shareClient
     
     func getSetting(value: String) -> Setting {
         switch self {
@@ -266,6 +270,8 @@ enum SettingDefinitions: CaseIterable {
             return Setting(name: "Style", format: SettingFormat.preset, value: value, id: "style")
         case .recordingSetting:
             return Setting(name: "Name of Recording Setting", format: SettingFormat.preset, value: value, id: "recordingSettings")
+        case .shareClient:
+            return Setting(name: "Service for sharing", format: SettingFormat.preset, value: value, id: "shareClient")
         }
     }
     

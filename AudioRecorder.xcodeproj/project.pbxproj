@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -33,6 +33,7 @@
 		798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */; };
 		798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798656F42514A8C700DD610F /* MetadataAddCell.xib */; };
 		798656F72514A92800DD610F /* MetadataAddCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 798656F62514A92800DD610F /* MetadataAddCellController.swift */; };
+		7992D4D6252CB16A00D4E40F /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 7992D4D5252CB16A00D4E40F /* SwiftyDropbox */; };
 		79BDA06424FF94D60000B18B /* AudioInputVisualizer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79BDA06324FF94D60000B18B /* AudioInputVisualizer.xib */; };
 		79BDA06624FF958B0000B18B /* AudioInputVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BDA06524FF958B0000B18B /* AudioInputVisualizer.swift */; };
 		79BDA0682500C9F50000B18B /* AudioCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BDA0672500C9F50000B18B /* AudioCaptureSession.swift */; };
@@ -77,6 +78,7 @@
 		79DC8CEE25101CEC00396FE1 /* TakeCKRecordModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */; };
 		79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */; };
 		79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CF125116D6F00396FE1 /* TempiFFT.swift */; };
+		79F000322529CEDE00535143 /* DropboxVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F000312529CEDE00535143 /* DropboxVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -175,6 +177,7 @@
 		79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakeCKRecordModel.swift; sourceTree = "<group>"; };
 		79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformAnalyzer.swift; sourceTree = "<group>"; };
 		79DC8CF125116D6F00396FE1 /* TempiFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempiFFT.swift; sourceTree = "<group>"; };
+		79F000312529CEDE00535143 /* DropboxVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +186,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				79DC8CEC25100F3300396FE1 /* CloudKit.framework in Frameworks */,
+				7992D4D6252CB16A00D4E40F /* SwiftyDropbox in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,8 +353,8 @@
 				79D223C024D950D000900F31 /* AudioRecorder */,
 				79D223DA24D950D200900F31 /* AudioRecorderTests */,
 				79D223E524D950D200900F31 /* AudioRecorderUITests */,
-				79D223BF24D950D000900F31 /* Products */,
 				79DC8CEA25100F3300396FE1 /* Frameworks */,
+				79D223BF24D950D000900F31 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -422,6 +426,7 @@
 				79BDA07125022DFB0000B18B /* TakeVC.swift */,
 				79BDA0822503DA210000B18B /* TakeCollectionViewFlowLayout.swift */,
 				79DC8CE42510010200396FE1 /* ShareVC.swift */,
+				79F000312529CEDE00535143 /* DropboxVC.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -487,6 +492,9 @@
 			dependencies = (
 			);
 			name = AudioRecorder;
+			packageProductDependencies = (
+				7992D4D5252CB16A00D4E40F /* SwiftyDropbox */,
+			);
 			productName = AudioRecorder;
 			productReference = 79D223BE24D950D000900F31 /* AudioRecorder.app */;
 			productType = "com.apple.product-type.application";
@@ -559,6 +567,9 @@
 				Base,
 			);
 			mainGroup = 79D223B524D950D000900F31;
+			packageReferences = (
+				79F0002B2529C70100535143 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */,
+			);
 			productRefGroup = 79D223BF24D950D000900F31 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -624,6 +635,7 @@
 				79C83DBA24DA92CE00B23001 /* UserSettings.swift in Sources */,
 				79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */,
 				798545B6250A16D800D6A1D2 /* MDataTextEditCellController.swift in Sources */,
+				79F000322529CEDE00535143 /* DropboxVC.swift in Sources */,
 				79D223FC24D967DB00900F31 /* Colors.swift in Sources */,
 				79BDA0832503DA210000B18B /* TakeCollectionViewFlowLayout.swift in Sources */,
 				795A0DE625149D0A00DE340B /* MetadataAddPopoverVC.swift in Sources */,
@@ -998,6 +1010,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		79F0002B2529C70100535143 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dropbox/SwiftyDropbox.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7992D4D5252CB16A00D4E40F /* SwiftyDropbox */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79F0002B2529C70100535143 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
+			productName = SwiftyDropbox;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		79D223CA24D950D000900F31 /* AudioRecorder.xcdatamodeld */ = {

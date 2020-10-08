@@ -479,13 +479,13 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                 case "noChanges":
                     // do nothing
                     print("do nothing")
+                    
+                case "notUnique":
+                    print("show alert")
                     let al = self.alertFileName(name: value, completion:  { _ in
                         print("alert dismiss")
                     })
                     self.present(al, animated: true)
-                    
-                case "notUnique":
-                    print("show alert")
                     
                 default:
                     let takeNameWithExtension = self.take.takeName! + "." + (self.take.takeType ?? "wav")

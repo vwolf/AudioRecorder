@@ -67,7 +67,14 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
         self.present(alertController, animated: true)
     }
     
-    
+    /**
+     Alert to get confirmation to delete a take
+     
+     - parameter name: name of take
+     - parameter completion: closure to get alert result
+     
+     - Returns: Alert
+     */
     func alertDeleteFile(name: String, completion: @escaping (Bool) -> ()) -> UIAlertController {
         let ok = UIAlertAction(title: "OK", style: .default) { _ in
             completion(true)

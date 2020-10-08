@@ -32,6 +32,11 @@ class ShareVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.title = "iCloud"
+//        navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Set", style: .done, target: self, action: #selector(self.rightBarButtonAction(sender:)))
+
+//        navigationItem.rightBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: .edit, target: self, action: #selector(self.rightBarButtonAction(sender:)))
+        
         toolbarSaveBtn.isEnabled = false
         toolbarCancelBtn.isEnabled = false
         
@@ -43,11 +48,24 @@ class ShareVC: UIViewController {
         tableView.allowsMultipleSelection = true
         
         takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
-        if takeNames.count > 0 {
-            takeNamesNew = takeCKRecordModel.getNewRecords(with: "name", in: takeNames)
+        
+        takeCKRecordModel.refresh {
+            print("refreshClosure")
+            if self.takeNames.count > 0 {
+                self.takeNamesNew = self.takeCKRecordModel.getNewRecords(with: "name", in: self.takeNames)
+                print(self.takeNamesNew.count)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
         }
         
-        takeCKRecordModel.refresh()
+//        takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+//        if takeNames.count > 0 {
+//            takeNamesNew = takeCKRecordModel.getNewRecords(with: "name", in: takeNames)
+//        }
+        
+        //takeCKRecordModel.refresh()
     }
     
     @IBAction func toolbarSaveBtnAction(_ sender: UIBarButtonItem) {
@@ -65,6 +83,52 @@ class ShareVC: UIViewController {
     @IBAction func toolbarCancelBtnAction(_ sender: UIBarButtonItem) {
     }
     
+    @objc func rightBarButtonAction(sender: UIBarButtonItem) {
+        
+    }
+    
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        switch segue.identifier {
+        case "EditShareClientSegue":
+            let destination = segue.destination as? SettingsVC
+            
+            if let viewControllers = self.navigationController?.viewControllers {
+                if (viewControllers.count >= 1) {
+                    let previousViewController = viewControllers[0] as! RecordVC
+                    let settings = previousViewController.settings
+                    let userSettings = previousViewController.userSettings
+                    
+                    destination?.settings = settings
+                    let displaySettingData = settings?.settingForDisplay(name: userSettings?.recordingsetting ?? "default")
+                    destination?.displaySetting.append(displaySettingData!)
+                    
+                    destination?.userSettings = userSettings
+                    let displayUserSettingData = settings!.userSettingsForDisplay(data: (userSettings?.userSettingsForDisplay())!)
+                    destination?.displaySetting.append(displayUserSettingData)
+                    
+                    destination?.parentIsShareVC = true
+                }
+            }
+            
+//            guard let parentVC = parent as? RecordVC else {
+//                return
+//            }
+//            if parentVC.settings != nil {
+//                destination?.settings = parentVC.settings
+//
+//                let displaySettingData = parentVC.settings!.settingForDisplay(name: parentVC.userSettings?.recordingsetting ?? "default" )
+//                destination?.displaySetting.append(displaySettingData)
+//            }
+            
+            
+            
+        default:
+            NSLog("Navigation: Segue with unknown identifier")
+        }
+    }
 }
 
 

@@ -80,10 +80,7 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
     */
     @objc func adjustForKeyboardDidHide(notification: Notification) {
         print("keyboardDidHide")
-        //print("notification.name: \(notification.name)")
-        print(notification.userInfo!)
-//        print(valueTextField.text!)
-//
+
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             print(keyboardSize.size.height)
             if keyboardSize.size.height == 0.0 {
@@ -91,8 +88,6 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
                 //updateValue!(valueTextField.text!, id!)
             }
         }
-        
-        
     }
     
     
@@ -108,27 +103,22 @@ class MDataEditCellController: UICollectionViewCell, UITextFieldDelegate {
     }
     
     
+    /**
+     User removed keyboard
+     
+     */
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         print("textFieldShouldReturn: \(valueTextField.text!)")
-        
-       
-//        let checkResult = Takes().checkFileName(newTakeName: valueTextField.text!, takeName: originalValue)
-//
-//        switch checkResult {
-//        case "ok":
-//            print("ok")
-//
-//        case "notUnique":
-//            print("not Unique")
-//
-//        default:
-//            print("default")
-//        }
         
         textField.resignFirstResponder()
         return true
     }
     
+  
+    /**
+     User did touch RETURN key to finish editing
+     
+     */
     func textFieldDidEndEditing(_ textField: UITextField) {
         print("textFieldDidEndEditing")
         

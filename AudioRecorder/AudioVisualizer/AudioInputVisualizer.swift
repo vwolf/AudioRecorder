@@ -13,7 +13,6 @@ import AVFoundation
 
 class AudioInputVisualizer: UIView {
     
-    
     @IBOutlet weak var label: UILabel!
     @IBOutlet var ContentView: UIView!
     
@@ -47,7 +46,7 @@ class AudioInputVisualizer: UIView {
         addSubview(ContentView)
         ContentView.frame = self.bounds
         ContentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        ContentView.backgroundColor = UIColor.black
+        ContentView.backgroundColor = Colors.Base.background.toUIColor()
         
         barView = addBarView()
         ContentView.addSubview(barView)
@@ -99,6 +98,9 @@ class AudioInputVisualizer: UIView {
     
     /**
      Start visualizing input level
+     
+     - parameters audioRecorder: Instance AVAudioRecorder
+     - parameters updateInterval: Time in secconds to update timer timeInterval
      */
     func startVisualize(audioRecorder: AVAudioRecorder, updateInterval: Double = 0.05) {
         self.audioRecorder = audioRecorder

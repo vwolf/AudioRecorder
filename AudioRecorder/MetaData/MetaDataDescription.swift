@@ -10,6 +10,10 @@ import Foundation
 
 import Foundation
 
+/**
+ Default Metadata, created at recording. Only takeName can be changed by user
+ 
+ */
 struct MetaDataDefault {
     var takeName = ["id": "takeName", "type": MetaDataTypes.STRING.rawValue, "name": "Name of take", "description": "Name of take"]
     var path = ["id": "path", "type": MetaDataTypes.STRING.rawValue, "name": "Path", "description": "Path of sound file"]
@@ -19,15 +23,19 @@ struct MetaDataDefault {
     //var keyboard = ["id": "keyboard", "type": MetaDataTypes.STRING.rawValue, "name": "Keyboard", "description": "Keyboard test"]
 }
 
+/**
+ Optional Metadata. Description and category a visible by default.
+ Var itemOrder set the order for displaying items.
+ */
 struct MetaDataOptional {
     var description = MetaDataDescription(id: "description",  type: MetaDataTypes.STRING, name: "Description", description: "Enter description (max 255 char's")
     var category = MetaDataDescription(id: "category", type: MetaDataTypes.STRING, name: "Category", description: "Choose a category")
     var image = MetaDataDescription(id: "image", type: MetaDataTypes.ANY, name: "Image", description: "Add Image to take")
     var audio = MetaDataDescription(id: "audio", type: MetaDataTypes.ANY, name: "Audio", description: "Record audio for take")
    
+    // display order of items
     var itemOrder = ["category", "description", "image", "audio"]
     
-    //var metadataNames = ["Description"]
     func getAllNames() -> [String] {
         return [description.name, category.name, image.name, audio.name]
     }
@@ -57,6 +65,7 @@ struct MetaDataOptionalSub {
 struct MetaDataStrings {
     let addMetadataInstruction = "Select the metadata types you want to add to take."
 }
+
 /**
  All posible CategoryItem types
  */

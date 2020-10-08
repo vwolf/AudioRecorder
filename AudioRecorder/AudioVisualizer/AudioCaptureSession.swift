@@ -9,6 +9,9 @@
 import Foundation
 import AVFoundation
 
+/**
+ Use to record audio
+ */
 class AudioCaptureSession: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     
     let captureSession = AVCaptureSession()

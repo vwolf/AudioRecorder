@@ -138,7 +138,7 @@ class TakeCKRecordModel {
     }
     
     
-    @objc func refresh() {
+    @objc func refresh( completion: @escaping () -> Void ) {
         let query = CKQuery(recordType: TakeCKRecord.recordType, predicate: NSPredicate(value: true))
         
         database.perform(query, inZoneWith: nil) { records, error in
@@ -148,6 +148,7 @@ class TakeCKRecordModel {
             }
             self.records = records
             self.updateTakeRecords()
+            completion()
         }
     }
 }

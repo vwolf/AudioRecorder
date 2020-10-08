@@ -11,6 +11,11 @@
 import UIKit
 import AVFoundation
 
+/**
+ ViewController for Settings screen.
+ Settings screen has two parts: Audio format and User settings
+ 
+ */
 class SettingsVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
@@ -24,12 +29,55 @@ class SettingsVC: UIViewController {
     var settings: Settings?
     var userSettings: UserSettings?
     
+    // comming from ShareVC
+    var parentIsShareVC = false
+    var callingShareVC: UIViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if settings == nil {
+            
+        }
         //displaySetting = (settings?.settingForDisplay(name: settings!.currentSettingsName))!
     }
     
+    
+    override func willMove(toParent parent: UIViewController?) {
+        super.willMove(toParent: parent)
+        
+        // when moving back, parent parameter is nil
+        if (parent == nil) {
+            if parentIsShareVC == true {
+                print("willMove")
+                var viewControllers = navigationController?.viewControllers
+                print("viewControllers.count: \(viewControllers!.count)")
+                let vcCount = viewControllers!.count
+                if vcCount > 2 {
+                    let classForCoderName = NSStringFromClass(viewControllers![vcCount - 2].classForCoder).components(separatedBy: ".").last
+                    print(classForCoderName!)
+                    
+                    switch userSettings?.shareClient {
+                    case "iCloud":
+                        // if viewController to go to is not ShareVC then replace
+                        if classForCoderName! != "ShareVC" {
+                            
+                        }
+                    case "Dropbox":
+                        if classForCoderName! != "DropboxVC" {
+                            let dbVC = DropboxVC()
+                            viewControllers?.replaceSubrange(vcCount - 2..<vcCount - 1, with: [dbVC])
+                            //viewControllers?.insert(dbVC, at: vcCount - 2)
+                            navigationController?.setViewControllers(viewControllers!, animated: false)
+                        }
+                        
+                    default:
+                        print("Unknown shareClient")
+                    }
+                }
+            }
+        }
+    }
     /**
      Settings value changed
      Usersetting->Name of Recording Setting then update Format Settings
@@ -58,6 +106,11 @@ class SettingsVC: UIViewController {
         case "takename":
             self.displaySetting[indexPath.section][indexPath.row].value = value
             userSettings?.updateUserSetting(name: "takename", value: value)
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
+        
+        case "shareClient":
+            self.displaySetting[indexPath.section][indexPath.row].value = value
+            userSettings?.updateUserSetting(name: "shareClient", value: value)
             self.tableView.reloadRows(at: [indexPath], with: .fade)
             
         default:
@@ -157,6 +210,8 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
                 let styles = ["dark", "light"]
                 editValue(index: indexPath, values: styles)
              
+            case "shareClient":
+                editValue(index: indexPath, values: ["iCloud", "Dropbox"])
                 
             default:
                 print("nothing to edit")
