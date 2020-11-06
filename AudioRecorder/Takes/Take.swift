@@ -15,7 +15,7 @@ import CoreLocation
 
 /**
  Take properties
- Each property is an MetaDataItem and belongs to a Seciton
+ Each property is an MetaDataItem and belongs to a Section
  */
 class Take {
     
@@ -81,7 +81,7 @@ class Take {
         // Default Metadata
         self.addDefaultMetaData()
         
-        self.sortMetadataForDisplay()
+        _ = self.sortMetadataForDisplay()
         
         // take format info
         self.takeFormat = self.getTakeFormat()

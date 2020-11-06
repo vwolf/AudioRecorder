@@ -75,7 +75,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let url = URLContexts.first?.url
         print(url!)
         
-        let canHandleUrl = DropboxClientsManager.handleRedirectURL(url!, completion: oauthCompletion)
+        _ = DropboxClientsManager.handleRedirectURL(url!, completion: oauthCompletion)
     }
 }
 

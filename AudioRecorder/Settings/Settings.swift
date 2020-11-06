@@ -24,12 +24,12 @@ class Settings {
     
     var defaultSetting = [
         AVFormatIDKey : Int(kAudioFormatLinearPCM),
-        AVSampleRateKey : 44.100,
-        AVNumberOfChannelsKey : 1,
-        AVLinearPCMBitDepthKey: 16,
-        AVLinearPCMIsFloatKey: false,
-        AVLinearPCMIsBigEndianKey: false,
-        AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        AVSampleRateKey : 48000.0,
+        //AVNumberOfChannelsKey : 1,
+        AVLinearPCMBitDepthKey: 24
+        //AVLinearPCMIsFloatKey: false,
+        //AVLinearPCMIsBigEndianKey: false
+        //AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
     ] as [String : Any]
     
     var currentSettingsName: String = "Default"
@@ -84,7 +84,8 @@ class Settings {
     
     func getCurrentSetting() -> [String: Any] {
         if currentSettingsName != "default" {
-            return getSetting(name: currentSettingsName)
+            return defaultSetting
+//            return getSetting(name: currentSettingsName)
         }
         return defaultSetting
     }
@@ -250,10 +251,11 @@ enum SettingDefinitions: CaseIterable {
     case recordingSetting
     case shareClient
     
+    
     func getSetting(value: String) -> Setting {
         switch self {
         case .recordingFormatName:
-            return Setting(name: "Preset Name", format: SettingFormat.fixed, value: value, id: "name")
+            return Setting(name: "Recording Setting", format: SettingFormat.fixed, value: value, id: "name")
         case .recordingFormatType:
             return Setting(name: "Type", format: SettingFormat.fixed, value: value, id: AVFormatIDKey)
         case .bitDepth:

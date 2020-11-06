@@ -36,8 +36,6 @@ class MDataStaticCellController: UICollectionViewCell {
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-          //setNeedsLayout()
-          //layoutIfNeeded()
           
           descriptionLabel.preferredMaxLayoutWidth = maxWidth!
           layoutAttributes.bounds.size.width = maxWidth!

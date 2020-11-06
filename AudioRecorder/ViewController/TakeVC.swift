@@ -438,6 +438,29 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         collectionView.reloadData()
     }
     
+    // MARK: - Navigation
+
+    /**
+     Before any navigation to new view, recording should stop and take saved.
+     Always?
+     
+     */
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        NSLog("prepare for segue \(String(describing: segue.identifier))")
+        
+        switch segue.identifier {
+        case "ShowItemDetailsSegueIdentifier":
+            let destination = segue.destination as? ItemDetailVC
+            if destination != nil {
+//                let loc = take.location
+                destination?.location = take.location
+            }
+        default:
+            print("Unknown")
+        }
+        
+    }
+    
 }
 
 
@@ -543,23 +566,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                     }
                 }
             }
-            // children
-//            if takeItem.children != nil {
-//                // first item for subcategory
-//                if takeItem.children?.first != nil {
-//                    cell.subValueLabel.text = takeItem.children?.first?.value as! String?
-//                    if cell.subValueLabel.text == "" {
-//                        cell.subValueLabel.isHidden = true
-//                        cell.subValueBtn.isHidden = true
-//                    }
-//                } else {
-//                    cell.subValueLabel.isHidden = true
-//                    cell.subValueBtn.isHidden = true
-//                }
-//            } else {
-//                cell.subValueLabel.isHidden = true
-//                cell.subValueBtn.isHidden = true
-//            }
+            
             return cell
 
         case "description":
@@ -578,6 +585,11 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.updateValue = { value, id in
                 self.take.getItemForID(id: id, section: MetaDataSections.METADATASECTION)?.value = value
                 self.modified = true
+                
+                let result = self.take.updateItem(id: id, value: value, section: MetaDataSections.METADATASECTION)
+                if result {
+                    self.take.updateTake()
+                }
             }
             
             cell.id = itemId
@@ -692,6 +704,15 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        print("id: \(take.items[indexPath.section][indexPath.row].id)")
+        if take.items[indexPath.section][indexPath.row].id == "location" {
+            // location collectionView cell navigates to view with recorded location
+            
+            self.performSegue(withIdentifier: "ShowItemDetailsSegueIdentifier", sender: self)
+        }
+    }
 //    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
 //        print("shouldSelectItemAt")
 //        return true

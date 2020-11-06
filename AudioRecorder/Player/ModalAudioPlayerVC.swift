@@ -50,15 +50,18 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     // current position of marker line (x axis)
     var positionLinePos: CGFloat = 0.0
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         takeNameLabel.textColor = Colors.AVModal.textColor.toUIColor()
         
+        // setup dragging of position line, scrubbing timeline
         panGesture = UIPanGestureRecognizer(target: self, action: #selector(self.dragPositionLine))
         currentPositionLine.isUserInteractionEnabled = true
         currentPositionLine.addGestureRecognizer(panGesture)
     }
+    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -91,20 +94,12 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         if audioPlayer == nil {
             if playSound() {
                 tooglePlayBtn(state: "pause")
-//                let newPauseBtn = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(ModalAudioPlayerVC.pauseAudio(_:)))
-//                toolbar.items?[2] = newPauseBtn
             }
         } else {
             // replay audio or play at position of marker line
             if resumePlay() {
                 tooglePlayBtn(state: "pause")
             }
-//            audioPlayer?.play()
-//            if audioPlayer!.isPlaying {
-//                tooglePlayBtn(state: "pause")
-////                let newPauseBtn = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(ModalAudioPlayerVC.pauseAudio(_:)))
-////                toolbar.items?[2] = newPauseBtn
-//            }
         }
     }
     
@@ -120,8 +115,6 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
                 audioPlayer?.pause()
                 tooglePlayBtn(state: "play")
                 stopTimer()
-//                let newPlayBtn = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(ModalAudioPlayerVC.playAudio(_:)))
-//                toolbar.items?[2] = newPlayBtn
             }
         }
     }
@@ -139,16 +132,17 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: currentURL!)
             audioPlayer?.delegate = self
-            
+            print("take with duration: \(audioPlayer?.duration)")
+            if audioPlayer?.duration == 0.0 { return false }
             let prepare = audioPlayer?.prepareToPlay()
             print("prepare result: \(String(describing: prepare))")
-//            print("take with duration: \(audioPlayer?.duration)")
+            //print("take with duration: \(audioPlayer?.duration)")
             positionLineStep = (middleWaveformView.bounds.size.width / CGFloat(audioPlayer!.duration))
             
             // use for scrubbing timeline
             lengthProPercent = middleWaveformView.bounds.size.width / 100
             // current time of audioPlayer
-            let timeToStart = (positionLinePos / lengthProPercent) * positionLineStep
+            let timeToStart = (positionLinePos / lengthProPercent) *  (CGFloat(audioPlayer!.duration) / 100)
             
             audioPlayer?.currentTime = Double(timeToStart)
             audioPlayer?.play()
@@ -180,11 +174,15 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         audioPlayer?.stop()
         stopTimer()
         audioPlayer = nil
+        
+        movePositionView(to: "start")
     }
+    
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
         print("Error \(String(describing: error))")
     }
+    
     
     private func tooglePlayBtn(state: String) {
         if state == "pause" {
@@ -263,21 +261,5 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         
         sender.setTranslation(CGPoint.zero, in: self.view)
         
-       
-//        let centerX = currentPositionLine.center.x
-//        print("centerX: \(centerX)")
-//         // if audioPlayer then update audioPlayer.currentTime
-//        if audioPlayer != nil {
-//            var cTime = Double(centerX  / lengthProPercent) * (audioPlayer!.duration / 100)
-//            print(cTime)
-//            audioPlayer?.currentTime = cTime
-//        } else {
-//            // no audioPlayer, save position when audio starts
-//
-//        }
-        
-        //print(cTime)
-//        audioPlayer?.currentTime = Double(currentPositionLine.center.x * positionLineStep)
-//        print(audioPlayer?.currentTime)
     }
 }

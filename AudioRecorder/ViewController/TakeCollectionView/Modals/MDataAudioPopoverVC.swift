@@ -74,7 +74,9 @@ class MDataAudioPopoverVC: UIViewController {
                 recording = false
                 
                 // save note to audio MetadataItem
-                take?.updateItem(id: "audio", value: (take?.takeName)!, section: .METADATASECTION)
+                if take?.updateItem(id: "audio", value: (take?.takeName)!, section: .METADATASECTION) == false {
+                    print("Could not update item")
+                }
             }
             
         }

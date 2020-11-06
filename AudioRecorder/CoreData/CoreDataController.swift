@@ -376,7 +376,8 @@ class CoreDataController: DataControllerDelegate {
                 settings.style = value
             case "recordingSettings":
                 settings.recordingSettings = value
-
+            case "shareClient":
+                settings.shareClient = value
             default:
                 print("Unknown name \(name)")
             }
@@ -384,7 +385,7 @@ class CoreDataController: DataControllerDelegate {
 //            if (settings.value(forKey: name) != nil) {
 //                settings.value(forKey: name) as! String = value
 //            }
-            settings.takename = value
+//            settings.takename = value
         }
         
         saveContext()

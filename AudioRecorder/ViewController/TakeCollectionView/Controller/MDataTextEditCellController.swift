@@ -71,6 +71,7 @@ class MDataTextEditCellController: UICollectionViewCell, UITextViewDelegate {
         return true
     }
     
+    
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         
         if valueTextView.text != originalValue {

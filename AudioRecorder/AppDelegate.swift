@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import SwiftyDropbox
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,6 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var coreDataController: CoreDataController?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [])
+        } catch {
+            print("Failed to set audio session category")
+        }
         
         coreDataController = CoreDataController(modelName: "AudioRecorder") {print("coreDataController.completionClosure")}
         

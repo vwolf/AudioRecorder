@@ -2,9 +2,10 @@
 //  DropboxVC.swift
 //  AudioRecorder
 //
+//  Dropbox
 //  List all recorded takes.
 //  Mark all takes already saved to Dropbox App Directory.
-//
+//  Takes not in Dropbox are selectable and can be copied to Dropbox
 //
 //  Created by Wolf on 04.10.20.
 //  Copyright © 2020 Wolf. All rights reserved.
@@ -52,7 +53,7 @@ class DropboxVC: UIViewController {
     }
     
     /**
-     Upload files at paths to Dropbox App directory
+     Upload files at paths to Dropbox App directory.
      
      - parameters paths: URL's of files to upload
      */
@@ -142,7 +143,7 @@ class DropboxVC: UIViewController {
                     print("RouteError[\(String(describing: requestId))")
                     switch boxed.unboxed as Files.UploadError {
                     case .path(let lookupError):
-                        print("UploadError[\(String(describing: errorSummary))]: \(String(describing: userMessage))")
+                        print("UploadError[\(String(describing: errorSummary))]: \(String(describing: userMessage)), \(String(describing: lookupError)) ")
                         
                     default:
                         print("Unkown")
@@ -222,7 +223,32 @@ class DropboxVC: UIViewController {
             for row in 0..<selectedRows!.count {
                 if let url = Takes().getUrlforFile(fileName: takeNames[selectedRows![row]]) {
                     urlArray.append(url)
+                    
+                    // metadata json file
+                    let metadataFileURL = url.deletingPathExtension().appendingPathExtension("json")
+                    
+                    if FileManager.default.fileExists(atPath: metadataFileURL.path) {
+                        //takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
+                        urlArray.append(metadataFileURL)
+                    } else {
+                        // no metadata json file, create one
+                        let takeName = url.deletingPathExtension().lastPathComponent
+                        
+                        if (Takes().makeMetadataFile(takeName: takeName) == true) {
+                            // takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
+                            urlArray.append(metadataFileURL)
+                        }
+                    }
+                    
+                    // audio note?
+                    var takeNoteFileURL = url.deletingPathExtension().appendingPathComponent("notes")
+                    takeNoteFileURL.appendPathComponent(takeNames[selectedRows![row]], isDirectory: false)
+                    
+                    if FileManager.default.fileExists(atPath: takeNoteFileURL.path) {
+                        urlArray.append(takeNoteFileURL)
+                    }
                 }
+                
             }
             
             upload(paths: urlArray)

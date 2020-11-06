@@ -10,8 +10,14 @@ import Foundation
 import UIKit
 import CloudKit
 
+/**
+ Add, update, delete, refresh
+ 
+ 
+ */
 class TakeCKRecordModel {
     private let database = CKContainer.default().publicCloudDatabase
+    private let privateDatabase = CKContainer.default().privateCloudDatabase
     private let sharedDatabase = CKContainer.default().sharedCloudDatabase
     
     // CloudKit API will notifiy its caller about finished operations on background treads
@@ -41,6 +47,7 @@ class TakeCKRecordModel {
         
         // recording (wav file)
         let takeAsset = CKAsset(fileURL: url)
+        
         takeRecord.audioAsset = takeAsset
         
         // metadataFile? (*.json)
@@ -56,22 +63,44 @@ class TakeCKRecordModel {
             }
         }
         
+        // notes for take?
+        var takeNoteFileURL = url.deletingPathExtension().appendingPathComponent("notes")
+        takeNoteFileURL.appendPathComponent(takeRecord.name, isDirectory: false)
+        
+        if FileManager.default.fileExists(atPath: takeNoteFileURL.path) {
+            takeRecord.noteAsset = CKAsset(fileURL: takeNoteFileURL)
+        }
+        
+//        privateDatabase.save(takeRecord.record) { _, error in
+//            guard error == nil else {
+//                self.handle(error: error!)
+//                return
+//            }
+//
+//            self.insertedObjects.append(takeRecord)
+//            self.updateTakeRecords()
+//        }
+        
         // update public CloudDatabase
         database.save(takeRecord.record) { _, error in
             guard error == nil else {
                 self.handle(error: error!)
                 return
             }
-            
+
             self.insertedObjects.append(takeRecord)
             self.updateTakeRecords()
         }
         
     }
     
-    
+    /**
+     Delete take at index
+     
+     - parameters index: index of take to delete in takeRecords
+     */
     func deleteTake(at index: Int) {
-        let recordID = self.takeRecords[index].record.recordID
+        let recordID = takeRecords[index].record.recordID
         database.delete(withRecordID: recordID) { _, error in
             guard error == nil else {
                 self.handle(error: error!)
@@ -86,10 +115,13 @@ class TakeCKRecordModel {
     
     /**
      Get records not in cloud storage.
+     
      Use field value to compare records. That should be the name field
      
-     - Parameter field: name of value to compare
-     - Parameter recordNames: array of take names
+     - parameter field: name of value to compare
+     - parameter recordNames: array of take names
+     
+     - returns array with new record names
     
      */
     func getNewRecords(with field: String, in recordNames: [String] ) -> [String] {
@@ -159,6 +191,7 @@ struct TakeCKRecord {
     fileprivate static let keyName = "name"
     fileprivate static let keyTake = "take"
     fileprivate static let keyMetaData = "metadata"
+    fileprivate static let keyAudioNote = "audioNote"
     
     var record: CKRecord
     
@@ -194,6 +227,15 @@ struct TakeCKRecord {
         }
         set {
             self.record.setValue(newValue, forKey: TakeCKRecord.keyMetaData)
+        }
+    }
+    
+    var noteAsset: CKAsset {
+        get  {
+            return self.record.value(forKey: TakeCKRecord.keyAudioNote) as! CKAsset
+        }
+        set {
+            self.record.setValue(newValue, forKey: TakeCKRecord.keyAudioNote)
         }
     }
 }

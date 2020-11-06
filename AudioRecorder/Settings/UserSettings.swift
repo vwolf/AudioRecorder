@@ -11,7 +11,11 @@ import UIKit
 
 /**
  User defined settings saved in CoreData (Usersettings)
- 
+ User defined settiings are:
+ - takeName: preset for new recorded takes
+ - style: color scheme (not implementet jet)
+ - reccordingsetting: recording format
+ - shareClient: Service to share data
  */
 class UserSettings {
     
@@ -24,7 +28,7 @@ class UserSettings {
     
     var userSettingsMO = [UserSettingsMO]()
     // dictionary for display of settings
-    var userSettings = [UserSetting]()
+    //var userSettings = [UserSetting]()
     
     /// Use property observer to save changes immidiatly
     var takeName = "default" {
@@ -38,7 +42,7 @@ class UserSettings {
     var shareClient = "iCloud"
     
     init() {
-        readSettingsDefinitions()
+        //readSettingsDefinitions()
         if coreDataController != nil {
             fetchUserSettings()
         }
@@ -56,6 +60,10 @@ class UserSettings {
             takeName = activeSetting.takename!
             style = activeSetting.style!
             recordingsetting = activeSetting.recordingSettings!
+            if activeSetting.shareClient != nil {
+                shareClient = activeSetting.shareClient!
+            }
+            
         }
     }
     
@@ -94,20 +102,20 @@ class UserSettings {
      Return array of user settings
      
      */
-    func getUserSettingsForDisplay() -> [[String]] {
-        
-        var userSettingsValues = [[String]]()
-        
-        for settingDefinition in userSettings {
-            userSettingsValues.append( [ settingDefinition.name, settingDefinition.value ]  )
-        }
-//        userSettingsValues.append(["Recording Settings", recordingsetting])
-//        userSettingsValues.append(["Style", style])
-//        userSettingsValues.append(["Take Name Preset", takeName])
-        
-        return userSettingsValues
-    }
-    
+//    func getUserSettingsForDisplay() -> [[String]] {
+//
+//        var userSettingsValues = [[String]]()
+//
+////        for settingDefinition in userSettings {
+////            userSettingsValues.append( [ settingDefinition.name, settingDefinition.value ]  )
+////        }
+////        userSettingsValues.append(["Recording Settings", recordingsetting])
+////        userSettingsValues.append(["Style", style])
+////        userSettingsValues.append(["Take Name Preset", takeName])
+//
+//        return userSettingsValues
+//    }
+
     func userSettingsForDisplay() -> [String: String] {
         return ["takeNamePreset": takeName,
                 "style": style,
@@ -119,78 +127,78 @@ class UserSettings {
      Read UserSettings into dict
      
      */
-    func readSettingsDefinitions() {
-        for userSetting in UserSettingsDefinitions.allCases {
-            userSettings.append(userSetting.getUserSetting())
-        }
-    }
+//    func readSettingsDefinitions() {
+////        for userSetting in UserSettingsDefinitions.allCases {
+////            userSettings.append(userSetting.getUserSetting())
+////        }
+//    }
     
 }
 
 
-enum UserSettingsDefinitions: CaseIterable {
-    case takeName
-    case style
-    case recordingSetting
-    case shareClient
-    
-    func getType() -> SettingType {
-        switch self {
-        case .takeName:
-            return SettingType.userDefined
-        case .style, .shareClient :
-            return SettingType.preset
-        default:
-            return SettingType.fixed
-        }
-    }
-    
-    func getDefinition() -> [String: String] {
-        switch self {
-        case .takeName:
-            return ["name": "Take Name Preset", "type": getType().rawValue, "default": "recorde"]
-        case .style:
-            return ["name": "Style", "type": getType().rawValue, "default": "dark"]
-        case .recordingSetting:
-            return ["name": "Recording Setting", "type": getType().rawValue, "default": "middle"]
-        case .shareClient:
-            return ["name": "Service for sharing", "type": getType().rawValue, "default": "iCloud"]
-        }
-    }
-    
-    func getUserSetting() -> UserSetting {
-        switch self {
-        case .takeName:
-            return UserSetting(name: "Take Name Preset", type: getType().self, value: "recorde")
-        case .style :
-            return UserSetting(name: "Style", type: getType().self, value: "dark")
-        case .recordingSetting:
-            return UserSetting(name: "RecordingSetting", type: getType().self, value: "middle")
-        case .shareClient:
-            return UserSetting(name: "Service for sharing", type: getType().self, value: "iCloud")
-        }
-    }
-    
-    
-    enum SettingType: String {
-        case preset = "preset"
-        case userDefined = "userDefined"
-        case fixed = "fixed"
-        
-    }
-}
-
-
-struct UserSetting {
-    var name: String
-    var type: UserSettingsDefinitions.SettingType
-    var value: String
-    
-    init(name: String, type: UserSettingsDefinitions.SettingType, value: String) {
-        self.name = name
-        self.type = type
-        self.value = value
-    }
-}
+//enum UserSettingsDefinitions: CaseIterable {
+//    case takeName
+//    case style
+//    case recordingSetting
+//    case shareClient
+//
+//    func getType() -> SettingType {
+//        switch self {
+//        case .takeName:
+//            return SettingType.userDefined
+//        case .style, .shareClient :
+//            return SettingType.preset
+//        default:
+//            return SettingType.fixed
+//        }
+//    }
+//
+//    func getDefinition() -> [String: String] {
+//        switch self {
+//        case .takeName:
+//            return ["name": "Take Name Preset", "type": getType().rawValue, "default": "recorde"]
+//        case .style:
+//            return ["name": "Style", "type": getType().rawValue, "default": "dark"]
+//        case .recordingSetting:
+//            return ["name": "Recording Setting", "type": getType().rawValue, "default": "middle"]
+//        case .shareClient:
+//            return ["name": "Service for sharing", "type": getType().rawValue, "default": "iCloud"]
+//        }
+//    }
+//
+//    func getUserSetting() -> UserSetting {
+//        switch self {
+//        case .takeName:
+//            return UserSetting(name: "Take Name Preset", type: getType().self, value: "recorde")
+//        case .style :
+//            return UserSetting(name: "Style", type: getType().self, value: "dark")
+//        case .recordingSetting:
+//            return UserSetting(name: "RecordingSetting", type: getType().self, value: "middle")
+//        case .shareClient:
+//            return UserSetting(name: "Service for sharing", type: getType().self, value: "iCloud")
+//        }
+//    }
+//
+//
+//    enum SettingType: String {
+//        case preset = "preset"
+//        case userDefined = "userDefined"
+//        case fixed = "fixed"
+//
+//    }
+//}
+//
+//
+//struct UserSetting {
+//    var name: String
+//    var type: UserSettingsDefinitions.SettingType
+//    var value: String
+//
+//    init(name: String, type: UserSettingsDefinitions.SettingType, value: String) {
+//        self.name = name
+//        self.type = type
+//        self.value = value
+//    }
+//}
 
 

@@ -19,7 +19,7 @@ import AVFoundation
 class SettingsVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    //var tableData = [String]()
+    
     // settings format: [[String, String], [],], idx 0 is name, 1 is value
     //var tableData = [[["Name", "Default"], ["SampleRate", "44.100"]], [["RecordingSettings", "High"]]]
     var tableHeaders = ["Recording Settings", "User Settings"]
@@ -78,6 +78,21 @@ class SettingsVC: UIViewController {
             }
         }
     }
+    
+    /**
+     Update takename preset 
+     */
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if let viewControllers = self.navigationController?.viewControllers {
+            if (viewControllers.count >= 1) {
+                let previousViewController = viewControllers[viewControllers.count - 1] as! RecordVC
+                previousViewController.takeNamePreset = userSettings!.takeName
+            }
+        }
+    }
+    
     /**
      Settings value changed
      Usersetting->Name of Recording Setting then update Format Settings
@@ -143,12 +158,10 @@ class SettingsVC: UIViewController {
 extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return settingData[section].count
         return displaySetting[section].count
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-//        return settingData.count
         return displaySetting.count
     }
     
@@ -184,9 +197,9 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         
         cell.nameLabel.text = set.name
         cell.valueLabel.text = set.value
-        if set.format == SettingDefinitions.SettingFormat.preset {
-            cell.backgroundColor = Colors.Base.baseGreen.toUIColor()
-        }
+//        if set.format == SettingDefinitions.SettingFormat.preset {
+//            cell.backgroundColor = Colors.Base.baseGreen.toUIColor()
+//        }
 //        cell.nameLabel.text = settingData[indexPath.section][indexPath.row][0]
 //        cell.valueLabel.text = settingData[indexPath.section][indexPath.row][1]
         

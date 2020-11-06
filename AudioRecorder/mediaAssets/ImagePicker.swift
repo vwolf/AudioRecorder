@@ -13,7 +13,7 @@ public protocol ImagePickerDelegate: class {
     func didSelect(image: UIImage, imageURL: NSURL)
 }
 
-
+		
 open class ImagePicker : NSObject {
     
     private let pickerController: UIImagePickerController

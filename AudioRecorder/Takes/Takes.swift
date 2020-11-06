@@ -236,6 +236,17 @@ class Takes {
         return false
     }
     
+    // MARK: Take support data
+    
+    /**
+        Take data are the take, metadata, notes recording and image
+     
+     */
+    func getTakeData(takeName: String) {
+        
+    }
+    
+    
     func makeMetadataFile(takeName: String) -> Bool {
         guard let md = loadTake(takeName: takeName) else {
             return false

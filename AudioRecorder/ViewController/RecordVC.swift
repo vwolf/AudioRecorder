@@ -27,6 +27,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     @IBOutlet weak var audioInputVisualizer: AudioInputVisualizer!
     
+    @IBOutlet weak var toolbar: UIToolbar!
+    
     var audioCaptureSession: AudioCaptureSession?
     
     /// observer recording state
@@ -37,16 +39,28 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
                 let tintedImg = orginialImg?.withRenderingMode(.alwaysTemplate)
                 recordBtn.setImage(tintedImg, for: .normal)
                 recordBtn.tintColor = Colors.Base.baseRed.toUIColor()
+                for i in 0..<toolbar.items!.count {
+                    toolbar.items![i].isEnabled = false
+                }
+                
             } else {
                 recordBtn.tintColor = Colors.Base.baseGreen.toUIColor()
+                for i in 0..<toolbar.items!.count {
+                    toolbar.items![i].isEnabled = true
+                }
             }
         }
     }
     
     /// set after successfully recording
     var recorded = false
-    
-    var takeNamePreset = "recorded"
+    /// this is the default takename preset string, can be changed at UserSettings
+    var takeNamePreset = "recorded" {
+        didSet {
+            takeNamePreset = userSettings!.takeName
+            recordingName.text = "\(takeNamePreset) + timestamp"
+        }
+    }
     
     var settings: Settings?
     var userSettings: UserSettings?
@@ -79,9 +93,11 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         recording = false
         
         initSettings()
+
+        //userSettings?.takeName = takeNamePreset
         
+        takeNamePreset = userSettings!.takeName
         recordingName.text = "\(takeNamePreset) + timestamp"
-        userSettings?.takeName = takeNamePreset
         
         audioInputVisualizer.setBarViewPosition()
         audioInputVisualizer.isHidden = true
@@ -103,6 +119,11 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     // MARK: - Navigation
 
+    /**
+     Before any navigation to new view, recording should stop and take saved.
+     Always?
+     
+     */
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         NSLog("prepare for segue \(String(describing: segue.identifier))")
         
@@ -135,15 +156,42 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             let takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
             
             destination?.takes = takes
-          
+         
+        // share destination depending on UserSettings
+        // iCloudDrive, Dropbox
 //        case "ShowShareSegueIdentifier":
-//            let destination = segue.destination as? ShareVC
-            
+//            if userSettings != nil {
+//                switch userSettings?.shareClient {
+//                case "iCloud" :
+//                    let destination = segue.destination as? ShareVC
+//                case "Dropbox" :
+//                    let destination = segue.destination as? DropboxVC
+//
+//                default :
+//                print("Unknown ShareClient")
+//                }
+//            }
+//
+//
         default:
             NSLog("Navigation: Segue with unknown identifier")
         }
     }
     
+    
+    @IBAction func shareBtnAction(_ sender: Any) {
+        if userSettings != nil {
+            switch userSettings?.shareClient {
+            case "iCloud":
+                self.performSegue(withIdentifier: "ShowShareSegueIdentifier", sender: self)
+            case "Dropbox":
+                self.performSegue(withIdentifier: "ShowDropboxSegueIdentifier", sender: nil)
+            default:
+                print("Unknown")
+            }
+        }
+        //self.performSegue(withIdentifier: "ShowShareSegueIdentifier", sender: self)
+    }
     
     
     // MARK: Actions
@@ -181,12 +229,17 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         NSLog(documentPath.path)
         
         let activeSettings = settings?.getCurrentSetting()
+        print(activeSettings![AVSampleRateKey])
         
+        //print(activeSettings[])
         do {
             audioRecorder = try AVAudioRecorder(url: takeFileURL, settings: activeSettings! )
             audioRecorder.delegate = self
-            audioRecorder.record()
+            audioRecorder.prepareToRecord()
             audioRecorder.isMeteringEnabled = true
+            
+            audioRecorder.record()
+            
             recording = true
             recorded = false
             

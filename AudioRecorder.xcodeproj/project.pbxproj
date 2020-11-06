@@ -11,6 +11,7 @@
 		7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7946F1B0251F223E00EA9580 /* PopoverTableView.xib */; };
 		7946F1B6251F282600EA9580 /* PopoverCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1B5251F282600EA9580 /* PopoverCellController.swift */; };
 		7946F1BB251F2F9800EA9580 /* PopoverCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7946F1BA251F2F9800EA9580 /* PopoverCell.xib */; };
+		7948C48A253651F700BE64E9 /* ItemDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7948C489253651F700BE64E9 /* ItemDetailVC.swift */; };
 		795A0DDD25134D9600DE340B /* WaveformImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DDC25134D9500DE340B /* WaveformImageView.swift */; };
 		795A0DDF25134DFD00DE340B /* WaveformImageDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */; };
 		795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */; };
@@ -33,6 +34,8 @@
 		798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */; };
 		798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 798656F42514A8C700DD610F /* MetadataAddCell.xib */; };
 		798656F72514A92800DD610F /* MetadataAddCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 798656F62514A92800DD610F /* MetadataAddCellController.swift */; };
+		798F3E79253E1729002971B2 /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 798F3E78253E1729002971B2 /* Readme.md */; };
+		798F3E7F2540DD55002971B2 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 798F3E7E2540DD55002971B2 /* Alamofire */; };
 		7992D4D6252CB16A00D4E40F /* SwiftyDropbox in Frameworks */ = {isa = PBXBuildFile; productRef = 7992D4D5252CB16A00D4E40F /* SwiftyDropbox */; };
 		79BDA06424FF94D60000B18B /* AudioInputVisualizer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79BDA06324FF94D60000B18B /* AudioInputVisualizer.xib */; };
 		79BDA06624FF958B0000B18B /* AudioInputVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BDA06524FF958B0000B18B /* AudioInputVisualizer.swift */; };
@@ -103,6 +106,7 @@
 		7946F1B0251F223E00EA9580 /* PopoverTableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopoverTableView.xib; sourceTree = "<group>"; };
 		7946F1B5251F282600EA9580 /* PopoverCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverCellController.swift; sourceTree = "<group>"; };
 		7946F1BA251F2F9800EA9580 /* PopoverCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopoverCell.xib; sourceTree = "<group>"; };
+		7948C489253651F700BE64E9 /* ItemDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailVC.swift; sourceTree = "<group>"; };
 		795A0DDC25134D9500DE340B /* WaveformImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageView.swift; sourceTree = "<group>"; };
 		795A0DDE25134DFD00DE340B /* WaveformImageDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageDrawer.swift; sourceTree = "<group>"; };
 		795A0DE025134F3B00DE340B /* WaveformImageTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformImageTypes.swift; sourceTree = "<group>"; };
@@ -125,6 +129,7 @@
 		798545B5250A16D800D6A1D2 /* MDataTextEditCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataTextEditCell.xib; sourceTree = "<group>"; };
 		798656F42514A8C700DD610F /* MetadataAddCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MetadataAddCell.xib; sourceTree = "<group>"; };
 		798656F62514A92800DD610F /* MetadataAddCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataAddCellController.swift; sourceTree = "<group>"; };
+		798F3E78253E1729002971B2 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		79BDA06324FF94D60000B18B /* AudioInputVisualizer.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioInputVisualizer.xib; sourceTree = "<group>"; };
 		79BDA06524FF958B0000B18B /* AudioInputVisualizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioInputVisualizer.swift; sourceTree = "<group>"; };
 		79BDA0672500C9F50000B18B /* AudioCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureSession.swift; sourceTree = "<group>"; };
@@ -185,6 +190,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				798F3E7F2540DD55002971B2 /* Alamofire in Frameworks */,
 				79DC8CEC25100F3300396FE1 /* CloudKit.framework in Frameworks */,
 				7992D4D6252CB16A00D4E40F /* SwiftyDropbox in Frameworks */,
 			);
@@ -393,6 +399,7 @@
 				79D223CD24D950D200900F31 /* Assets.xcassets */,
 				79D223CF24D950D200900F31 /* LaunchScreen.storyboard */,
 				79D223D224D950D200900F31 /* Info.plist */,
+				798F3E78253E1729002971B2 /* Readme.md */,
 			);
 			path = AudioRecorder;
 			sourceTree = "<group>";
@@ -424,6 +431,7 @@
 				79825BA024D97B15008C0D04 /* SettingsVC.swift */,
 				79825BA224DA0D45008C0D04 /* TakesVC.swift */,
 				79BDA07125022DFB0000B18B /* TakeVC.swift */,
+				7948C489253651F700BE64E9 /* ItemDetailVC.swift */,
 				79BDA0822503DA210000B18B /* TakeCollectionViewFlowLayout.swift */,
 				79DC8CE42510010200396FE1 /* ShareVC.swift */,
 				79F000312529CEDE00535143 /* DropboxVC.swift */,
@@ -494,6 +502,7 @@
 			name = AudioRecorder;
 			packageProductDependencies = (
 				7992D4D5252CB16A00D4E40F /* SwiftyDropbox */,
+				798F3E7E2540DD55002971B2 /* Alamofire */,
 			);
 			productName = AudioRecorder;
 			productReference = 79D223BE24D950D000900F31 /* AudioRecorder.app */;
@@ -569,6 +578,7 @@
 			mainGroup = 79D223B524D950D000900F31;
 			packageReferences = (
 				79F0002B2529C70100535143 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */,
+				798F3E7D2540DD55002971B2 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			productRefGroup = 79D223BF24D950D000900F31 /* Products */;
 			projectDirPath = "";
@@ -601,6 +611,7 @@
 				7946F1BB251F2F9800EA9580 /* PopoverCell.xib in Resources */,
 				79BDA0812503C0D40000B18B /* MDataEditCell.xib in Resources */,
 				798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */,
+				798F3E79253E1729002971B2 /* Readme.md in Resources */,
 				7975051425246B50002C21C5 /* MDataAudioPopover.xib in Resources */,
 				798545B7250A16D800D6A1D2 /* MDataTextEditCell.xib in Resources */,
 				7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */,
@@ -632,6 +643,7 @@
 				79BDA06D25011D310000B18B /* MetaDataDescription.swift in Sources */,
 				79D223C224D950D000900F31 /* AppDelegate.swift in Sources */,
 				795A0DDF25134DFD00DE340B /* WaveformImageDrawer.swift in Sources */,
+				7948C48A253651F700BE64E9 /* ItemDetailVC.swift in Sources */,
 				79C83DBA24DA92CE00B23001 /* UserSettings.swift in Sources */,
 				79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */,
 				798545B6250A16D800D6A1D2 /* MDataTextEditCellController.swift in Sources */,
@@ -859,6 +871,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devwolf.AudioRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -879,6 +892,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devwolf.AudioRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1012,6 +1026,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		798F3E7D2540DD55002971B2 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = exactVersion;
+				version = 4.8.2;
+			};
+		};
 		79F0002B2529C70100535143 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dropbox/SwiftyDropbox.git";
@@ -1023,6 +1045,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		798F3E7E2540DD55002971B2 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 798F3E7D2540DD55002971B2 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
 		7992D4D5252CB16A00D4E40F /* SwiftyDropbox */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 79F0002B2529C70100535143 /* XCRemoteSwiftPackageReference "SwiftyDropbox" */;
