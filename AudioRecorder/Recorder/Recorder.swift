@@ -57,8 +57,14 @@ class Recorder: NSObject, AVAudioRecorderDelegate {
         
         do {
             // update takeURL with format extension
-            takeURL?.appendPathComponent(takeName!)
-            takeURL?.appendPathExtension("wav")
+//            var recordingTakeURL = takeURL
+//            if customTakeName  != nil {
+//                recordingTakeURL?.appendPathComponent(customTakeName!)
+//            } else {
+//                recordingTakeURL?.appendPathComponent(takeName!)
+//            }
+//
+//            recordingTakeURL?.appendPathExtension("wav")
             audioRecorder = try AVAudioRecorder(url: takeURL!, settings: defaultSetting)
             audioRecorder.delegate = self
             audioRecorder.record()

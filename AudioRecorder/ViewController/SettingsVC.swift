@@ -46,6 +46,7 @@ class SettingsVC: UIViewController {
     override func willMove(toParent parent: UIViewController?) {
         super.willMove(toParent: parent)
         
+        print("parent: \(String(describing: parent))")
         // when moving back, parent parameter is nil
         if (parent == nil) {
             if parentIsShareVC == true {
@@ -100,7 +101,7 @@ class SettingsVC: UIViewController {
      - parameter indexPath: tableView indexPath of change setting
      - parameter value: new value
      */
-    private func settingValueUpdate(indexPath: IndexPath, value: String) {
+    private func settingValueUpdate(indexPath: IndexPath, value: String, displayValue: String) {
         switch displaySetting[indexPath.section][indexPath.row].id {
         case "recordingSettings" :
             self.displaySetting[indexPath.section][indexPath.row].value = value
@@ -123,6 +124,11 @@ class SettingsVC: UIViewController {
             userSettings?.updateUserSetting(name: "takename", value: value)
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         
+        case "takeNameExtension":
+            self.displaySetting[indexPath.section][indexPath.row].value = value
+            userSettings?.updateUserSetting(name: "takenameExtension", value: value)
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
+            
         case "shareClient":
             self.displaySetting[indexPath.section][indexPath.row].value = value
             userSettings?.updateUserSetting(name: "shareClient", value: value)
@@ -196,7 +202,12 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         let set = displaySetting[indexPath.section][indexPath.row]
         
         cell.nameLabel.text = set.name
-        cell.valueLabel.text = set.value
+        if (set.settingEditingParms != nil) {
+            cell.valueLabel.text = set.settingEditingParms?.getPresetMsg(value: set.value)
+        } else {
+            cell.valueLabel.text = set.value
+        }
+        
 //        if set.format == SettingDefinitions.SettingFormat.preset {
 //            cell.backgroundColor = Colors.Base.baseGreen.toUIColor()
 //        }
@@ -217,14 +228,28 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             case "recordingSettings" :
                 // get all awailable recording format preset names
                 let names = settings?.getSettingsName()
-                editValue(index: indexPath, values: names!)
+                var editingParams = SettingDefinitions.shareClient.getSettingEditingParams()
+                editingParams.presets = names ?? ["no Settings?"]
+                selectPreset(index: indexPath, params: editingParams)
+                //
+                //editValue(index: indexPath, values: names!)
                 
             case "style" :
-                let styles = ["dark", "light"]
-                editValue(index: indexPath, values: styles)
+                let editingParams = SettingDefinitions.style.getSettingEditingParams()
+                selectPreset(index: indexPath, params: editingParams)
+                //let styles = ["dark", "light"]
+                //editValue(index: indexPath, values: styles)
              
             case "shareClient":
-                editValue(index: indexPath, values: ["iCloud", "Dropbox"])
+                let editingParams = SettingDefinitions.shareClient.getSettingEditingParams()
+                selectPreset(index: indexPath, params: editingParams)
+//                editValue(index: indexPath, values: ["iCloud", "Dropbox"])
+             
+            case "takeNameExtension":
+                let editingParams = SettingDefinitions.takeNameExtension.getSettingEditingParams()
+                selectPreset(index: indexPath, params: editingParams)
+                
+//                editValue(index: indexPath, values: ["timestamp", "index"])
                 
             default:
                 print("nothing to edit")
@@ -250,24 +275,25 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
      - parameter index: selected tableView cell
      - parameter values: Values to display in alert
      */
-    func editValue(index: IndexPath, values: [String]) {
+    func selectPreset(index: IndexPath, params: SettingEditingParams) {
         
 //        let popoverContentController = PopoverVC(nibName: "PopoverTableView", bundle: nil)
 //        let section = tableHeaders[index.section]
         
         // user defined value -> show alert with textField to edit value
-        let alert = UIAlertController(title: "Select", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: params.title, message: params.msg, preferredStyle: .alert)
         
         let closure = { (action: UIAlertAction!) -> Void in
             let indexSelected = alert.actions.firstIndex(where: { $0 === action})
             if (indexSelected != nil) {
-                print("selected: \(values[indexSelected!])")
-                self.settingValueUpdate(indexPath: index, value: values[indexSelected!])
+                print("selected: \(params.presets[indexSelected!])")
+                //self.settingValueUpdate(indexPath: index, value: params.presets[indexSelected!])
+                self.settingValueUpdate(indexPath: index, value: params.presets[indexSelected!], displayValue: params.presetsMsg[indexSelected!])
             }
         }
         
         
-        for item in values {
+        for item in params.presetsMsg {
             alert.addAction(UIAlertAction(title: item, style: .default, handler: closure))
         }
         
@@ -299,7 +325,7 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
             let textField = alert.textFields![0] as UITextField
             print("Text in textField: \(String(describing: textField.text))")
-            self.settingValueUpdate(indexPath: indexPath, value: textField.text!)
+            self.settingValueUpdate(indexPath: indexPath, value: textField.text!, displayValue: "")
         }
         
         alert.addAction(saveAction)

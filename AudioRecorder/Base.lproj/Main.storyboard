@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TimerValue" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3n9-33-xcd" customClass="RecordingTimer" customModule="AudioRecorder" customModuleProvider="target">
-                                <rect key="frame" x="20" y="400" width="335" height="21"/>
+                                <rect key="frame" x="20" y="392" width="335" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="n0H-22-SnL"/>
                                 </constraints>
@@ -26,13 +26,15 @@
                                 <color key="textColor" systemColor="systemGray5Color"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6as-lA-ZAR">
-                                <rect key="frame" x="59.5" y="100" width="256" height="256"/>
-                                <state key="normal" image="microphone_gray"/>
-                                <connections>
-                                    <action selector="recordBtnAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="irC-oc-EbY"/>
-                                </connections>
-                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Take Name" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oz3-2d-tdo">
+                                <rect key="frame" x="20" y="429" width="335" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="5gz-1b-5Oi"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="systemGray5Color"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="roe-9P-mSJ">
                                 <rect key="frame" x="0.0" y="579" width="375" height="44"/>
                                 <items>
@@ -55,15 +57,6 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Take Name" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oz3-2d-tdo">
-                                <rect key="frame" x="20" y="437" width="335" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="5gz-1b-5Oi"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" systemColor="systemGray5Color"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i8b-VD-pGB" customClass="AudioInputVisualizer" customModule="AudioRecorder" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="478" width="375" height="100"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -71,21 +64,31 @@
                                     <constraint firstAttribute="height" constant="100" id="4tR-Dh-Znq"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6as-lA-ZAR">
+                                <rect key="frame" x="59.5" y="66" width="256" height="250"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="250" id="Isk-Zp-Brz"/>
+                                </constraints>
+                                <state key="normal" image="microphone_gray"/>
+                                <connections>
+                                    <action selector="recordBtnAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="irC-oc-EbY"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="eX2-1O-tAg"/>
                         <color key="backgroundColor" red="0.12941176470588234" green="0.12549019607843137" blue="0.12156862745098039" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
-                            <constraint firstItem="3n9-33-xcd" firstAttribute="top" secondItem="6as-lA-ZAR" secondAttribute="bottom" constant="44" id="0mm-7n-obj"/>
-                            <constraint firstItem="6as-lA-ZAR" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="5sb-H5-v0g"/>
+                            <constraint firstItem="6as-lA-ZAR" firstAttribute="centerX" secondItem="3n9-33-xcd" secondAttribute="centerX" id="3hz-TU-Fd4"/>
                             <constraint firstAttribute="bottom" secondItem="i8b-VD-pGB" secondAttribute="bottom" constant="45" id="FCr-3T-tdU"/>
                             <constraint firstAttribute="trailing" secondItem="oz3-2d-tdo" secondAttribute="trailing" constant="20" id="IQA-uO-DKc"/>
-                            <constraint firstAttribute="trailing" secondItem="3n9-33-xcd" secondAttribute="trailing" constant="20" id="XSl-ni-2po"/>
+                            <constraint firstItem="i8b-VD-pGB" firstAttribute="top" secondItem="oz3-2d-tdo" secondAttribute="bottom" constant="28" id="IXL-YN-lhN"/>
+                            <constraint firstAttribute="trailing" relation="lessThanOrEqual" secondItem="3n9-33-xcd" secondAttribute="trailing" constant="20" id="XSl-ni-2po"/>
                             <constraint firstItem="3n9-33-xcd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="XiU-RT-550"/>
+                            <constraint firstItem="6as-lA-ZAR" firstAttribute="leading" relation="lessThanOrEqual" secondItem="eX2-1O-tAg" secondAttribute="leading" constant="87" id="ZAq-Bg-TTv"/>
                             <constraint firstItem="roe-9P-mSJ" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing" id="d3H-s1-pZX"/>
                             <constraint firstAttribute="bottom" secondItem="roe-9P-mSJ" secondAttribute="bottom" id="eKg-xb-CEr"/>
                             <constraint firstItem="oz3-2d-tdo" firstAttribute="top" secondItem="3n9-33-xcd" secondAttribute="bottom" constant="16" id="g7N-Sb-4OA"/>
-                            <constraint firstItem="3n9-33-xcd" firstAttribute="top" secondItem="6as-lA-ZAR" secondAttribute="bottom" constant="44" id="qAo-Jt-GFg"/>
-                            <constraint firstItem="6as-lA-ZAR" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" constant="100" id="r7Z-O6-feF"/>
+                            <constraint firstItem="6as-lA-ZAR" firstAttribute="top" secondItem="eX2-1O-tAg" secondAttribute="top" constant="66" id="qAF-Pe-UF2"/>
                             <constraint firstItem="roe-9P-mSJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="rVb-Hs-TLq"/>
                             <constraint firstItem="i8b-VD-pGB" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing" id="sms-VL-WT3"/>
                             <constraint firstItem="i8b-VD-pGB" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="t5G-PH-MYH"/>
@@ -107,7 +110,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1060" y="224"/>
+            <point key="canvasLocation" x="1060" y="223.53823088455775"/>
         </scene>
         <!--Takes-->
         <scene sceneID="RCF-b6-a8S">
@@ -465,6 +468,7 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="cloudBtn" destination="UtI-Cq-LrI" id="TaM-iy-8pw"/>
                                             <outlet property="takeNameLabel" destination="vEN-uJ-CrG" id="fLw-fK-8x4"/>
                                             <outlet property="takeStatusLabel" destination="cVL-GT-z0q" id="Dje-fd-Myn"/>
                                         </connections>

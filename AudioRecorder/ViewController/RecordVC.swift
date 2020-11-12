@@ -57,8 +57,15 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     /// this is the default takename preset string, can be changed at UserSettings
     var takeNamePreset = "recorded" {
         didSet {
+            print("takeNamePreset to: \(takeNamePreset)")
             takeNamePreset = userSettings!.takeName
-            recordingName.text = "\(takeNamePreset) + timestamp"
+            recordingName.text = makeTakeName()
+        }
+    }
+    // name of take for next recording
+    var takeName = "recorded" {
+        didSet {
+            recordingName.text = takeName
         }
     }
     
@@ -93,11 +100,9 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         recording = false
         
         initSettings()
-
-        //userSettings?.takeName = takeNamePreset
         
         takeNamePreset = userSettings!.takeName
-        recordingName.text = "\(takeNamePreset) + timestamp"
+        recordingName.text = "\(takeNamePreset)_\(userSettings!.takeNameExtension)"
         
         audioInputVisualizer.setBarViewPosition()
         audioInputVisualizer.isHidden = true
@@ -113,6 +118,17 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         
         let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         print(documentPath)
+        
+        DispatchQueue.main.async {
+            CloudDataManager.sharedInstance.metadataQuery { [self] result in
+                print("metadataQuery with result \(result)")
+                //self.addToTakesInShare(takeURLs:  self.cloudDataManager.cloudURLs)
+                self.takeName = makeTakeName()
+            }
+        }
+        // takename
+        
+       
     }
     
 
@@ -153,8 +169,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         case "ShowTakesSegueIdentifier" :
             let destination = segue.destination as? TakesVC
             
-            let takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
-            
+//            let takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+            let takes = Takes().getAllTakeNames()
             destination?.takes = takes
          
         // share destination depending on UserSettings
@@ -223,13 +239,43 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
      */
     private func startRecording() {
         
-        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let takeName = "\(userSettings!.takeName)_\(Date().toString(dateFormat: "dd-MM-YY_'at'_HH:mm:ss")).wav"
+        var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        
+        // there should be a valid takeName, just check if unique
+        if Takes().getDirectoryForFile(takeName: takeName, takeDirectory: AppConstants.takesFolder.rawValue) != nil {
+            // directory takeName exist in takes directiory
+            takeName = makeTakeName()
+        }
+//        let nextIndex = Takes().getIndexForName(name: takeNamePreset, seperator: "_", type: "index",  indexLength: 4)
+        let directoryName = takeName
+        
+        //let directoryName = "\(userSettings!.takeName)_\(Date().toString(dateFormat: "dd-MM-YY_'at'_HH:mm:ss"))"
+        //let takeName = "\(userSettings!.takeName)_\(Date().toString(dateFormat: "dd-MM-YY_'at'_HH:mm:ss")).wav"
+        let takeName = directoryName + ".wav"
+        
+        documentPath.appendPathComponent("takes", isDirectory: true)
+        if FileManager.default.fileExists(atPath: documentPath.path) == false {
+            do {
+                try FileManager.default.createDirectory(at: documentPath, withIntermediateDirectories: false, attributes: nil)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        
+        // each takes gets a folder
+        do {
+            documentPath.appendPathComponent(directoryName, isDirectory: true)
+            try FileManager.default.createDirectory(at: documentPath, withIntermediateDirectories: false, attributes: nil)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
         let takeFileURL = documentPath.appendingPathComponent(takeName)
         NSLog(documentPath.path)
+        NSLog(takeFileURL.path)
         
         let activeSettings = settings?.getCurrentSetting()
-        print(activeSettings![AVSampleRateKey])
+        //print(activeSettings![AVSampleRateKey])
         
         //print(activeSettings[])
         do {
@@ -331,6 +377,41 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         
     }
  
+    /**
+     Make a valid take name
+     
+     */
+    private func makeTakeName() -> String {
+        // test takename
+        let ubiqutios =  CloudDataManager.sharedInstance.takeDirectories
+        
+        switch userSettings!.takeNameExtension {
+        case "index":
+            let nextIndex = Takes().getIndexForName(name: takeNamePreset,
+                                                    seperator: "_",
+                                                    type: userSettings!.takeNameExtension,
+                                                    indexLength: 4,
+                                                    ubiqutios: ubiqutios)
+            return "\(takeNamePreset)_\(nextIndex)"
+            
+        case "date_index":
+            let today = Date().toString(dateFormat: "dd-MM-YY")
+            let presetAndDate = takeNamePreset + "-" + today
+            let nextIndex = Takes().getIndexForName(name: presetAndDate, seperator: "_",
+                                                    type: userSettings!.takeNameExtension,
+                                                    indexLength: 4,
+                                                    ubiqutios: ubiqutios)
+            return "\(presetAndDate)_\(nextIndex)"
+         
+        case "date_time":
+            let today = Date().toString(dateFormat: "dd-MM-YY'_at_'hh-mm-ss" )
+            return "\(takeNamePreset)_\(today)"
+            
+        default:
+            return takeNamePreset
+        }
+    }
+    
     
     // MARK: AVAudioRecorderDelegate
     

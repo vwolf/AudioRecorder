@@ -29,18 +29,36 @@ class MDataAudioPopoverVC: UIViewController {
             if recordingType == .NOTE {
                 if let takeName = take?.takeName {
                     let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                    let noteTakePath = documentsURL.appendingPathComponent(RecordingTypes.NOTE.rawValue)
-                    do {
-                        try FileManager.default.createDirectory(at: noteTakePath, withIntermediateDirectories: true, attributes: nil)
-                        //noteTakePath.appendPathExtension((take?.takeType)!)
+                    var noteTakePath = documentsURL.appendingPathComponent(RecordingTypes.TAKE.rawValue, isDirectory: true)
+                    noteTakePath.appendPathComponent(takeName, isDirectory: true)
+                    
+                    // there should always a directory named takeName
+                    if FileManager.default.fileExists(atPath: noteTakePath.path)  {
+                        noteTakePath.appendPathComponent(takeName + AppConstants.notesFileExtension.rawValue)
+                        noteTakePath.appendPathExtension("wav")
+                        
                         recorder = Recorder(takeName: takeName, takeURL: noteTakePath)
                         recordBtn.isEnabled = true
+                        
                         if ((take?.getNoteForTake()) != nil)  {
                             statusLabel.isHidden = false
                         }
-                    } catch {
-                        print(error.localizedDescription)
+                    } else {
+                        print("Error no directory for take note audio file")
                     }
+                    
+                    
+//                    do {
+//                        try FileManager.default.createDirectory(at: noteTakePath, withIntermediateDirectories: true, attributes: nil)
+//                        //noteTakePath.appendPathExtension((take?.takeType)!)
+//                        recorder = Recorder(takeName: takeName, takeURL: noteTakePath)
+//                        recordBtn.isEnabled = true
+//                        if ((take?.getNoteForTake()) != nil)  {
+//                            statusLabel.isHidden = false
+//                        }
+//                    } catch {
+//                        print(error.localizedDescription)
+//                    }
                 }
             }
        

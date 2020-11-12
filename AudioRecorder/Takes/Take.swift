@@ -460,9 +460,9 @@ class Take {
     }
     
     func getTakeFormat() -> AudioFormatDescription? {
-        let takeNameWithExtension = takeName! + "." + takeType!
-        let takeURL = Takes().getUrlforFile(fileName: takeNameWithExtension)
-        
+        //let takeNameWithExtension = takeName! + "." + takeType!
+        //let takeURL = Takes().getUrlforFile(fileName: takeNameWithExtension)
+        let takeURL = Takes().getURLForFile(takeName: takeName!, fileExtension: takeType!, takeDirectory: "takes")
         let asset = AVAsset(url: takeURL!)
         let assetTrack = asset.tracks
         
@@ -596,7 +596,7 @@ class Take {
         let takeNameWithoutExtension = Takes().stripFileExtension(takeNameWithExtension)
         let takeNameInItem = getItemForID(id: "takeName", section: .RECORDINGDATA)
         let tn = takeNameInItem!.value as! String
-        let tnWithExtension = tn + "." + takeType!
+        // let tnWithExtension = tn + "." + takeType!
         
         if takeNameWithoutExtension != tn {
             takeName = takeNameWithoutExtension
@@ -604,7 +604,8 @@ class Take {
                 NSLog("Error updateing item takename to \(tn)")
             }
             
-            if let newNameURL = Takes().getUrlforFile(fileName: tnWithExtension)  {
+            if let newNameURL = Takes().getURLForFile(takeName: tn, fileExtension: "wav", takeDirectory: "takes") {
+            //if let newNameURL = Takes().getUrlforFile(fileName: tnWithExtension)  {
                 // first save new take name
                 if coreDataController?.updateTake(takeNameToUpdate: takeName!, name: tn, filePath: newNameURL.path, recordedAt: recordedAt!, latitude: location?.coordinate.latitude, longitude: location?.coordinate.longitude) == true {
                     
@@ -648,6 +649,16 @@ class Take {
     }
     
     // MARK: Services
+    
+    /**
+     Return path url
+     
+     - returns path to take in documents directory
+     */
+    func getTakePath() {
+        
+    }
+    
     
     /**
      Add a MetadataItem
@@ -759,14 +770,17 @@ class Take {
     
     /**
      Does a recorded note for take exist?
+     Save note to take directory
      
      - return URL?
      */
     func getNoteForTake() -> URL? {
-        let notesDirectoryName = RecordingTypes.NOTE.rawValue
+        let notesDirectoryName = RecordingTypes.TAKE.rawValue
         var notesDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        notesDirectory.appendPathComponent(notesDirectoryName)
-        var noteForTakeURL = notesDirectory.appendingPathComponent(takeName!)
+        notesDirectory.appendPathComponent(notesDirectoryName, isDirectory: true)
+        notesDirectory.appendPathComponent(takeName!, isDirectory: true)
+        
+        var noteForTakeURL = notesDirectory.appendingPathComponent(takeName! + AppConstants.notesFileExtension.rawValue)
         noteForTakeURL.appendPathExtension(takeType!)
         if FileManager.default.fileExists(atPath: noteForTakeURL.path) {
             return noteForTakeURL

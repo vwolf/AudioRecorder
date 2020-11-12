@@ -372,6 +372,8 @@ class CoreDataController: DataControllerDelegate {
             switch name {
             case "takename":
                 settings.takename = value
+            case "takenameExtension":
+                settings.takenameExtension = value
             case "style":
                 settings.style = value
             case "recordingSettings":

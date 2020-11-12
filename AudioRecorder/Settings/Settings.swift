@@ -36,8 +36,8 @@ class Settings {
     var currentSetting: [Setting]?
     
     /// order of items for display
-    let formatSettingsOrder = ["name", AVFormatIDKey, AVSampleRateKey, AVNumberOfChannelsKey, AVLinearPCMBitDepthKey, AVLinearPCMIsBigEndianKey]
-    let userSettingsOrder = ["takename", "recordingSettings", "style", "shareClient"]
+    let formatSettingsOrder = ["name", AVFormatIDKey, AVSampleRateKey, AVNumberOfChannelsKey, AVLinearPCMBitDepthKey]
+    let userSettingsOrder = ["takename", "takeNameExtension", "recordingSettings", "style", "shareClient"]
     
     init(name: String) {
         currentSettingsName = name
@@ -168,10 +168,10 @@ class Settings {
                 let settingValue = String(describing: setting.value as! CVarArg)
                 let settingStruct = SettingDefinitions.channels.getSetting(value: settingValue)
                 settingToAdd.append(settingStruct)
-            case AVLinearPCMIsBigEndianKey:
-                let settingValue = String(describing: setting.value as! CVarArg)
-                let settingStruct = SettingDefinitions.bigEndian.getSetting(value: settingValue)
-                settingToAdd.append(settingStruct)
+//            case AVLinearPCMIsBigEndianKey:
+//                let settingValue = String(describing: setting.value as! CVarArg)
+//                let settingStruct = SettingDefinitions.bigEndian.getSetting(value: settingValue)
+//                settingToAdd.append(settingStruct)
             default:
                 print("Unknown")
             }
@@ -189,6 +189,9 @@ class Settings {
             switch set.key {
             case "takeNamePreset":
                 let settingStruct = SettingDefinitions.takeName.getSetting(value: set.value)
+                settingToAdd.append(settingStruct)
+            case "takeNameExtension":
+                let settingStruct = SettingDefinitions.takeNameExtension.getSetting(value: set.value)
                 settingToAdd.append(settingStruct)
             case "style":
                 let settingStruct = SettingDefinitions.style.getSetting(value: set.value)
@@ -229,6 +232,24 @@ struct Setting {
     var value: String
     
     var id: String
+    var settingEditingParms: SettingEditingParams?
+}
+
+struct SettingEditingParams {
+    var title: String
+    var msg: String?
+    var presets: [String]
+    var presetsMsg: [String]
+    
+    func getPresetMsg(value: String) -> String {
+        let idx = presets.firstIndex(where: { $0 == value })
+        if idx != nil {
+            if presetsMsg.count > idx! {
+                return presetsMsg[idx!]
+            }
+        }
+        return value
+    }
 }
 
 /**
@@ -247,6 +268,7 @@ enum SettingDefinitions: CaseIterable {
     
     // user settings
     case takeName
+    case takeNameExtension
     case style
     case recordingSetting
     case shareClient
@@ -256,6 +278,9 @@ enum SettingDefinitions: CaseIterable {
         switch self {
         case .recordingFormatName:
             return Setting(name: "Recording Setting", format: SettingFormat.fixed, value: value, id: "name")
+        case .takeNameExtension:
+            let params = self.getSettingEditingParams()
+            return Setting(name: "Name Extension", format: SettingFormat.preset, value: value, id: "takeNameExtension", settingEditingParms: params)
         case .recordingFormatType:
             return Setting(name: "Type", format: SettingFormat.fixed, value: value, id: AVFormatIDKey)
         case .bitDepth:
@@ -269,20 +294,75 @@ enum SettingDefinitions: CaseIterable {
         case .takeName:
             return Setting(name: "Preset Name", format: SettingFormat.userDefined, value: value, id: "takename")
         case .style:
-            return Setting(name: "Style", format: SettingFormat.preset, value: value, id: "style")
+            let params = self.getSettingEditingParams()
+            return Setting(name: "Style", format: SettingFormat.preset, value: value, id: "style", settingEditingParms: params)
         case .recordingSetting:
             return Setting(name: "Name of Recording Setting", format: SettingFormat.preset, value: value, id: "recordingSettings")
         case .shareClient:
-            return Setting(name: "Service for sharing", format: SettingFormat.preset, value: value, id: "shareClient")
+            let params = self.getSettingEditingParams()
+            return Setting(name: "Service for sharing", format: SettingFormat.preset, value: value, id: "shareClient", settingEditingParms: params)
         }
     }
     
     
+    func getSettingEditingParams() -> SettingEditingParams {
+        switch self {
+        case .takeNameExtension:
+            return SettingEditingParams(
+                title: "Select Extension",
+                msg: "Second part of take name",
+                presets: ["date_index", "date_time", "index"],
+                presetsMsg: ["Date & Index", "Date & Time", "Index (0001)"])
+         
+        case .style:
+            return SettingEditingParams(title: "Select Display Style",
+                                        msg: "ToDo",
+                                        presets: ["dark", "light"],
+                                        presetsMsg: ["Dark", "Light"])
+            
+        case .shareClient:
+            return SettingEditingParams(
+                title: "Select Service to Share",
+                msg: "Available Clients",
+                presets: ["iCloud", "Dropbox"],
+                presetsMsg: ["iCloud", "Dropbox"])
+            
+        case .recordingSetting:
+            return SettingEditingParams(
+                title: "Select Format",
+                msg: "Defined Formats",
+                presets: ["middle", "high", "low"],
+                presetsMsg: ["Middle", "High", "Low"])
+            
+        default:
+            print("no Editing params")
+        }
+        
+        return SettingEditingParams(title: "", presets: [], presetsMsg: [])
+    }
+    
+    
+    /**
+     Return presetMsg (for display) of id
+     */
+    func presetToPresetMsg(id: String, value: String) -> String {
+        
+        return ""
+    }
+    
+    /**
+     Setting editing format
+     - preset: predefined values
+     - userDefined:
+      - fixed: can't be changed by user
+     */
     enum SettingFormat: String {
         case preset = "preset"
         case userDefined = "userDefined"
         case fixed = "fixed"
     }
+    
+    
 }
 
 
@@ -295,5 +375,7 @@ enum SettingDefinitions: CaseIterable {
 enum AppConstants: String {
     case takesFolder = "takes"
     case notesFolder = "notes"
+    case notesFileExtension = "_note"
+    
 }
 

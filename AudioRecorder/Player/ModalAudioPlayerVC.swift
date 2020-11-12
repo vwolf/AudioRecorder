@@ -26,6 +26,7 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     var audioPlayer: AVAudioPlayer?
     var takeURL: URL?
     var takePath: String?
+    var takeNameWithoutExtension: String?
     
 //    @IBAction func positionLineGesture(_ sender: UITapGestureRecognizer) {
 //        print("positionLineGesture")
@@ -35,7 +36,8 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     var takeName = "" {
         didSet {
             takeNameLabel.text = takeName
-         
+            
+            takeNameWithoutExtension = Takes().stripFileExtension(takeName)
             rewindBtn.isEnabled = false
             forwardBtn.isEnabled = false
         }
@@ -68,7 +70,8 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         
         //let waveformImageDrawer = WaveformImageDrawer()
         if takeURL == nil {
-            takeURL = Takes().getUrlforFile(fileName: takeName)
+//            takeURL = Takes().getUrlforFile(fileName: takeName)
+            takeURL = Takes().getURLForFile(takeName: takeNameWithoutExtension!, fileExtension: "wav", takeDirectory: "takes")
         }
         
         middleWaveformView.waveformColor = UIColor.red
@@ -83,7 +86,8 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     
     @IBAction func playAudio(_ sender: UIBarButtonItem) {
         if takeURL == nil {
-            guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
+            //guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
+            guard let currentURL = Takes().getURLForFile(takeName: takeNameWithoutExtension!, fileExtension: "wav", takeDirectory: "takes") else {
                 NSLog("Error playing \(takeName): No URL for takeName")
                 return
             }
@@ -132,7 +136,7 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: currentURL!)
             audioPlayer?.delegate = self
-            print("take with duration: \(audioPlayer?.duration)")
+            print("take with duration: \(String(describing: audioPlayer?.duration))")
             if audioPlayer?.duration == 0.0 { return false }
             let prepare = audioPlayer?.prepareToPlay()
             print("prepare result: \(String(describing: prepare))")

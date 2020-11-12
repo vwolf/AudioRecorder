@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17192" systemVersion="19G2021" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17192" systemVersion="19H2" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="Metadata" representedClassName="MetadataMO" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="value" optional="YES" attributeType="String"/>
@@ -25,11 +25,12 @@
         <attribute name="shareClient" optional="YES" attributeType="String"/>
         <attribute name="style" optional="YES" attributeType="String"/>
         <attribute name="takename" optional="YES" attributeType="String" minValueString="1" maxValueString="100" defaultValueString="MyRecording"/>
+        <attribute name="takenameExtension" optional="YES" attributeType="String" defaultValueString="index"/>
     </entity>
     <elements>
         <element name="Metadata" positionX="-45" positionY="45" width="128" height="88"/>
         <element name="Settings" positionX="-63" positionY="-18" width="128" height="118"/>
         <element name="Take" positionX="-54" positionY="18" width="128" height="133"/>
-        <element name="UserSettings" positionX="-54" positionY="27" width="128" height="103"/>
+        <element name="UserSettings" positionX="-54" positionY="27" width="128" height="118"/>
     </elements>
 </model>

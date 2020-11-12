@@ -48,6 +48,52 @@ class Takes {
     }
     
     /**
+     Use to get all takenames if each take gets  own folder
+     Take folder are in directory "takes"
+     
+     */
+    func getAllTakeNames() -> [String] {
+        var takeDirectorys: [URL] = []
+        var takeNames: [String] = []
+        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let takesPath = documentPath.appendingPathComponent(AppConstants.takesFolder.rawValue, isDirectory: true)
+        // now get all directory in takesPath
+        let enumerator = FileManager.default.enumerator(at: takesPath, includingPropertiesForKeys: [.isDirectoryKey, .nameKey], options: .skipsHiddenFiles)
+        
+        for case let fileURL as URL in enumerator! {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .nameKey]),
+                  let isDirectory = resourceValues.isDirectory,
+                  let name = resourceValues.name
+            else {
+                continue
+            }
+            
+            if isDirectory {
+                takeDirectorys.append(fileURL)
+                takeNames.append(name)
+            }
+        }
+        
+//        let cloudtakes = CloudDataManager.sharedInstance.getTakesInCloud()
+        
+        DispatchQueue.main.async {
+            CloudDataManager.sharedInstance.metadataQuery { result in
+                print("metadataQuery with result \(result)")
+                self.addToTakesInShare(takeURLs:  CloudDataManager.sharedInstance.cloudURLs)
+            }
+        }
+        return takeNames
+    }
+    
+    private func addToTakesInShare(takeURLs: [URL]) {
+        for item in takeURLs {
+            print("TakesInShare: \(item.lastPathComponent)")
+            //takesInShare.append(TakeInShare(url: item, state: TakeInShare.State.CLOUD))
+        }
+        
+    }
+    
+    /**
      Test if file exists at loction and return url if file exits
      This is a basic version, just checking default documents directory, no subdirectories
      
@@ -65,14 +111,53 @@ class Takes {
         return nil
     }
     
+    /**
+     Return url for take [takeName]
+     This is the version when takes are in special takeDirectory and each take is in its own folder
+     
+     - parameter takeName: name of take without extension
+     - parameter fileExtension: file type
+     - parameter takeDirectory: take directory
+     
+     */
+    func getURLForFile(takeName: String, fileExtension: String, takeDirectory: String) -> URL? {
+        
+        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        var filePath = documentPath.appendingPathComponent(takeDirectory, isDirectory: true)
+        
+        filePath.appendPathComponent(takeName, isDirectory: true)
+        filePath.appendPathComponent(takeName, isDirectory: false)
+        filePath.appendPathExtension(fileExtension)
+        
+        if FileManager.default.fileExists(atPath: filePath.path) {
+            return filePath
+        }
+        return nil
+    }
+    
+    /**
+     Return url to take directory
+     
+     - parameter takeName
+     - parameter takeDirectory
+     */
+    func getDirectoryForFile(takeName: String, takeDirectory: String) -> URL? {
+        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        var directoryPath = documentPath.appendingPathComponent(takeDirectory, isDirectory: true)
+        directoryPath.appendPathComponent(takeName, isDirectory: true)
+        
+        if FileManager.default.fileExists(atPath: directoryPath.path) {
+            return directoryPath
+        }
+        return nil
+    }
     
     /**
      Does take with takeName exist?
      Is newTakeName unique?
      
-     - Parameters:
-     - takeName: name of existing take (with extension!)
-     - newTakeName: name to change to without extension
+     - parameter takeName: name of existing take (with extension!)
+     - parameter newTakeName: name to change to without extension
      */
     func renameTake( takeName: String, newTakeName: String) -> Bool {
         guard let takePath = getUrlforFile(fileName: takeName) else {
@@ -101,10 +186,54 @@ class Takes {
         
         return true
     }
+
+    /**
+     Rename take if takes in subdirectory and each take is in own directory
+     
+     - parameter takeName: file name without extension
+     - parameter newTakeName:
+     - parameter fileExtension
+     - parameter takeDirectory: directory for all takes
+     */
+    func renameTake( takeName: String, newTakeName: String, fileExtension: String, takesDirectory: String) -> Bool {
+        
+        guard let takeURL = getURLForFile(takeName: takeName, fileExtension: fileExtension, takeDirectory: takesDirectory) else {
+            print("Can't find file with name \(takeName) to rename take")
+            return false
+        }
+        
+        // new url
+        var newURL = takeURL.deletingLastPathComponent()
+        newURL.appendPathComponent(newTakeName)
+        newURL.appendPathExtension(fileExtension)
+        // file exist?
+        if FileManager.default.fileExists(atPath: newURL.path) {
+            print("Take \(newTakeName) exist at \(newURL.path)")
+            return false
+        }
+        // create new directory
+        let directoryURL = takeURL.deletingLastPathComponent()
+        let newDirectoryURL = directoryURL.deletingLastPathComponent().appendingPathComponent(newTakeName, isDirectory: true)
+        
+        // rename files in folder then rename folder
+        do {
+            try FileManager.default.moveItem(at: takeURL, to: newURL)
+            try FileManager.default.moveItem(at: directoryURL, to: newDirectoryURL)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        return true
+    }
     
     
     func checkFileName( newTakeName: String, takeName: String, fileExtension: String) -> String {
-        guard let takePath = getUrlforFile(fileName: "\(takeName).\(fileExtension)") else {
+//        guard let takePath = getUrlforFile(fileName: "\(takeName).\(fileExtension)") else {
+//            print("Can't find file with name \(takeName)")
+//            return "noTake"
+//        }
+        
+        guard let takePath = getURLForFile(takeName: takeName, fileExtension: fileExtension, takeDirectory: "takes") else {
             print("Can't find file with name \(takeName)")
             return "noTake"
         }
@@ -166,6 +295,66 @@ class Takes {
         return components.joined(separator: ".")
     }
     
+    /**
+     When takename extensions are index then get next index
+     First: get all takenames starting with name
+     Second: get takenames
+     */
+    func getIndexForName(name: String, seperator: String, type: String, indexLength: Int, ubiqutios: [String] = []) -> String {
+        var maxIdx = 0
+        let nameWithSeperator = name + seperator
+        
+        var allTakeNames = getAllTakeNames()
+        allTakeNames.append(contentsOf: ubiqutios)
+        
+        switch type {
+        case "index", "date_index":
+            
+            //let allTakeNames = ["name_0001", "name", "name0003", "abc", "abc0001", "wwww0001", "name0567"]
+            // get takes which start with name
+            let takesWithName = allTakeNames.filter( {(item: String) -> Bool in
+                let stringMatch = item.range(of: nameWithSeperator)
+                return stringMatch != nil ? true : false
+            })
+            // get takes with right length
+            let filteredLength = takesWithName.filter { word in
+                return word.count == nameWithSeperator.count + indexLength
+            }
+            // get end of take names
+            var indexes: [String] = []
+            _ = filteredLength.filter { word in
+                let f = word[word.index(word.startIndex, offsetBy: nameWithSeperator.count)..<word.endIndex ]
+                indexes.append(String(f))
+                return (String(f).count == indexLength)
+            }
+            
+            for idx in indexes {
+                let iToInt = Int(idx)
+                
+                if iToInt != nil {
+                    print(iToInt!)
+                    maxIdx = max(maxIdx, iToInt!)
+                }
+            }
+            
+            // maxIdx to 4 letter string
+            
+            let formatter = NumberFormatter()
+            formatter.minimumIntegerDigits = indexLength
+            
+            let formattedIndex = formatter.string(from: (maxIdx + 1) as NSNumber)
+                
+            return formattedIndex!
+            
+       
+            
+        default:
+            print("no index1")
+        }
+        
+        return "0001"
+    }
+    
     
     // MARK: Take & CoreData
     
@@ -222,10 +411,16 @@ class Takes {
      - parameter takeName: Name of take with file extension
     */
     func  deleteTake(takeName: String) -> Bool {
-        guard let takePath = getUrlforFile(fileName: takeName) else {
-            print("No URL for take with name \(takeName)")
+//        guard let takePath = getUrlforFile(fileName: takeName) else {
+//            print("No URL for take with name \(takeName)")
+//            return false
+//        }
+        let directoryName = stripFileExtension(takeName)
+        guard let takePath = getDirectoryForFile(takeName: directoryName, takeDirectory: "takes") else {
+            print("No URL for take directory with name \(takeName)")
             return false
         }
+        
         do {
             try FileManager.default.removeItem(at: takePath)
             return true
@@ -276,9 +471,9 @@ class Takes {
                 let data = try JSONSerialization.data(withJSONObject: metaData, options: .prettyPrinted)
                 //let dataString = NSString(data: data, encoding: 8)
                 
-                let takeURL = Takes().getUrlforFile(fileName: takeName + ".wav")!
-                
-                if JSONParser().write(url: takeURL, data: data) == false {
+//                let takeURL = Takes().getUrlforFile(fileName: takeName + ".wav")!
+                let takeURL = Takes().getURLForFile(takeName: takeName, fileExtension: "wav", takeDirectory: "takes")
+                if JSONParser().write(url: takeURL!, data: data) == false {
                     print("Error writing json")
                     return false
                 }

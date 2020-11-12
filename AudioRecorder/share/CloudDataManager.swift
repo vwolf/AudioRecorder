@@ -17,6 +17,7 @@ class CloudDataManager {
     var onChange:((_: Bool) -> Void)?
     
     var cloudURLs: [URL] = []
+    var takeDirectories: [String] = []
     
     private init() {
         metaDataQuery = NSMetadataQuery()
@@ -71,6 +72,69 @@ class CloudDataManager {
             }
         }
     }
+    
+    /**
+     Copy all take directories to cloud (directory named takeName)
+     
+     - parameter takeName: name of take without extension
+     - parameter takeDirectory: folder name for all takes
+     */
+    func takeFolderToCloud(takeName: String, takeDirectory: String) {
+        if isCloudEnabled() {
+            
+            do {
+                var sourceDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent(takeDirectory, isDirectory: true)
+                sourceDirURL.appendPathComponent(takeName)
+                var destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
+                destinationDirURL.appendPathComponent(takeName)
+                
+                try FileManager.default.setUbiquitous(true, itemAt: sourceDirURL, destinationURL: destinationDirURL)
+                takeDirectories.append(takeName)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    /**
+     Make take available in app.
+     
+     - parameter takeName:
+     */
+    func takeFolderFromCloud(takeName: String) {
+        let takeNameNoExtension = Takes().stripFileExtension(takeName)
+        if isCloudEnabled() {
+            do {
+                var sourceDirURL = DocumentsDirectory.iCloudDocumentsURL?.appendingPathComponent("takes", isDirectory: true)
+                sourceDirURL?.appendPathComponent(takeNameNoExtension, isDirectory: true)
+                var destinationDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent("takes", isDirectory: true)
+                destinationDirURL.appendPathComponent(takeNameNoExtension, isDirectory: true)
+                
+                try FileManager.default.setUbiquitous(false, itemAt: sourceDirURL!, destinationURL: destinationDirURL)
+                if let idx = takeDirectories.firstIndex(of: takeName) {
+                    takeDirectories.remove(at: idx)
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    /**
+     Copy take folder with takeName to CloudDrive
+     ToDo: folder for all takes
+     - parameters takeName: 
+     */
+    func takeFolderToDrive(takeName: String) {
+        //let takeNameNoExtension = Takes().stripFileExtension(takeName)
+        if isCloudEnabled() {
+           
+            var sourceDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent("takes")
+            sourceDirURL.appendPathComponent(takeName, isDirectory: true)
+            
+        }
+    }
+    
     
     func copyFileToCloud() {
         if isCloudEnabled() {
@@ -171,6 +235,10 @@ class CloudDataManager {
                     print("takeInCloud: \(name)")
                     URLs.append(fileURL)
                 }
+                
+                if isDirectory {
+                    
+                }
             }
         return URLs
         
@@ -202,10 +270,14 @@ class CloudDataManager {
         let metadataItems = metaDataQuery.results as! [NSMetadataItem]
         cloudURLs = metadataItems.map{ $0.value(forAttribute: NSMetadataItemURLKey) as! URL }
         
+        // all *.wav files - wav file name without extension is directoryName
         let result = metaDataQuery.results
         for item in result {
-            let itemURL = (item as AnyObject).value(forAttribute: NSMetadataItemURLKey) as! URL
-            print(itemURL.path)
+            var itemURL = (item as AnyObject).value(forAttribute: NSMetadataItemURLKey) as! URL
+            itemURL.deletePathExtension()
+//            print(itemURL.path)
+            print(itemURL.lastPathComponent)
+            takeDirectories.append(itemURL.lastPathComponent)
         }
         onChange!(true)
     }

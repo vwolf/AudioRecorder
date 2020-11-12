@@ -36,6 +36,7 @@ class UserSettings {
             coreDataController?.updateUserSetting(name: "takename", value: takeName)
         }
     }
+    var takeNameExtension = "index"
     
     var style = "dark"
     var recordingsetting = "middle"
@@ -60,6 +61,8 @@ class UserSettings {
             takeName = activeSetting.takename!
             style = activeSetting.style!
             recordingsetting = activeSetting.recordingSettings!
+            takeNameExtension = activeSetting.takenameExtension!
+            
             if activeSetting.shareClient != nil {
                 shareClient = activeSetting.shareClient!
             }
@@ -83,6 +86,8 @@ class UserSettings {
         switch name {
         case "takename":
             takeName = value
+        case "takenameExtension":
+            takeNameExtension = value
         case "style":
             style = value
         case "recordingSettings":
@@ -98,107 +103,13 @@ class UserSettings {
     }
     
     
-    /**
-     Return array of user settings
-     
-     */
-//    func getUserSettingsForDisplay() -> [[String]] {
-//
-//        var userSettingsValues = [[String]]()
-//
-////        for settingDefinition in userSettings {
-////            userSettingsValues.append( [ settingDefinition.name, settingDefinition.value ]  )
-////        }
-////        userSettingsValues.append(["Recording Settings", recordingsetting])
-////        userSettingsValues.append(["Style", style])
-////        userSettingsValues.append(["Take Name Preset", takeName])
-//
-//        return userSettingsValues
-//    }
-
     func userSettingsForDisplay() -> [String: String] {
         return ["takeNamePreset": takeName,
+                "takeNameExtension": takeNameExtension,
                 "style": style,
                 "recordingSetting": recordingsetting,
                 "shareClient": shareClient
         ]
     }
-    /**
-     Read UserSettings into dict
-     
-     */
-//    func readSettingsDefinitions() {
-////        for userSetting in UserSettingsDefinitions.allCases {
-////            userSettings.append(userSetting.getUserSetting())
-////        }
-//    }
     
 }
-
-
-//enum UserSettingsDefinitions: CaseIterable {
-//    case takeName
-//    case style
-//    case recordingSetting
-//    case shareClient
-//
-//    func getType() -> SettingType {
-//        switch self {
-//        case .takeName:
-//            return SettingType.userDefined
-//        case .style, .shareClient :
-//            return SettingType.preset
-//        default:
-//            return SettingType.fixed
-//        }
-//    }
-//
-//    func getDefinition() -> [String: String] {
-//        switch self {
-//        case .takeName:
-//            return ["name": "Take Name Preset", "type": getType().rawValue, "default": "recorde"]
-//        case .style:
-//            return ["name": "Style", "type": getType().rawValue, "default": "dark"]
-//        case .recordingSetting:
-//            return ["name": "Recording Setting", "type": getType().rawValue, "default": "middle"]
-//        case .shareClient:
-//            return ["name": "Service for sharing", "type": getType().rawValue, "default": "iCloud"]
-//        }
-//    }
-//
-//    func getUserSetting() -> UserSetting {
-//        switch self {
-//        case .takeName:
-//            return UserSetting(name: "Take Name Preset", type: getType().self, value: "recorde")
-//        case .style :
-//            return UserSetting(name: "Style", type: getType().self, value: "dark")
-//        case .recordingSetting:
-//            return UserSetting(name: "RecordingSetting", type: getType().self, value: "middle")
-//        case .shareClient:
-//            return UserSetting(name: "Service for sharing", type: getType().self, value: "iCloud")
-//        }
-//    }
-//
-//
-//    enum SettingType: String {
-//        case preset = "preset"
-//        case userDefined = "userDefined"
-//        case fixed = "fixed"
-//
-//    }
-//}
-//
-//
-//struct UserSetting {
-//    var name: String
-//    var type: UserSettingsDefinitions.SettingType
-//    var value: String
-//
-//    init(name: String, type: UserSettingsDefinitions.SettingType, value: String) {
-//        self.name = name
-//        self.type = type
-//        self.value = value
-//    }
-//}
-
-

@@ -53,9 +53,10 @@ class ShareVC: UIViewController {
             cancelItem.isEnabled = false
         }
         
-        tableView.allowsMultipleSelection = true
+        //tableView.allowsMultipleSelection = true
         
-        takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+        //takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+        takeNames = Takes().getAllTakeNames()
         addToTakesLocal(takeNames: takeNames)
         
         let newTakes = cloudDataManager.getNewTakes()
@@ -103,8 +104,12 @@ class ShareVC: UIViewController {
     }
     
     private func addToTakesLocal(takeNames: [String]) {
+    
         for item in takeNames {
-            guard let itemURL = Takes().getUrlforFile(fileName: item) else {
+//            guard let itemURL = Takes().getUrlforFile(fileName: item) else {
+//                return
+//            }
+            guard let itemURL = Takes().getURLForFile(takeName: item, fileExtension: "wav", takeDirectory: "takes") else {
                 return
             }
             takesInShare.append(TakeInShare(url: itemURL, state: TakeInShare.State.LOCAL))
@@ -138,45 +143,118 @@ class ShareVC: UIViewController {
     
     
     /**
-     Save selected takes (including metadata.json, notes, images) to CloudDrive
-     
+      Save selected takes (including metadata.json, notes, images) to CloudDrive
+      Move whole directory
+      
      */
     @IBAction func toolbarSaveBtnAction(_ sender: UIBarButtonItem) {
         //copyFilesToDrive()
         
         let selected = tableView.indexPathsForSelectedRows
+        var takeName:String?
+        
+        if selected != nil {
+            let selectedRows = selected?.map { $0.row }
+            var selectedNames: [String] = []
+            for row in 0..<selectedRows!.count {
+                selectedNames.append(takeNames[selectedRows![row]])
+                takeName = takeNames[selectedRows![row]]
+                
+                // add metadataFile (*.json)
+                if let metadataURL = metadataJsonForTake(takeName: takeName!) {
+                   print("metadata: \(metadataURL)")
+                }
+            }
+            
+            // test with just one selected take
+            cloudDataManager.takeFolderToCloud(takeName: takeName!, takeDirectory: "takes")
+            takesInShare[(selectedRows?.first!)!].state = .CLOUD
+            tableView.deselectRow(at: (selected?.first)!, animated: true)
+            
+            tableView.cellForRow(at: (selected?.first)!)?.accessoryType = .none
+            if (tableView.indexPathsForSelectedRows == nil) {
+                toolbarSaveBtn.isEnabled = false
+                toolbarCopyBtn.isEnabled = false
+            }
+            
+            tableView.reloadData()
+        }
+    }
+    
+    /**
+     Copy take to CloudDrive
+     
+     */
+    @IBAction func toolbarCopyBtnAction(_ sender: UIBarButtonItem) {
+        let selected = tableView.indexPathsForSelectedRows
+        var takeName:String?
+        
         if selected != nil {
             let selectedRows = selected?.map { $0.row }
             var selectedNames: [String] = []
             for row in 0..<selectedRows!.count {
                 selectedNames.append(takeNames[selectedRows![row]])
                 
-                // metadataFile? (*.json)
-                if let url = Takes().getUrlforFile(fileName: takeNames[selectedRows![row]]) {
+                takeName = takeNames[selectedRows![row]]
+            }
+            
+            //cloudDataManager.takeFolderToDrive(takeName: takeName!)
+//            do {
+//                var sourceDirURL = CloudDataManager.DocumentsDirectory.localDocumentsURL.appendingPathComponent("test")
+//                try FileManager.default.createDirectory(atPath: sourceDirURL.path, withIntermediateDirectories: true, attributes: nil)
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+            var urls: [URL] = []
+            
+//            if let metadataURL = metadataJsonForTake(takeName: takeName!) {
+//                urls.append(metadataURL)
+//            }
+            
+            var sourceDirURL = CloudDataManager.DocumentsDirectory.localDocumentsURL.appendingPathComponent("takes")
+            sourceDirURL.appendPathComponent(takeName!, isDirectory: true)
+            
+            do {
+                let dirContents = try FileManager.default.contentsOfDirectory(at: sourceDirURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+                urls.append(contentsOf: dirContents)
+            } catch {
+                print(error.localizedDescription)
+            }
+            
+//            var takeURL = sourceDirURL.appendingPathComponent(takeName!, isDirectory: false)
+//            takeURL.appendPathExtension("wav")
+//            urls.append(takeURL)
+            
+            let controller = UIActivityViewController(activityItems: urls, applicationActivities: nil)
+            self.present(controller, animated: true, completion: nil)
+        }
+    }
+    
+    
+    /**
+     Return or create and return metadata json file url
+     
+     - parameters takeName: without file extension
+     */
+    func metadataJsonForTake(takeName: String) -> URL? {
+//         metadataFile? (*.json)
+                if let url = Takes().getURLForFile(takeName: takeName, fileExtension: "wav", takeDirectory: "takes") {
                     let metadataFileURL = url.deletingPathExtension().appendingPathExtension("json")
                     if FileManager.default.fileExists(atPath: metadataFileURL.path) {
-                        selectedNames.append(metadataFileURL.lastPathComponent)
+//                        selectedNames.append(metadataFileURL.lastPathComponent)
+                        return metadataFileURL
                     } else {
                         // no metadata json file -> create one
-                        let takeName = url.deletingPathExtension().lastPathComponent
+//                        let takeName = url.deletingPathExtension().lastPathComponent
                         if Takes().makeMetadataFile(takeName: takeName) == true {
-                            selectedNames.append(metadataFileURL.lastPathComponent)
+//                            selectedNames.append(metadataFileURL.lastPathComponent)
+                            return metadataFileURL
                         }
                     }
                 }
-                
-//                if let url = Takes().getUrlforFile(fileName: takeNames[row]) {
-//                    takeCKRecordModel.addTake(url: url)
-//                }
-            }
-            
-            cloudDataManager.copyFileToCloud(fileNames: selectedNames)
-        }
-        
+        return nil
     }
     
-    @IBAction func toolbarCopyBtnAction(_ sender: UIBarButtonItem) {
-    }
     
     func copyFilesToDrive() {
         cloudDataManager.copyFileToCloud()
@@ -231,6 +309,14 @@ class ShareVC: UIViewController {
             NSLog("Navigation: Segue with unknown identifier")
         }
     }
+    
+    @objc func shareCellBtn(sender: UIButton) {
+        print("ShareCellBtn action in row \(sender.tag)")
+        let takeName = takesInShare[sender.tag].name!
+        cloudDataManager.takeFolderFromCloud(takeName: takeName)
+        takesInShare[sender.tag].state = .LOCAL
+        tableView.reloadData()
+    }
 }
 
 
@@ -250,6 +336,8 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
             }
             cell.takeNameLabel.text = takeStruct.name
             cell.takeStatusLabel.text = "inCloud"
+            cell.cloudBtn.tag = indexPath.row
+            cell.cloudBtn.addTarget(self, action: #selector(shareCellBtn(sender:)), for: .touchUpInside)
             return cell
         }
         
@@ -318,6 +406,7 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
             
             if (tableView.indexPathsForSelectedRows != nil) {
                 toolbarSaveBtn.isEnabled = true
+                toolbarCopyBtn.isEnabled = true
             }
         }
     }
@@ -327,6 +416,7 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
             if (tableView.indexPathsForSelectedRows == nil) {
                 toolbarSaveBtn.isEnabled = false
+                toolbarCopyBtn.isEnabled = false
             }
         } else {
             print("didDeselectRowAt")
@@ -340,6 +430,8 @@ class ShareTableViewCell: UITableViewCell {
     
     @IBOutlet weak var takeNameLabel: UILabel!
     @IBOutlet weak var takeStatusLabel: UILabel!
+    @IBOutlet weak var cloudBtn: UIButton!
+    
 }
 
 

@@ -20,7 +20,9 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
     }
     
     func reloadTakes() {
-        takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+        //takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+        takes = Takes().getAllTakeNames()
+        
         takesTableView.reloadData()
     }
     

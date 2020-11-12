@@ -47,8 +47,8 @@ class DropboxVC: UIViewController {
         tableView.allowsMultipleSelection = true
         
         listFiles(fileType: "wav")
-        takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
-        
+//        takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
+        takeNames = Takes().getAllTakeNames()
         toolbarSaveBtn.isEnabled = false
     }
     
@@ -221,33 +221,38 @@ class DropboxVC: UIViewController {
             let selectedRows = selected?.map { $0.row }
             var urlArray = [URL]()
             for row in 0..<selectedRows!.count {
-                if let url = Takes().getUrlforFile(fileName: takeNames[selectedRows![row]]) {
-                    urlArray.append(url)
-                    
-                    // metadata json file
-                    let metadataFileURL = url.deletingPathExtension().appendingPathExtension("json")
-                    
-                    if FileManager.default.fileExists(atPath: metadataFileURL.path) {
-                        //takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
-                        urlArray.append(metadataFileURL)
-                    } else {
-                        // no metadata json file, create one
-                        let takeName = url.deletingPathExtension().lastPathComponent
+                if let dirURL = Takes().getDirectoryForFile(takeName: takeNames[selectedRows![row]], takeDirectory: AppConstants.takesFolder.rawValue) {
                         
-                        if (Takes().makeMetadataFile(takeName: takeName) == true) {
-                            // takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
-                            urlArray.append(metadataFileURL)
-                        }
-                    }
-                    
-                    // audio note?
-                    var takeNoteFileURL = url.deletingPathExtension().appendingPathComponent("notes")
-                    takeNoteFileURL.appendPathComponent(takeNames[selectedRows![row]], isDirectory: false)
-                    
-                    if FileManager.default.fileExists(atPath: takeNoteFileURL.path) {
-                        urlArray.append(takeNoteFileURL)
-                    }
+                    urlArray.append(dirURL)
                 }
+                
+//                if let url = Takes().getUrlforFile(fileName: takeNames[selectedRows![row]]) {
+//                    urlArray.append(url)
+//
+//                    // metadata json file
+//                    let metadataFileURL = url.deletingPathExtension().appendingPathExtension("json")
+//
+//                    if FileManager.default.fileExists(atPath: metadataFileURL.path) {
+//                        //takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
+//                        urlArray.append(metadataFileURL)
+//                    } else {
+//                        // no metadata json file, create one
+//                        let takeName = url.deletingPathExtension().lastPathComponent
+//
+//                        if (Takes().makeMetadataFile(takeName: takeName) == true) {
+//                            // takeRecord.metadataAsset = CKAsset(fileURL: metadataFileURL)
+//                            urlArray.append(metadataFileURL)
+//                        }
+//                    }
+//
+//                    // audio note?
+//                    var takeNoteFileURL = url.deletingPathExtension().appendingPathComponent("notes")
+//                    takeNoteFileURL.appendPathComponent(takeNames[selectedRows![row]], isDirectory: false)
+//
+//                    if FileManager.default.fileExists(atPath: takeNoteFileURL.path) {
+//                        urlArray.append(takeNoteFileURL)
+//                    }
+//                }
                 
             }
             

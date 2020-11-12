@@ -128,7 +128,7 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
             print("isMovingToParent")
         }
         
-        modified = false
+        //modified = false
         
         // new take name then reload TakeVC table data
         if self.newTakeName == true {
@@ -512,7 +512,8 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                     
                 default:
                     let takeNameWithExtension = self.take.takeName! + "." + (self.take.takeType ?? "wav")
-                    if Takes().renameTake(takeName: takeNameWithExtension, newTakeName: value) {
+                    //if Takes().renameTake(takeName: takeNameWithExtension, newTakeName: value) {
+                    if Takes().renameTake(takeName: self.take.takeName!, newTakeName: value, fileExtension: "wav", takesDirectory: "takes") {
                         self.take.renameTakeNote(oldName: takeNameWithExtension, newName: value)
                         self.take.getItemForID(id: id, section: MetaDataSections.RECORDINGDATA)?.value = value
                         self.take.updateMetaDataForTake(takeNameWithExtension: takeNameWithExtension)
