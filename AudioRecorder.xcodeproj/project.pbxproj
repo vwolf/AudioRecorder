@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		791D50312574F76F000CD35E /* SettingsTableBoolCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791D50302574F76F000CD35E /* SettingsTableBoolCell.swift */; };
+		791D50392575317A000CD35E /* DropboxManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791D50382575317A000CD35E /* DropboxManager.swift */; };
+		791D505E2577F54B000CD35E /* AudioLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791D505D2577F54A000CD35E /* AudioLevelView.swift */; };
+		792D6AFD2570618D006B5360 /* ICloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792D6AFC2570618D006B5360 /* ICloudView.swift */; };
+		7931A661256F154A005F1FDB /* CloudVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7931A660256F154A005F1FDB /* CloudVC.swift */; };
 		7946F1AC251F1FA500EA9580 /* PopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1AB251F1FA500EA9580 /* PopoverVC.swift */; };
 		7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7946F1B0251F223E00EA9580 /* PopoverTableView.xib */; };
 		7946F1B6251F282600EA9580 /* PopoverCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1B5251F282600EA9580 /* PopoverCellController.swift */; };
@@ -18,6 +23,10 @@
 		795A0DE325135A7E00DE340B /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE225135A7E00DE340B /* ColorExtensions.swift */; };
 		795A0DE625149D0A00DE340B /* MetadataAddPopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */; };
 		795A0DE725149D0A00DE340B /* MetadataAddPopoverView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */; };
+		7960298E257D8C0D00BC038A /* AudioInputGainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7960298D257D8C0D00BC038A /* AudioInputGainView.swift */; };
+		796029A3257E16D500BC038A /* AudioInputLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796029A2257E16D500BC038A /* AudioInputLevelView.swift */; };
+		796029BD257E1AF400BC038A /* AudioInputLevelView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 796029BC257E1AF400BC038A /* AudioInputLevelView.xib */; };
+		796029C5257E38F000BC038A /* AudioInputGainView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 796029C4257E38F000BC038A /* AudioInputGainView.xib */; };
 		797505082523D011002C21C5 /* MDataAudioCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 797505072523D011002C21C5 /* MDataAudioCell.xib */; };
 		7975050D2523D22D002C21C5 /* MDataAudioCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7975050C2523D22D002C21C5 /* MDataAudioCellController.swift */; };
 		7975051325246B50002C21C5 /* MDataAudioPopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7975051125246B50002C21C5 /* MDataAudioPopoverVC.swift */; };
@@ -75,12 +84,14 @@
 		79D223F724D9600C00900F31 /* RecordVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223F624D9600C00900F31 /* RecordVC.swift */; };
 		79D223FC24D967DB00900F31 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223FB24D967DB00900F31 /* Colors.swift */; };
 		79D223FF24D975B500900F31 /* RecordingTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223FE24D975B500900F31 /* RecordingTimer.swift */; };
+		79D5D26E2573D2A20098F196 /* LoadVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D5D26D2573D2A20098F196 /* LoadVC.swift */; };
 		79DC8CE52510010300396FE1 /* ShareVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CE42510010200396FE1 /* ShareVC.swift */; };
 		79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CE7251003E800396FE1 /* CloudDataManager.swift */; };
 		79DC8CEC25100F3300396FE1 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC8CEB25100F3300396FE1 /* CloudKit.framework */; };
 		79DC8CEE25101CEC00396FE1 /* TakeCKRecordModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */; };
 		79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */; };
 		79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CF125116D6F00396FE1 /* TempiFFT.swift */; };
+		79ECC8E8256E470C00F1E7FE /* TakeTableDetailViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79ECC8E7256E470C00F1E7FE /* TakeTableDetailViewCell.swift */; };
 		79F000322529CEDE00535143 /* DropboxVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F000312529CEDE00535143 /* DropboxVC.swift */; };
 /* End PBXBuildFile section */
 
@@ -102,6 +113,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		791D50302574F76F000CD35E /* SettingsTableBoolCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableBoolCell.swift; sourceTree = "<group>"; };
+		791D50382575317A000CD35E /* DropboxManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxManager.swift; sourceTree = "<group>"; };
+		791D505D2577F54A000CD35E /* AudioLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevelView.swift; sourceTree = "<group>"; };
+		792D6AFC2570618D006B5360 /* ICloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudView.swift; sourceTree = "<group>"; };
+		7931A660256F154A005F1FDB /* CloudVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudVC.swift; sourceTree = "<group>"; };
 		7946F1AB251F1FA500EA9580 /* PopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverVC.swift; sourceTree = "<group>"; };
 		7946F1B0251F223E00EA9580 /* PopoverTableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopoverTableView.xib; sourceTree = "<group>"; };
 		7946F1B5251F282600EA9580 /* PopoverCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverCellController.swift; sourceTree = "<group>"; };
@@ -113,6 +129,10 @@
 		795A0DE225135A7E00DE340B /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
 		795A0DE425149D0A00DE340B /* MetadataAddPopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataAddPopoverVC.swift; sourceTree = "<group>"; };
 		795A0DE525149D0A00DE340B /* MetadataAddPopoverView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MetadataAddPopoverView.xib; sourceTree = "<group>"; };
+		7960298D257D8C0D00BC038A /* AudioInputGainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioInputGainView.swift; sourceTree = "<group>"; };
+		796029A2257E16D500BC038A /* AudioInputLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioInputLevelView.swift; sourceTree = "<group>"; };
+		796029BC257E1AF400BC038A /* AudioInputLevelView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioInputLevelView.xib; sourceTree = "<group>"; };
+		796029C4257E38F000BC038A /* AudioInputGainView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioInputGainView.xib; sourceTree = "<group>"; };
 		797505072523D011002C21C5 /* MDataAudioCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MDataAudioCell.xib; sourceTree = "<group>"; };
 		7975050C2523D22D002C21C5 /* MDataAudioCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDataAudioCellController.swift; sourceTree = "<group>"; };
 		7975051125246B50002C21C5 /* MDataAudioPopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDataAudioPopoverVC.swift; sourceTree = "<group>"; };
@@ -175,6 +195,7 @@
 		79D223F624D9600C00900F31 /* RecordVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordVC.swift; sourceTree = "<group>"; };
 		79D223FB24D967DB00900F31 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		79D223FE24D975B500900F31 /* RecordingTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingTimer.swift; sourceTree = "<group>"; };
+		79D5D26D2573D2A20098F196 /* LoadVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadVC.swift; sourceTree = "<group>"; };
 		79DC8CE42510010200396FE1 /* ShareVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareVC.swift; sourceTree = "<group>"; };
 		79DC8CE7251003E800396FE1 /* CloudDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudDataManager.swift; sourceTree = "<group>"; };
 		79DC8CE925100F2C00396FE1 /* AudioRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AudioRecorder.entitlements; sourceTree = "<group>"; };
@@ -182,6 +203,7 @@
 		79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakeCKRecordModel.swift; sourceTree = "<group>"; };
 		79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformAnalyzer.swift; sourceTree = "<group>"; };
 		79DC8CF125116D6F00396FE1 /* TempiFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempiFFT.swift; sourceTree = "<group>"; };
+		79ECC8E7256E470C00F1E7FE /* TakeTableDetailViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakeTableDetailViewCell.swift; sourceTree = "<group>"; };
 		79F000312529CEDE00535143 /* DropboxVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -213,6 +235,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		792D6AFB2570615C006B5360 /* Cloud */ = {
+			isa = PBXGroup;
+			children = (
+				7931A660256F154A005F1FDB /* CloudVC.swift */,
+				792D6AFC2570618D006B5360 /* ICloudView.swift */,
+			);
+			path = Cloud;
+			sourceTree = "<group>";
+		};
 		7946F1AA251F1F6E00EA9580 /* PopoverViews */ = {
 			isa = PBXGroup;
 			children = (
@@ -251,8 +282,13 @@
 			isa = PBXGroup;
 			children = (
 				79BDA06324FF94D60000B18B /* AudioInputVisualizer.xib */,
+				796029BC257E1AF400BC038A /* AudioInputLevelView.xib */,
 				79BDA06524FF958B0000B18B /* AudioInputVisualizer.swift */,
 				79BDA0672500C9F50000B18B /* AudioCaptureSession.swift */,
+				791D505D2577F54A000CD35E /* AudioLevelView.swift */,
+				7960298D257D8C0D00BC038A /* AudioInputGainView.swift */,
+				796029A2257E16D500BC038A /* AudioInputLevelView.swift */,
+				796029C4257E38F000BC038A /* AudioInputGainView.xib */,
 			);
 			path = AudioVisualizer;
 			sourceTree = "<group>";
@@ -278,6 +314,7 @@
 		79BDA0732502548E0000B18B /* TakeCollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				79D5D26D2573D2A20098F196 /* LoadVC.swift */,
 				798545AD2506D69400D6A1D2 /* Modals */,
 				79BDA075250254B80000B18B /* Xib */,
 				79BDA074250254A50000B18B /* Controller */,
@@ -327,6 +364,7 @@
 				79CDBBA224FD63FA005AA182 /* TakesTableViewCell.swift */,
 				79CDBBA424FDA7AE005AA182 /* Take.swift */,
 				79CDBBA924FE5313005AA182 /* Takes.swift */,
+				79ECC8E7256E470C00F1E7FE /* TakeTableDetailViewCell.swift */,
 			);
 			path = Takes;
 			sourceTree = "<group>";
@@ -425,6 +463,7 @@
 		79D223F824D965D400900F31 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				792D6AFB2570615C006B5360 /* Cloud */,
 				7946F1AA251F1F6E00EA9580 /* PopoverViews */,
 				79BDA0732502548E0000B18B /* TakeCollectionView */,
 				79D223F624D9600C00900F31 /* RecordVC.swift */,
@@ -453,6 +492,7 @@
 			children = (
 				79D223FB24D967DB00900F31 /* Colors.swift */,
 				79825BA424DA1082008C0D04 /* SettingsTableViewCell.swift */,
+				791D50302574F76F000CD35E /* SettingsTableBoolCell.swift */,
 				79825BA624DA145A008C0D04 /* Settings.swift */,
 				79C83DB924DA92CE00B23001 /* UserSettings.swift */,
 			);
@@ -472,6 +512,7 @@
 			children = (
 				79DC8CE7251003E800396FE1 /* CloudDataManager.swift */,
 				79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */,
+				791D50382575317A000CD35E /* DropboxManager.swift */,
 			);
 			path = share;
 			sourceTree = "<group>";
@@ -606,10 +647,12 @@
 				798545AC2506D41100D6A1D2 /* data in Resources */,
 				79BDA08B2504B2690000B18B /* MDataSectionHeader.xib in Resources */,
 				795A0DE725149D0A00DE340B /* MetadataAddPopoverView.xib in Resources */,
+				796029BD257E1AF400BC038A /* AudioInputLevelView.xib in Resources */,
 				79BDA07D250256900000B18B /* MDataStaticCell.xib in Resources */,
 				79BDA06424FF94D60000B18B /* AudioInputVisualizer.xib in Resources */,
 				7946F1BB251F2F9800EA9580 /* PopoverCell.xib in Resources */,
 				79BDA0812503C0D40000B18B /* MDataEditCell.xib in Resources */,
+				796029C5257E38F000BC038A /* AudioInputGainView.xib in Resources */,
 				798656F52514A8C700DD610F /* MetadataAddCell.xib in Resources */,
 				798F3E79253E1729002971B2 /* Readme.md in Resources */,
 				7975051425246B50002C21C5 /* MDataAudioPopover.xib in Resources */,
@@ -642,6 +685,8 @@
 				79BDA07225022DFB0000B18B /* TakeVC.swift in Sources */,
 				79BDA06D25011D310000B18B /* MetaDataDescription.swift in Sources */,
 				79D223C224D950D000900F31 /* AppDelegate.swift in Sources */,
+				79ECC8E8256E470C00F1E7FE /* TakeTableDetailViewCell.swift in Sources */,
+				791D505E2577F54B000CD35E /* AudioLevelView.swift in Sources */,
 				795A0DDF25134DFD00DE340B /* WaveformImageDrawer.swift in Sources */,
 				7948C48A253651F700BE64E9 /* ItemDetailVC.swift in Sources */,
 				79C83DBA24DA92CE00B23001 /* UserSettings.swift in Sources */,
@@ -661,6 +706,7 @@
 				79CA624A251BE9E300FB53A0 /* MDataImageCellController.swift in Sources */,
 				79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */,
 				7946F1AC251F1FA500EA9580 /* PopoverVC.swift in Sources */,
+				791D50392575317A000CD35E /* DropboxManager.swift in Sources */,
 				79CDBBA324FD63FA005AA182 /* TakesTableViewCell.swift in Sources */,
 				79BDA08A2504B2690000B18B /* MDataSectionHeader.swift in Sources */,
 				79BDA086250433370000B18B /* MDataActiveDoubleCellController.swift in Sources */,
@@ -674,6 +720,7 @@
 				79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */,
 				79CA624F251BF7DD00FB53A0 /* ImagePicker.swift in Sources */,
 				79D223CC24D950D000900F31 /* AudioRecorder.xcdatamodeld in Sources */,
+				792D6AFD2570618D006B5360 /* ICloudView.swift in Sources */,
 				7975051325246B50002C21C5 /* MDataAudioPopoverVC.swift in Sources */,
 				7975050D2523D22D002C21C5 /* MDataAudioCellController.swift in Sources */,
 				79BDA070250125B00000B18B /* JSONParser.swift in Sources */,
@@ -681,13 +728,18 @@
 				79825BA524DA1082008C0D04 /* SettingsTableViewCell.swift in Sources */,
 				798656F72514A92800DD610F /* MetadataAddCellController.swift in Sources */,
 				795A0DE325135A7E00DE340B /* ColorExtensions.swift in Sources */,
+				7931A661256F154A005F1FDB /* CloudVC.swift in Sources */,
 				7975051D2524DAE8002C21C5 /* Recorder.swift in Sources */,
 				79825BA724DA145A008C0D04 /* Settings.swift in Sources */,
+				79D5D26E2573D2A20098F196 /* LoadVC.swift in Sources */,
 				795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */,
 				79CDBBA524FDA7AE005AA182 /* Take.swift in Sources */,
+				7960298E257D8C0D00BC038A /* AudioInputGainView.swift in Sources */,
 				79CDBBAA24FE5313005AA182 /* Takes.swift in Sources */,
+				791D50312574F76F000CD35E /* SettingsTableBoolCell.swift in Sources */,
 				79CDBBAD24FE650F005AA182 /* ModalAudioPlayerVC.swift in Sources */,
 				79DC8CEE25101CEC00396FE1 /* TakeCKRecordModel.swift in Sources */,
+				796029A3257E16D500BC038A /* AudioInputLevelView.swift in Sources */,
 				798545AF2506D6DB00D6A1D2 /* CategoryPopoverVC.swift in Sources */,
 				79D223C424D950D000900F31 /* SceneDelegate.swift in Sources */,
 			);
@@ -864,6 +916,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorderDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
@@ -885,6 +938,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;

@@ -20,7 +20,7 @@ public class WaveformAnalyzer {
     private let audioAssetTrack: AVAssetTrack
     
     public init?(audioAssetURL: URL) {
-        let audioAsset = AVURLAsset(url: audioAssetURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+        let audioAsset = AVURLAsset(url: audioAssetURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: false])
         
         guard let assetReader = try? AVAssetReader(asset: audioAsset),
             let assetTrack = audioAsset.tracks(withMediaType: .audio).first else {

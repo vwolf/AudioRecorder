@@ -41,11 +41,57 @@ class UserSettings {
     var style = "dark"
     var recordingsetting = "middle"
     var shareClient = "iCloud"
+    var useDropbox = false
+    var useICloud = true
     
     init() {
         //readSettingsDefinitions()
+        //setUserDefaults(key: "useDropbox", value: true)
         if coreDataController != nil {
             fetchUserSettings()
+        }
+        
+        
+    }
+    
+    func getUserDefaults(key: String) -> Any? {
+        
+        switch key {
+        case "useDropbox":
+            return UserDefaults.standard.bool(forKey: key)
+        case "useICloud" :
+            return useICloud
+        default:
+            return nil
+        }
+    }
+    
+    func getUserDefaultsAsString(key: String) -> String? {
+        
+        switch key {
+        case "useDropbox":
+            let useDropbox = UserDefaults.standard.bool(forKey: key)
+            return String(useDropbox)
+
+        case "useICloud":
+            return String(useICloud)
+            
+        default:
+            return nil
+        }
+    }
+    
+    func setUserDefaults(key: String, value: Any) {
+        print("UserDefault \(key) to \(value)")
+        switch key {
+        case "useDropbox":
+            UserDefaults.standard.set(value, forKey: key)
+            
+        case "useICloud":
+            UserDefaults.standard.set(useICloud, forKey: key)
+            
+        default:
+            print("No key \(key) in UserDefaults.standard")
         }
     }
     
@@ -62,6 +108,8 @@ class UserSettings {
             style = activeSetting.style!
             recordingsetting = activeSetting.recordingSettings!
             takeNameExtension = activeSetting.takenameExtension!
+            useICloud = (getUserDefaults(key: "useICloud") ?? true) as! Bool
+            useDropbox = (getUserDefaults(key: "useDropbox") ?? false) as! Bool
             
             if activeSetting.shareClient != nil {
                 shareClient = activeSetting.shareClient!
@@ -77,7 +125,9 @@ class UserSettings {
         defaultSettings["takeName"] = takeName
         defaultSettings["style"] = style
         defaultSettings["recordingSettings"] = recordingsetting
-        defaultSettings["shareClient"] = shareClient
+        //defaultSettings["shareClient"] = shareClient
+        defaultSettings["useICloud"] = String(useICloud)
+        defaultSettings["useDropbox"] = String(useDropbox)
         
         coreDataController?.seedUserSettings(settings: defaultSettings)
     }
@@ -102,13 +152,28 @@ class UserSettings {
         coreDataController?.updateUserSetting(name: name, value: value)
     }
     
+    func updateUserDefaults(name: String, value: Any) {
+        switch name {
+        case "useDropbox":
+            useDropbox = value as! Bool
+        case "useICloud":
+            useICloud = value as! Bool
+        default:
+            print(name)
+        }
+        
+        setUserDefaults(key: name, value: value)
+    }
+    
     
     func userSettingsForDisplay() -> [String: String] {
+        //"shareClient": shareClient,
         return ["takeNamePreset": takeName,
                 "takeNameExtension": takeNameExtension,
                 "style": style,
                 "recordingSetting": recordingsetting,
-                "shareClient": shareClient
+                "useICloud": String(useICloud),
+                "useDropbox": String(useDropbox)
         ]
     }
     

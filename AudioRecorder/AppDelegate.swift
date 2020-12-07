@@ -26,12 +26,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try audioSession.setCategory(.playAndRecord, mode: .default, options: [])
         } catch {
             print("Failed to set audio session category")
+            
+            
         }
-        
-        coreDataController = CoreDataController(modelName: "AudioRecorder") {print("coreDataController.completionClosure")}
+            
+        coreDataController = CoreDataController(modelName: "AudioRecorder") {
+            print("coreDataController.completionClosure")
+            
+            if ((self.window?.rootViewController) != nil) {
+                print("We have a rootViewController")
+            }
+            
+        }
+//        if #available(iOS 13.0, *) {
+//            coreDataController = CoreDataController(modelName: "AudioRecorder") {
+//                print("coreDataController.completionClosure")
+//                if ((self.window?.rootViewController) != nil) {
+//                    print("We have a rootViewController")
+//                }
+//
+//                let vc = self.window?.rootViewController as? LoadVC
+//                                if let rvc = self.window?.rootViewController as? LoadVC {
+//                                    rvc.msgFromDelegate()
+//                                }
+//            }
+//        } else {
+//                // Fallback on earlier versions
+//            coreDataController = CoreDataController(modelName: "AudioRecorder") {
+//                print("coreDataController.completionClosure")
+//                if ((self.window?.rootViewController) != nil) {
+//                    print("We have a rootViewController")
+//                }
+//
+//            }
+//
+//        }
         
         DropboxClientsManager.setupWithAppKey("7tt2r1ewvm0q9hm")
         
+        print("Appdelegate didFinishLaunchingWithOptions return true")
         return true
     }
 

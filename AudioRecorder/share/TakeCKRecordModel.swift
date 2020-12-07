@@ -16,6 +16,9 @@ import CloudKit
  
  */
 class TakeCKRecordModel {
+    
+    static let sharedInstance = TakeCKRecordModel()
+    
     private let database = CKContainer.default().publicCloudDatabase
     private let privateDatabase = CKContainer.default().privateCloudDatabase
     private let sharedDatabase = CKContainer.default().sharedCloudDatabase
@@ -37,6 +40,37 @@ class TakeCKRecordModel {
             self.notificationQueue.addOperation {
                 self.onChange?()
             }
+        }
+    }
+    
+    private let container = CKContainer.default()
+    private(set) var accountStatus: CKAccountStatus = .couldNotDetermine
+    
+    /// Get account status and observer to account status changes
+    init() {
+        requestAccountStatus()
+        setupNotificationHandling()
+    }
+    
+    private func requestAccountStatus() {
+        container.accountStatus { [unowned self] (accountStatus, error ) in
+            if let error = error { print(error) }
+            
+            self.accountStatus = accountStatus
+        }
+    }
+    
+    /// When the account status changes, a CKAccountChanged notification is posted by an instance of the CKContainer class.
+    /// If no instance is alive when the account status changes, no notification is posted -> keep a reference to the default container.
+    ///
+    fileprivate func setupNotificationHandling() {
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(accountDidChange(_:)), name: Notification.Name.CKAccountChanged, object: nil)
+    }
+    
+    @objc private func accountDidChange(_ notification: Notification) {
+        DispatchQueue.main.async {
+            self.requestAccountStatus()
         }
     }
     
@@ -71,6 +105,7 @@ class TakeCKRecordModel {
             takeRecord.noteAsset = CKAsset(fileURL: takeNoteFileURL)
         }
         
+        //FileManager.default.setUbiquitous(true, itemAt: url, destinationURL: <#T##URL#>)
 //        privateDatabase.save(takeRecord.record) { _, error in
 //            guard error == nil else {
 //                self.handle(error: error!)
@@ -138,6 +173,28 @@ class TakeCKRecordModel {
         return newRecords
     }
     
+    /// Return value name for all records
+    /// 
+    func getRecordsName() -> [String] {
+        var recordNames = [String]()
+        for rec in takeRecords {
+            recordNames.append(rec.name)
+        }
+        return recordNames
+    }
+    
+    func getRecordsTakeURL() -> [URL] {
+        var takeURLs = [URL]()
+        for take in takeRecords {
+            if (take.audioAsset.fileURL != nil) {
+                takeURLs.append(take.audioAsset.fileURL!)
+            }
+        }
+        return takeURLs
+    }
+    
+    
+    
     private func handle(error: Error) {
         self.notificationQueue.addOperation {
             self.onError?(error)
@@ -169,7 +226,7 @@ class TakeCKRecordModel {
         debugPrint("Tracking local objects \(self.insertedObjects) \(self.deletedObjectIDs)")
     }
     
-    
+    /// Get all records
     @objc func refresh( completion: @escaping () -> Void ) {
         let query = CKQuery(recordType: TakeCKRecord.recordType, predicate: NSPredicate(value: true))
         
@@ -182,6 +239,37 @@ class TakeCKRecordModel {
             self.updateTakeRecords()
             completion()
         }
+    }
+    
+    
+    func deleteTake(takeName: String) {
+        
+        if let idx = (takeRecords.firstIndex(where: { $0.name == takeName }))  {
+            let recordID = takeRecords[idx].record.recordID
+            database.delete(withRecordID: recordID) { (deletedRecordID, error) in
+                if error == nil {
+                    print("Record deleted")
+                } else {
+                    print("DeleteTake Error: \(error?.localizedDescription)")
+                }
+            }
+        }
+        
+//        if takeRecords.contains(where: { $0.name == takeName }) {
+//            if let i = newRecords.firstIndex(of: recordNames[idx]) {
+//                newRecords.remove(at: i)
+//            }
+//        }
+//        database.delete(withRecordID: recordID) { (deletedRecordID, error) in
+//
+//        }
+    }
+    
+    
+    func getTakeCKRecord(takeName: String) -> TakeCKRecord? {
+        let takeNameWithExtension = "\(takeName).wav"
+        return takeRecords.first(where: { $0.name == takeNameWithExtension })
+        
     }
 }
 

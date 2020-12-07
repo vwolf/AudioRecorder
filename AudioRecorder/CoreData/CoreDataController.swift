@@ -125,6 +125,7 @@ class CoreDataController: DataControllerDelegate {
     func seedTake(name: String,
                   filePath: String,
                   recordeAt: Date,
+                  length: Double,
                   latitude: Double?,
                   longitude: Double?) -> Bool {
 
@@ -136,6 +137,7 @@ class CoreDataController: DataControllerDelegate {
         newTake.name = name
         newTake.filepath = filePath
         newTake.recordedAt = recordeAt
+        newTake.length = length
         if latitude != nil {
             newTake.latitude = latitude!
             newTake.longitude = longitude!

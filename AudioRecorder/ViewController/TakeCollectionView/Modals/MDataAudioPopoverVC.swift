@@ -37,8 +37,12 @@ class MDataAudioPopoverVC: UIViewController {
                         noteTakePath.appendPathComponent(takeName + AppConstants.notesFileExtension.rawValue)
                         noteTakePath.appendPathExtension("wav")
                         
-                        recorder = Recorder(takeName: takeName, takeURL: noteTakePath)
-                        recordBtn.isEnabled = true
+                        recorder = Recorder()
+                        if recorder!.recordingSessionStatus == true {
+                            recordBtn.isEnabled = true
+                        }
+//                        recorder = Recorder(takeName: takeName, takeURL: noteTakePath)
+//                        recordBtn.isEnabled = true
                         
                         if ((take?.getNoteForTake()) != nil)  {
                             statusLabel.isHidden = false

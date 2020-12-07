@@ -35,11 +35,16 @@ class Take {
     var takeType: String?
     
     var recordedAt: Date?
+    var takeLength: Double = 0
     
     var location: CLLocation?
     var newTake = true
     var takeSaved = false
     var takeModified = false
+    
+    var storageState = TakeStorageState.LOCAL
+    var iCloudState = TakeStorageState.NONE
+    var iDriveState = TakeStorageState.NONE
     
     var takeFormat: AudioFormatDescription?
     
@@ -47,8 +52,52 @@ class Take {
     
     init() {}
     
+    /// 
+    init(takeName: String) {
+        
+    }
     
-    init(takeURL: URL, date: Date, userLocation: CLLocation?) {
+    /// Reimport take
+    /// Metadata.json file?
+    ///
+    
+    init(takeURL: URL, metaDataURL: URL?) {
+        // set takeName and takeType and get items
+        var recordingDataItems = self.setURL(takeURL: takeURL)
+        print("take name: \(takeName)")
+        do {
+            let takeAttributes = try FileManager.default.attributesOfItem(atPath: takeURL.path)
+            
+            if let creationDate = takeAttributes[.creationDate] as? Date {
+                //creationDate.toString(dateFormat: "dd, mm, yy" )
+                recordingDataItems.append(self.setRecordedAt(date: creationDate))
+            }
+            
+            let audioPlayer = try AVAudioPlayer(contentsOf: takeURL)
+            takeLength = audioPlayer.duration
+            
+            // location only if metadata file url
+            if metaDataURL != nil {
+                if let parserResult = JSONParser().parseJSONFile(metaDataURL!) as? [String: Any] {
+                    for item in parserResult {
+                        print(item.key)
+                    }
+                }
+            }
+            
+            itemSections.append(MetaDataSections.RECORDINGDATA)
+            items.append(recordingDataItems)
+            
+            saveTake()
+        } catch {
+            
+        }
+    }
+    
+    
+    /// Init new recorded take
+    ///
+    init(takeURL: URL, date: Date, userLocation: CLLocation?, length: Double) {
         // set takeName and takeType and get items
         var recordingDataItems = self.setURL(takeURL: takeURL)
         // recorded at
@@ -57,53 +106,76 @@ class Take {
         if userLocation != nil {
             recordingDataItems.append(self.setLocation(location: userLocation!))
         }
-        
+        /// take length
+        takeLength = length
+    
         itemSections.append(MetaDataSections.RECORDINGDATA)
         items.append(recordingDataItems)
+        
     }
     
-    /**
-     First add recording data (name, location, recording date, filePath)
-     Then read metadata from db
-     Next add default metadata items, which have no entry in db
-     
-     */
+    
+    /// Init take from CoreData entry.
+    /// First add recording data (name, location, recording date, filePath)
+    /// Then read metadata from db
+    /// Next add default metadata items, which have no entry in db
+    ///
+    /// - Parameter takeMO:
     init(withTakeMO takeMO: TakeMO) {
         takeName = takeMO.name!
+        takeLength = takeMO.length
         
         self.addRecordingData(takeMO: takeMO)
         
-        // MetaData
-        
-        // Saved MetaData in CoreData?
+        /// Add saved MetaData in CoreData?
         getMetaDateForTake(takeNameWithoutExtension: takeName!)
         
-        // Default Metadata
+        /// Default Metadata
         self.addDefaultMetaData()
         
         _ = self.sortMetadataForDisplay()
         
         // take format info
-        self.takeFormat = self.getTakeFormat()
-        if self.takeFormat != nil {
-            let formatString = formatTakeFormat()
-            addAudioFormatData(formatString: formatString)
+        // take can be in iDrive, so no access to takeFormat
+        if let takeURL = Takes().getURLForFile(takeName: takeName!, fileExtension: takeType!, takeDirectory: "takes") {
+            self.takeFormat = self.getTakeFormat()
+            if self.takeFormat != nil {
+                let formatString = formatTakeFormat()
+                addAudioFormatData(formatString: formatString)
+            }
         }
-//        let group = DispatchGroup()
         
-//        group.enter()
-//        DispatchQueue.global(qos: .default).async {
-//            self.takeFormat = self.getTakeFormat()
-//            group.leave()
-//        }
-//        group.wait()
-//
-//        print(self.takeFormat?.sampleRate ?? "no sampleRate value")
+        
+        /// take in iCloud, iDrive, Dropbox?
+        if (TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: takeName!) != nil) {
+            storageState = .ICLOUD
+        }
+        
+        //        let group = DispatchGroup()
+        //        group.enter()
+        //        DispatchQueue.global(qos: .default).async {
+        //            self.takeFormat = self.getTakeFormat()
+        //            group.leave()
+        //        }
+        //        group.wait()
     }
     
-    /**
-     Add data generated at recording of take
-     */
+    /// Take from TakeCKRecord. These are always .ICOUD takes
+    ///
+    init(takeCKRecord: TakeCKRecord, takeName: String) {
+        // takename in takeRecord is with file extension
+        self.takeName = takeName
+        let url = takeCKRecord.audioAsset.fileURL
+        
+        iCloudState = .ICLOUD
+        
+        //print("ICLOUD TAKE: \(takeName), \(url)")
+    }
+    
+    
+    
+    /// Add data generated at recording of take
+    ///
     private func addRecordingData(takeMO: TakeMO) {
         var recordingData = [MetaDataItem]()
         
@@ -124,12 +196,9 @@ class Take {
         items.append(recordingData)
     }
     
-    /**
-     Default MetaData are
-     Category
-     Description
-     
-     */
+    /// Default MetaData are
+    /// Category. Description
+    ///
     private func addDefaultMetaData() {
        
         if getItemForID(id: "category", section: .METADATASECTION) == nil {
@@ -159,15 +228,9 @@ class Take {
         itemSections.append(MetaDataSections.TAKEFORMAT)
     }
     
+    
     private func formatTakeFormat() -> String {
         return (takeFormat?.asString())!
-        
-//        var format = ""
-//        format.append("SampleRate: \(takeFormat?.sampleRate!)")
-//        format.append("\n")
-//        format.append("Bit per Channel: \(takeFormat?.bitPerChannel!)")
-//
-//        return format
     }
     
     /**
@@ -288,6 +351,7 @@ class Take {
             guard (coreDataController?.seedTake(name : takeName!,
                                                 filePath: takePath,
                                                 recordeAt: recordedAt!,
+                                                length: takeLength,
                                                 latitude: location?.coordinate.latitude,
                                                 longitude: location?.coordinate.longitude)) != nil else {
                                                     
@@ -820,7 +884,6 @@ class Take {
                             if let subCategoryItem = item.children?.first {
                                 metaData["subcategory"] = subCategoryItem.value as? String
                             }
-                            
                         }
                     } else {
                         metaData[item.name!] = item.value as? String
@@ -865,4 +928,13 @@ struct AudioFormatDescription {
         
         return s
     }
+}
+
+
+enum TakeStorageState {
+    case LOCAL
+    case ICLOUD
+    case IDRIVE
+    case DROPBOX
+    case NONE
 }

@@ -10,11 +10,193 @@ import Foundation
 import AVFoundation
 import UIKit
 
+/// Takes of kinds (local, iCloud, iDrive, Dropbox)
+
 class Takes {
+
+    /// singelton pattern
+    static let sharedInstance = Takes()
     
-    /**
-     Get all takes in documents directory
-     */
+    var coreDataController: CoreDataController?
+    var takesLocal: [Take] = []
+    var takesCloud: [Take] = []
+    var takesDrive: [Take] = []
+    
+    var reloadFlag = false
+    
+    init() {
+        /// get CoreDataController
+        coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
+        /// get takes in app's documents directory, iCloud, iDrive
+        //getAllTakesInApp(directory: "takes", fileExtension: "wav")
+    }
+    
+    /// Get all takes in documents directory. Each take has its own subdirectory.
+    /// For each found take add [Take] to allTakes
+    ///
+    /// - Parameters directory: Takes are in subfolder
+    /// - Parameters fileExtension: file type, always "wav"
+    ///
+    func getAllTakesInApp(directory: String?, fileExtension: String) {
+        var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        if (directory != nil) {
+            documentPath = documentPath.appendingPathComponent(directory!).absoluteURL
+        }
+        
+        /// get all directories in documentPath
+        do {
+            let directoryContent = try FileManager.default.contentsOfDirectory(at: documentPath, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+            /// we only wants the files with right fileExtension, ignore folder at the moment
+            /// folders could come imported if we add more assets (images, sub takes, ...)
+            let filePaths = directoryContent.filter { $0.pathExtension == fileExtension }
+            let takeFolders = directoryContent.filter { $0.hasDirectoryPath == true }
+            /// get all Take Records from CoreData
+            let takeMOs = coreDataController?.getTakes()
+            for take in takeFolders {
+                let takeName = take.lastPathComponent
+                let takeURLName = "\(takeName).\(fileExtension)"
+                /// wav file in take folder
+                let takeFolderFiles = try FileManager.default.contentsOfDirectory(at: take, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+                let wavFiles = takeFolderFiles.filter { $0.pathExtension == fileExtension }
+                /// a take in app's take directory should have a CoreData record
+                for wavFile in wavFiles {
+                    if wavFile.lastPathComponent == takeURLName {
+                        if let takeMO = takeMOs?.first(where: { $0.name == takeName }) {
+                            // take file and CoreData Record
+                            takesLocal.append(Take(withTakeMO: takeMO))
+                        } else {
+                            /// take file but no CoreData Record?
+                            print("No TakeMO for take \(takeName)")
+                            /// make Take and add TakeMO
+                            let metaDataFile = takeFolderFiles.filter { $0.pathExtension == "json"}
+                            if !metaDataFile.isEmpty {
+                                // metadata file with takeName?
+                                takesLocal.append(Take.init(takeURL: wavFile, metaDataURL: metaDataFile.first))
+                            } else {
+                                takesLocal.append(Take.init(takeURL: wavFile, metaDataURL: nil))
+                            }
+                        }
+                    }
+                }
+            }
+            
+            print("Takes in app's take directory: \(takesLocal.count)")
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    /// Get all takes in app's iCloud directory.
+    /// This could be takes with a CoreData Record (TakeMO). This takes are set "Ubiquitous" and can be added to app any time.
+    /// Find TakeMO for take and add to connect with take.
+    /// Problems?
+    /// Takes without CoreData Record are deleted in app (after setting ubiquitous).
+    ///
+    func getAllTakesIniCloud() {
+        for take in TakeCKRecordModel.sharedInstance.takeRecords {
+            let takeName = stripFileExtension(take.name)
+            takesCloud.append( Take(takeCKRecord: take, takeName: takeName))
+        }
+        
+        connectICloudTakes()
+    }
+    
+    
+    /// Get all takes in app iDrive directory
+    /// 
+    func getAllTakesIniDrive() {
+        DispatchQueue.main.async {
+            CloudDataManager.sharedInstance.metadataQuery { [self] result in
+                print("metadataQuery with result \(result), takes: \(CloudDataManager.sharedInstance.cloudURLs.count)")
+           
+                for t  in takesLocal {
+                    print("#### \(t.takeName)")
+                }
+                
+                let takeMOs = coreDataController?.getTakes()
+                let resourceKeys = Set<URLResourceKey>([.nameKey, .isUbiquitousItemKey, ])
+                
+                for url in CloudDataManager.sharedInstance.cloudURLs {
+                    print(url.lastPathComponent)
+                    guard let resourceValues = try? url.resourceValues(forKeys: resourceKeys),
+                          let name = resourceValues.name,
+                          let isUbiquitous = resourceValues.isUbiquitousItem
+                    else {
+                        // this takes have nothing to do with app (at least until reimport)
+                        // any take with name in local takes?
+                        //print("lastPathComponent: \(url.lastPathComponent)")
+                        if takesLocal.contains(where: { $0.takeName! + ".wav" == url.lastPathComponent}) {
+                            //print("Take \(url.lastPathComponent) in iCloud")
+                        }
+                        continue
+                    }
+                    
+                    //print("NAME: \(name)")
+                    let nameWithoutExtension = stripFileExtension(name)
+                    if isUbiquitous {
+                        //print("\(name) is ubiquitous")
+                        /// does a CoreData Take Record exist for take?
+                        if let takeMO = takeMOs?.first(where: { $0.name == nameWithoutExtension }) {
+                            //print("TakeMO Record for take \(name)")
+                            
+                            takesDrive.append(Take(withTakeMO: takeMO))
+                            //takesLocal.append(Take.init(withTakeMO: takeMO))
+                        }
+                    } else {
+                        //print("lastPathComponent: \(url.lastPathComponent)")
+                        if takesLocal.contains(where: { $0.takeName! + ".wav" == url.lastPathComponent}) {
+                            print("Take \(url.lastPathComponent) in iCloud")
+                        }
+                    }
+                    
+                }
+                //self.addToTakesInShare(takeURLs:  CloudDataManager.sharedInstance.cloudURLs)
+            }
+        }
+    }
+    
+    
+    
+    
+    func getAllTakesInDropbox() {}
+    
+    /// Add takes from iCloud.
+    /// Same take could be in app and in iCloud 
+    func addICloudTakes(urls: [URL]) {
+        
+    }
+    
+    /// Connection same take local and iCloud
+    ///
+    func connectICloudTakes() {
+        for take in takesCloud {
+            if let idx = takesLocal.firstIndex(where: { $0.takeName == take.takeName }) {
+                takesLocal[idx].iCloudState = .ICLOUD
+            }
+        }
+    }
+    
+    /// Connection same take local and iDrive
+    ///
+    func connectIDriveTakes() {
+        for take in takesDrive {
+            if let idx = takesLocal.firstIndex(where: { $0.takeName == take.takeName }) {
+                takesLocal[idx].iDriveState = .IDRIVE
+            }
+        }
+    }
+    
+    
+    /// A take is moved to iDrive, so it's no longer a local take
+    ///
+    func takeIsUbiquitous(takeName: String) {
+        if let takeIdx = takesLocal.firstIndex(where: { $0.takeName == takeName}) {
+            takesLocal.remove(at: takeIdx)
+            reloadFlag = true
+        }
+    }
+    
+    
     func getAllTakeNames( fileExtension: String, directory: String?, returnWithExtension: Bool = false) -> [String] {
         var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         if (directory != nil) {
@@ -69,26 +251,48 @@ class Takes {
             }
             
             if isDirectory {
-                takeDirectorys.append(fileURL)
-                takeNames.append(name)
+                if FileManager.default.subpaths(atPath: fileURL.path)!.count > 0 {
+                    takeDirectorys.append(fileURL)
+                    takeNames.append(name)
+                }
             }
         }
         
 //        let cloudtakes = CloudDataManager.sharedInstance.getTakesInCloud()
         
-        DispatchQueue.main.async {
-            CloudDataManager.sharedInstance.metadataQuery { result in
-                print("metadataQuery with result \(result)")
-                self.addToTakesInShare(takeURLs:  CloudDataManager.sharedInstance.cloudURLs)
-            }
-        }
+//        DispatchQueue.main.async {
+//            CloudDataManager.sharedInstance.metadataQuery { result in
+//                print("metadataQuery with result \(result)")
+//                self.addToTakesInShare(takeURLs:  CloudDataManager.sharedInstance.cloudURLs)
+//            }
+//        }
         return takeNames
     }
     
     private func addToTakesInShare(takeURLs: [URL]) {
+        let takeMOs = coreDataController?.getTakes()
+        for t in takeMOs! {
+            print(t.name)
+        }
+        let resourceKeys = Set<URLResourceKey>([.nameKey, .isUbiquitousItemKey])
         for item in takeURLs {
             print("TakesInShare: \(item.lastPathComponent)")
             //takesInShare.append(TakeInShare(url: item, state: TakeInShare.State.CLOUD))
+            
+            guard let resourceValues = try? item.resourceValues(forKeys: resourceKeys),
+                  let name = resourceValues.name,
+                  let isUbiquitous = resourceValues.isUbiquitousItem
+            else {
+                continue
+            }
+            
+            if isUbiquitous {
+                print("\(name) is ubiquitous")
+                /// does a CoreData Take Record exist for take?
+                if let takeMO = takeMOs?.first(where: { $0.name == name }) {
+                    print("TakeMO Record for take \(name)")
+                }
+            }
         }
         
     }
@@ -332,7 +536,7 @@ class Takes {
                 let iToInt = Int(idx)
                 
                 if iToInt != nil {
-                    print(iToInt!)
+                   // print(iToInt!)
                     maxIdx = max(maxIdx, iToInt!)
                 }
             }
@@ -411,10 +615,6 @@ class Takes {
      - parameter takeName: Name of take with file extension
     */
     func  deleteTake(takeName: String) -> Bool {
-//        guard let takePath = getUrlforFile(fileName: takeName) else {
-//            print("No URL for take with name \(takeName)")
-//            return false
-//        }
         let directoryName = stripFileExtension(takeName)
         guard let takePath = getDirectoryForFile(takeName: directoryName, takeDirectory: "takes") else {
             print("No URL for take directory with name \(takeName)")

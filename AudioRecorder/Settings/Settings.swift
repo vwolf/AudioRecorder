@@ -24,9 +24,9 @@ class Settings {
     
     var defaultSetting = [
         AVFormatIDKey : Int(kAudioFormatLinearPCM),
-        AVSampleRateKey : 48000.0,
+        AVSampleRateKey : 44100.0,
         //AVNumberOfChannelsKey : 1,
-        AVLinearPCMBitDepthKey: 24
+        AVLinearPCMBitDepthKey: 16
         //AVLinearPCMIsFloatKey: false,
         //AVLinearPCMIsBigEndianKey: false
         //AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
@@ -37,7 +37,7 @@ class Settings {
     
     /// order of items for display
     let formatSettingsOrder = ["name", AVFormatIDKey, AVSampleRateKey, AVNumberOfChannelsKey, AVLinearPCMBitDepthKey]
-    let userSettingsOrder = ["takename", "takeNameExtension", "recordingSettings", "style", "shareClient"]
+    let userSettingsOrder = ["takename", "takeNameExtension", "recordingSettings", "style", "useICloud", "useDropbox"]
     
     init(name: String) {
         currentSettingsName = name
@@ -84,8 +84,8 @@ class Settings {
     
     func getCurrentSetting() -> [String: Any] {
         if currentSettingsName != "default" {
-            return defaultSetting
-//            return getSetting(name: currentSettingsName)
+            //return defaultSetting
+            return getSetting(name: currentSettingsName)
         }
         return defaultSetting
     }
@@ -128,9 +128,9 @@ class Settings {
         var presets = [[String: Any]]()
         //var settingStructs = [String: [Setting]]()
         
-        presets.append(["name": "high", "type": "wav", "bitDepth": 24 as Int16, "sampleRate": 48.000, "channels": 1 as Int16])
-        presets.append(["name": "middle", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 41.100, "channels": 1 as Int16])
-        presets.append(["name": "low", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 22.050, "channels": 1 as Int16])
+        presets.append(["name": "high", "type": "wav", "bitDepth": 24 as Int16, "sampleRate": 48000.0, "channels": 1 as Int16])
+        presets.append(["name": "middle", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 44100.0, "channels": 1 as Int16])
+        presets.append(["name": "low", "type": "wav", "bitDepth": 16 as Int16, "sampleRate": 22050.0, "channels": 1 as Int16])
         
         return ((coreDataController?.seedSettings(settings: presets)) != nil)
     }
@@ -199,9 +199,15 @@ class Settings {
             case "recordingSetting":
                 let settingStruct = SettingDefinitions.recordingSetting.getSetting(value: set.value)
                 settingToAdd.append(settingStruct)
-            case "shareClient":
-                let settingStruct = SettingDefinitions.shareClient.getSetting(value: set.value)
+//            case "shareClient":
+//                let settingStruct = SettingDefinitions.shareClient.getSetting(value: set.value)
+//                settingToAdd.append(settingStruct)
+            case "useICloud" :
+                settingToAdd.append(SettingDefinitions.useICloud.getSetting(value: set.value))
+            case "useDropbox" :
+                let settingStruct = SettingDefinitions.useDropbox.getSetting(value: set.value)
                 settingToAdd.append(settingStruct)
+            
             default:
                 print("Unknown")
             }
@@ -272,7 +278,8 @@ enum SettingDefinitions: CaseIterable {
     case style
     case recordingSetting
     case shareClient
-    
+    case useICloud
+    case useDropbox
     
     func getSetting(value: String) -> Setting {
         switch self {
@@ -301,6 +308,10 @@ enum SettingDefinitions: CaseIterable {
         case .shareClient:
             let params = self.getSettingEditingParams()
             return Setting(name: "Service for sharing", format: SettingFormat.preset, value: value, id: "shareClient", settingEditingParms: params)
+        case .useICloud:
+            return Setting(name: "Use iCloud for sharing", format: SettingFormat.onoff, value: value, id: "useICloud")
+        case .useDropbox:
+            return Setting(name: "Use Dropbox for sharing", format: SettingFormat.onoff, value: value, id: "useDropbox")
         }
     }
     
@@ -326,6 +337,8 @@ enum SettingDefinitions: CaseIterable {
                 msg: "Available Clients",
                 presets: ["iCloud", "Dropbox"],
                 presetsMsg: ["iCloud", "Dropbox"])
+        
+
             
         case .recordingSetting:
             return SettingEditingParams(
@@ -360,6 +373,7 @@ enum SettingDefinitions: CaseIterable {
         case preset = "preset"
         case userDefined = "userDefined"
         case fixed = "fixed"
+        case onoff = "onoff"
     }
     
     

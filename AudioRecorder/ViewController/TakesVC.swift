@@ -16,8 +16,19 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
     var coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
     
     override func viewDidLoad() {
+        print("TakesVC.viewDidLoad")
         super.viewDidLoad()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("TakesVC viewWillAppear")
+        
+        if Takes.sharedInstance.reloadFlag {
+            takesTableView.reloadData()
+        }
+    }
+    
     
     func reloadTakes() {
         //takes = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
@@ -26,12 +37,12 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
         takesTableView.reloadData()
     }
     
-    /**
-     Load all metadata for take, then trigger segue to TakeVC
-     
-     - parameter row:  row index
-     - parameter cell: selected table cell
-     */
+    
+    /// Load all metadata for take, then trigger segue to 'TakeVC'
+    ///
+    /// - parameter row:  row index
+    /// - parameter cell: selected table cell
+    ///
     func loadTake(row: Int, cell: UITableViewCell?) {
         let takeName = Takes().stripFileExtension( takes[row] )
         guard let take = Takes().loadTake(takeName: takeName) else {
@@ -47,8 +58,12 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
      - parameter row: row index
      - parameter cell: selected table cell
      */
-    func deleteTake(row: Int, cell: UITableViewCell ) {
-        let takeName = takes[row]
+    func deleteTake(row: Int, cell: UITableViewCell? ) {
+        //let takeName = takes[row]
+        guard let takeName = Takes.sharedInstance.takesLocal[row].takeName else {
+            print("Error: deleting take, no take in takeLocal at index \(row) ")
+            return
+        }
         
         let alertController = alertDeleteFile(name: takeName, completion: { deleteAction in
             if deleteAction {
@@ -57,7 +72,13 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
                 if deleteAction == true {
                     let takeNameWithOutExtension = Takes().stripFileExtension(takeName)
                     if (self.coreDataController?.deleteTake(takeName: takeNameWithOutExtension))! {
-                        self.takes.remove(at: row)
+                        //self.takes.remove(at: row)
+                        Takes.sharedInstance.takesLocal.remove(at: row)
+                        self.takesTableView.reloadData()
+                    } else {
+                        // when file but no coredata entry
+                        //self.takes.remove(at: row)
+                        Takes.sharedInstance.takesLocal.remove(at: row)
                         self.takesTableView.reloadData()
                     }
                 }
@@ -140,83 +161,141 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
             if let destinationVC = segue.destination as? TakeVC {
                 destinationVC.takeMO = object
             }
-            
         }
+        
+        if segue.identifier == "CloudSegueIdentifier" {
+            guard let object = sender as? Take else { return }
+            
+            if let destinationVC = segue.destination as? CloudVC {
+                destinationVC.take = object
+            }
+        }
+    }
+    
+    @objc func playTakeForCell(_ sender: UIButton) {
+        print("playTakeForCell!")
+        playTake(row: sender.tag, cell: nil)
+    }
+    
+    /// Cloud button action
+    /// Present choice 
+    ///
+    @objc func takeCloudAction(_ sender: UIButton) {
+        //let takeName = takes[sender.tag]
+        if let cell = takesTableView.cellForRow(at: IndexPath(row: sender.tag, section: 0)) as? TakesTableDetailViewCell {
+            self.performSegue(withIdentifier: "CloudSegueIdentifier", sender: cell.take)
+        }
+        
+//        guard let take = Takes().loadTake(takeName: takeName) else {
+//            return
+//        }
+//        self.performSegue(withIdentifier: "CloudSegueIdentifier", sender: take)
+    }
+    
+    @objc func loadMetadataForCell(_ sender: UIButton) {
+        loadTake(row: sender.tag, cell: nil)
+    }
+    
+    @objc func deleteTake(_ sender: UIButton) {
+        deleteTake(row: sender.tag, cell: nil)
     }
 }
 
 extension TakesVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return takes.count
+//        return takes.count
+        return Takes.sharedInstance.takesLocal.count
     }
+    
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TakesTableViewCellIdentifier", for: indexPath) as? TakesTableViewCell else {fatalError("The dequeued cell is not an instance of TakesTableViewCell")
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TakesDetailsTableViewCellIdentifier", for: indexPath) as? TakesTableDetailViewCell else {fatalError("The dequeued cell is not an instance of TakesTableDetailViewCell")
         }
         
-        cell.takeNameLabel.text = takes[indexPath.row]
-        //cell.accessoryType = .detailButton
+        let take = Takes.sharedInstance.takesLocal[indexPath.row]
+        cell.take = take
+        //cell.takeName = take.takeName!
+        
+        //cell.takeNameLabel.text = takes[indexPath.row]
+        //cell.takeName = takes[indexPath.row]
+        
+        if cell.take.takeLength > 0 {
+            cell.playBtn.tag = indexPath.row
+            cell.playBtn.addTarget(self, action: #selector(playTakeForCell(_:)), for: .touchUpInside)
+            
+            cell.cloudBtn.tag = indexPath.row
+            cell.cloudBtn.addTarget(self, action: #selector(takeCloudAction(_:)), for: .touchUpInside)
+            
+            if take.iCloudState == .ICLOUD {
+                //cell.cloudBtn.layer.backgroundColor = UIColor.green.cgColor
+                cell.cloudBtn.tintColor = UIColor.systemGreen
+            }
+            
+            cell.metadataBtn.tag = indexPath.row
+            cell.metadataBtn.addTarget(self, action: #selector(loadMetadataForCell(_:)), for: .touchUpInside)
+        }
+       
+        cell.trashBtn.tag = indexPath.row
+        cell.trashBtn.addTarget(self, action: #selector(deleteTake(_:)), for: .touchUpInside)
+        
+        
+        
         return cell
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("TakesVC.didDelectRowAt: \(indexPath.row), name: \(takes[indexPath.row])")
-        
-        let cell = tableView.cellForRow(at: indexPath)
-        //self.loadTake(row: indexPath.row, cell: cell!)
-        self.playTake(row: indexPath.row, cell: cell!)
-           
-    }
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        print("TakesVC.didDelectRowAt: \(indexPath.row), name: \(takes[indexPath.row])")
+//
+//        let cell = tableView.cellForRow(at: indexPath)
+//        //self.loadTake(row: indexPath.row, cell: cell!)
+//        self.playTake(row: indexPath.row, cell: cell!)
+//
+//    }
     
 //    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
 //        print("accesoryButtonTappedForRow")
 //    }
     
-    @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
-        let action = UIContextualAction(style: .normal, title: "Delete", handler: { (action, view, completionHandler) in
-            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
-            completionHandler(true)
-        })
-        
-        let configuration = UISwipeActionsConfiguration(actions: [action])
-        return configuration
-    }
-    
-    @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let action = UIContextualAction(style: .normal, title: "More", handler: { (action, view, completionHandler) in
-            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
-            completionHandler(true)
-        })
-        
-        let configuration = UISwipeActionsConfiguration(actions: [action])
-        return configuration
-    }
-    
-    
-    @available(iOS 10.0, *)
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        var actions = [UITableViewRowAction]()
-        
-        let actionDelete = UITableViewRowAction(style: .destructive, title: "Delete") { (action, indexPath) in
-            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
-        }
-        let actionMore = UITableViewRowAction(style: .normal, title: "More") { (action, indexPath) in
-            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
-        }
-        
-        actions.append(actionDelete)
-        actions.append(actionMore)
-        
-//        if #available(iOS 10.0, *) {
+//    @available(iOS 11.0, *)
+//    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 //
+//        let action = UIContextualAction(style: .destructive, title: "Delete", handler: { (action, view, completionHandler) in
+//            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
+//            completionHandler(true)
+//        })
 //
-//            return actions
+//        let configuration = UISwipeActionsConfiguration(actions: [action])
+//        return configuration
+//    }
+//
+//    @available(iOS 11.0, *)
+//    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+//        let action = UIContextualAction(style: .normal, title: "More", handler: { (action, view, completionHandler) in
+//            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
+//            completionHandler(true)
+//        })
+//
+//        let configuration = UISwipeActionsConfiguration(actions: [action])
+//        return configuration
+//    }
+    
+    
+//    @available(iOS 10.0, *)
+//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+//        var actions = [UITableViewRowAction]()
+//
+//        let actionDelete = UITableViewRowAction(style: .destructive, title: "Delete") { (action, indexPath) in
+//            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
 //        }
-        return actions
-    }
+//        let actionMore = UITableViewRowAction(style: .normal, title: "More") { (action, indexPath) in
+//            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
+//        }
+//
+//        actions.append(actionDelete)
+//        actions.append(actionMore)
+//
+//        return actions
+//    }
 }

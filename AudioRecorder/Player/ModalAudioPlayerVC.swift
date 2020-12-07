@@ -84,6 +84,13 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
     }
     
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        audioPlayer?.stop()
+        
+    }
+    
+    
     @IBAction func playAudio(_ sender: UIBarButtonItem) {
         if takeURL == nil {
             //guard let currentURL = Takes().getUrlforFile(fileName: takeName) else {
@@ -147,7 +154,7 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
             lengthProPercent = middleWaveformView.bounds.size.width / 100
             // current time of audioPlayer
             let timeToStart = (positionLinePos / lengthProPercent) *  (CGFloat(audioPlayer!.duration) / 100)
-            
+            print("audioPlayer.timeToStart: \(timeToStart)")
             audioPlayer?.currentTime = Double(timeToStart)
             audioPlayer?.play()
             startTimer()

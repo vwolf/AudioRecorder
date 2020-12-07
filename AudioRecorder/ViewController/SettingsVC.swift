@@ -133,10 +133,17 @@ class SettingsVC: UIViewController {
             self.displaySetting[indexPath.section][indexPath.row].value = value
             userSettings?.updateUserSetting(name: "shareClient", value: value)
             self.tableView.reloadRows(at: [indexPath], with: .fade)
+         
+        case "useDropbox":
+            userSettings?.updateUserDefaults(name: "useDropbox", value: value)
             
         default:
             print("nothing to update")
         }
+    }
+    
+    private func updateUserDefaults(key: String, value: Any) {
+        userSettings?.updateUserDefaults(name: key, value: value)
     }
 //    private func settingsToList() -> [[String]] {
 //        let currentSetting = settings?.getCurrentSetting()
@@ -158,7 +165,13 @@ class SettingsVC: UIViewController {
 //        return settingsList
 //    }
 
-
+    @objc func switchState(sender : UISwitch) {
+        print("switch value changed tag: \(sender.tag)")
+        
+        print(sender.isOn)
+        
+        updateUserDefaults(key: displaySetting[1][sender.tag].id, value: sender.isOn)
+    }
 }
 
 extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
@@ -195,18 +208,43 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsTableViewCellIdentifier", for: indexPath) as? SettingsTableViewCell else {
-            fatalError("The dequeued cell is not an instance of SettingTableViewCell")
-        }
-       
         let set = displaySetting[indexPath.section][indexPath.row]
         
-        cell.nameLabel.text = set.name
-        if (set.settingEditingParms != nil) {
-            cell.valueLabel.text = set.settingEditingParms?.getPresetMsg(value: set.value)
+        // two types of cells: label and label, label and switch
+        if set.format == .onoff {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsTableViewBoolCellIdentifier", for: indexPath) as? SettingsTableBoolCell else {
+                fatalError("The dequeued cell is not an instance of SettingTableViewCell")
+            }
+            cell.nameLabel.text = set.name
+            
+            cell.switchState = Bool(set.value)!
+            cell.stateSwitch.addTarget(self, action: #selector(switchState), for: .valueChanged)
+            cell.stateSwitch.tag = indexPath.row
+            
+            // disable iCloud switch - should be always on?
+            if set.id == "useICloud" {
+                cell.stateSwitch.isEnabled = false
+            }
+            return cell
         } else {
-            cell.valueLabel.text = set.value
+        
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsTableViewCellIdentifier", for: indexPath) as? SettingsTableViewCell else {
+                fatalError("The dequeued cell is not an instance of SettingTableViewCell")
+            }
+            cell.nameLabel.text = set.name
+            
+            if (set.settingEditingParms != nil) {
+                cell.valueLabel.text = set.settingEditingParms?.getPresetMsg(value: set.value)
+            } else {
+                cell.valueLabel.text = set.value
+            }
+            
+            return cell
         }
+        
+        
+        
+        
         
 //        if set.format == SettingDefinitions.SettingFormat.preset {
 //            cell.backgroundColor = Colors.Base.baseGreen.toUIColor()
@@ -214,7 +252,7 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
 //        cell.nameLabel.text = settingData[indexPath.section][indexPath.row][0]
 //        cell.valueLabel.text = settingData[indexPath.section][indexPath.row][1]
         
-        return cell
+//        return cell
     }
     
     
@@ -228,8 +266,8 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             case "recordingSettings" :
                 // get all awailable recording format preset names
                 let names = settings?.getSettingsName()
-                var editingParams = SettingDefinitions.shareClient.getSettingEditingParams()
-                editingParams.presets = names ?? ["no Settings?"]
+                var editingParams = SettingDefinitions.recordingSetting.getSettingEditingParams()
+               // editingParams.presets = names ?? ["no Settings?"]
                 selectPreset(index: indexPath, params: editingParams)
                 //
                 //editValue(index: indexPath, values: names!)

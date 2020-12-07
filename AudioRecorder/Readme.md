@@ -33,3 +33,22 @@ Share data with Airdrop and CloudDrive
     
 Share data with Cloudkit 
     Files are moved to CloudDrive - UbiquitousContainer
+    
+Takes to iCloud
+    - copy take to iCloud
+        Copy take to iCloud, leave take in App's Documents folder, leave CoreData record of take
+        Set field in CoreData?
+    - remove take from iCloud
+        Delete take in iCloud
+        Set field in CoreData?
+        
+When take in iCloud, display take in Takes View?
+
+Can be a take in iCloud and iCloudDrive?
+
+What happens if a take gets, which is in iCloud, get's modified in app?
+    - Update iCloud take? 
+        
+Takes to iDrive
+    
+        

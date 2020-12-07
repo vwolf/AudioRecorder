@@ -16,6 +16,7 @@ class AudioCaptureSession: NSObject, AVCaptureAudioDataOutputSampleBufferDelegat
     
     let captureSession = AVCaptureSession()
     
+    
     override init() {
         super.init()
         
@@ -61,5 +62,81 @@ class AudioCaptureSession: NSObject, AVCaptureAudioDataOutputSampleBufferDelegat
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         print("Audio data received")
+    }
+}
+
+
+class AudioInputDeviceMonitor: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
+    
+    let recordingSession = AVAudioSession.sharedInstance()
+    var captureSession: AVCaptureSession = AVCaptureSession()
+    //var onChange:((_: Bool) -> Void)?
+    var completion: ((_: Float) -> Void)?
+
+    override init() {
+        super.init()
+        
+        if recordingSession.isInputAvailable {
+            do {
+                if recordingSession.availableCategories.contains(.playAndRecord) {
+                    try recordingSession.setCategory(AVAudioSession.Category.playAndRecord)
+                }
+                
+                try recordingSession.setActive(true)
+                print("InputGain in AudioInputDeviceMonitor: \(recordingSession.inputGain)")
+                try recordingSession.setInputGain(1.0)
+                
+            } catch {
+            
+            }
+            
+        }
+    }
+    
+    func startCaptureSession(closure: @escaping (Float) -> Void) {
+        completion = closure
+        
+        if let audioCaptureDevice: AVCaptureDevice = AVCaptureDevice.default(for: AVMediaType.audio) {
+            do {
+                try audioCaptureDevice.lockForConfiguration()
+                
+               
+                let audioInput = try AVCaptureDeviceInput(device: audioCaptureDevice)
+                audioCaptureDevice.unlockForConfiguration()
+                
+                if (captureSession.canAddInput(audioInput)) {
+                    captureSession.addInput(audioInput)
+                }
+                
+                let audioOutput = AVCaptureAudioDataOutput()
+                
+                audioOutput.setSampleBufferDelegate(self, queue: DispatchQueue.global(qos: .default))
+                if (captureSession.canAddOutput(audioOutput)) {
+                    captureSession.addOutput(audioOutput)
+                }
+                
+                DispatchQueue.global(qos: .default).async {
+                    print("start captureSession")
+                    self.captureSession.startRunning()
+                }
+            } catch {
+                
+            }
+        }
+    }
+    
+    /// Delegate function captureSession result
+    ///
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if let audioChannel = connection.audioChannels.first {
+//            print("averagePowerLevel: \(audioChannel.averagePowerLevel)")
+//            print("peakHoldLevel: \(audioChannel.peakHoldLevel)")
+            completion!(audioChannel.averagePowerLevel)
+        }
+    }
+    
+    
+    func stopCaptureSession() {
+        captureSession.stopRunning()
     }
 }

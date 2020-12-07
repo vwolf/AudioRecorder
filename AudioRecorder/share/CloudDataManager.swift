@@ -79,7 +79,7 @@ class CloudDataManager {
      - parameter takeName: name of take without extension
      - parameter takeDirectory: folder name for all takes
      */
-    func takeFolderToCloud(takeName: String, takeDirectory: String) {
+    func takeFolderToCloud(takeName: String, takeDirectory: String) -> Bool {
         if isCloudEnabled() {
             
             do {
@@ -90,10 +90,13 @@ class CloudDataManager {
                 
                 try FileManager.default.setUbiquitous(true, itemAt: sourceDirURL, destinationURL: destinationDirURL)
                 takeDirectories.append(takeName)
+                return true
             } catch {
                 print(error.localizedDescription)
             }
         }
+        
+        return false
     }
     
     /**
@@ -252,6 +255,7 @@ class CloudDataManager {
     func metadataQuery(closure: @escaping (Bool) -> Void) {
         onChange = closure
         metaDataQuery.predicate = NSPredicate(format: "%K.pathExtension = %@", argumentArray: [NSMetadataItemURLKey, "wav"])
+        //metaDataQuery.predicate = NSPredicate(format: "%K.isDirectory = true", argumentArray: [NSMetadataItemURLKey])
         //metaDataQuery?.predicate = NSPredicate(format: "%K like 'SampleDoc.txt'", NSMetadataItemFSNameKey)
         metaDataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
         
@@ -275,10 +279,14 @@ class CloudDataManager {
         for item in result {
             var itemURL = (item as AnyObject).value(forAttribute: NSMetadataItemURLKey) as! URL
             itemURL.deletePathExtension()
-//            print(itemURL.path)
-            print(itemURL.lastPathComponent)
+
+           // print(itemURL.lastPathComponent)
             takeDirectories.append(itemURL.lastPathComponent)
         }
+        
+        print("metadataQuery takeDirectories: \(takeDirectories.count)")
+        
+        metaDataQuery.stop()
         onChange!(true)
     }
 }

@@ -21,7 +21,7 @@ class DropboxVC: UIViewController {
     
     @IBOutlet weak var toolbarSaveBtn: UIBarButtonItem!
     
-    var takeCKRecordModel = TakeCKRecordModel()
+   // var takeCKRecordModel = TakeCKRecordModel()
     
     // all takes
     var takeNames = [String]() {
@@ -63,7 +63,7 @@ class DropboxVC: UIViewController {
         var commitInfos = [URL: Files.CommitInfo]()
         for path in paths {
             let pathInDropBox = "/" + path.lastPathComponent
-            let ci = SwiftyDropbox.Files.CommitInfo(path: pathInDropBox)
+            let ci = SwiftyDropbox.Files.CommitInfo(path: pathInDropBox, mode: Files.WriteMode.overwrite)
             
             commitInfos[path] = ci
         }
@@ -112,6 +112,57 @@ class DropboxVC: UIViewController {
 //                }
 //
 //            }
+        }
+    }
+    
+    /**
+     Upload directory
+     Upload each file in directory
+     
+     */
+    func upload(directoryURL: URL) {
+        var isDirectory: ObjCBool = true
+        let directoryExist = FileManager.default.fileExists(atPath: directoryURL.path, isDirectory: &isDirectory)
+        if directoryExist {
+            let dirName = directoryURL.lastPathComponent
+            //var filesInDir: [URL] = []
+            
+            do {
+                let filesInDir = try FileManager.default.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+                
+                client = DropboxClientsManager.authorizedClient
+                
+                var commitInfos = [URL: Files.CommitInfo]()
+                for path in filesInDir {
+                    let pathInDropBox = "/" + dirName + "/" + path.lastPathComponent
+                    let ci = SwiftyDropbox.Files.CommitInfo(path: pathInDropBox)
+                    
+                    commitInfos[path] = ci
+                    
+                    if (client != nil) {
+                        client?.files.batchUploadFiles(fileUrlsToCommitInfo: commitInfos, responseBlock: { response, error, errorSet in
+                            if let result = response {
+                                for arg in result {
+                                    print("key: \(arg.key.absoluteString), value: \(arg.value.description)")
+                                }
+                            } else if let callError = error {
+                                switch callError as CallError {
+                                case .accessError(let accessError, let userMessage, let errorSummary, let requestId):
+                                    print("AccessError[\(String(describing: requestId))]: \(String(describing: userMessage)) \(String(describing: errorSummary)) \(accessError)")
+                                default:
+                                    print("Unknown Error: \(callError.description)")
+                                }
+                                for err in errorSet {
+                                    print("Error key: \(err.key.absoluteString), value: \(String(describing: err.value.description))")
+                                }
+                            }
+                        })
+                    }
+                }
+                
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
     
@@ -221,8 +272,19 @@ class DropboxVC: UIViewController {
             let selectedRows = selected?.map { $0.row }
             var urlArray = [URL]()
             for row in 0..<selectedRows!.count {
+                let takeName = takeNames[selectedRows![row]]
                 if let dirURL = Takes().getDirectoryForFile(takeName: takeNames[selectedRows![row]], takeDirectory: AppConstants.takesFolder.rawValue) {
-                        
+                     
+                    //metadata json file
+                    let metadataFileURL = dirURL.appendingPathComponent(takeNames[selectedRows![row]]).appendingPathExtension("json")
+                    if FileManager.default.fileExists(atPath: metadataFileURL.path) {
+                        // metadata file exists
+                    } else {
+                        // no metadata json file - create it
+                        if (Takes().makeMetadataFile(takeName: takeName) == true ) {
+                            
+                        }
+                    }
                     urlArray.append(dirURL)
                 }
                 
@@ -256,8 +318,18 @@ class DropboxVC: UIViewController {
                 
             }
             
-            upload(paths: urlArray)
+//            upload(paths: urlArray)
+            upload(directoryURL: urlArray.first!)
         }
+    }
+    
+    
+    @IBAction func dropBoxAuth(_ sender: Any) {
+        DropboxClientsManager.authorizeFromController(UIApplication.shared,
+                                                      controller: self,
+                                                      openURL: { (url: URL) -> Void in
+                                                        UIApplication.shared.canOpenURL(url)
+                                                      })
     }
     
     /**
@@ -291,7 +363,7 @@ class DropboxVC: UIViewController {
 
 extension DropboxVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return takeNames.count
+        return takeNames.count //+ takesInDropbox.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
