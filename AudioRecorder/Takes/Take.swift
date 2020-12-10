@@ -45,6 +45,7 @@ class Take {
     var storageState = TakeStorageState.LOCAL
     var iCloudState = TakeStorageState.NONE
     var iDriveState = TakeStorageState.NONE
+    var dropboxState = TakeStorageState.NONE
     
     var takeFormat: AudioFormatDescription?
     
@@ -64,7 +65,7 @@ class Take {
     init(takeURL: URL, metaDataURL: URL?) {
         // set takeName and takeType and get items
         var recordingDataItems = self.setURL(takeURL: takeURL)
-        print("take name: \(takeName)")
+        print("take name: \(String(describing: takeName))")
         do {
             let takeAttributes = try FileManager.default.attributesOfItem(atPath: takeURL.path)
             
@@ -137,7 +138,7 @@ class Take {
         
         // take format info
         // take can be in iDrive, so no access to takeFormat
-        if let takeURL = Takes().getURLForFile(takeName: takeName!, fileExtension: takeType!, takeDirectory: "takes") {
+        if Takes().getURLForFile(takeName: takeName!, fileExtension: takeType!, takeDirectory: "takes") != nil {
             self.takeFormat = self.getTakeFormat()
             if self.takeFormat != nil {
                 let formatString = formatTakeFormat()
@@ -149,6 +150,11 @@ class Take {
         /// take in iCloud, iDrive, Dropbox?
         if (TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: takeName!) != nil) {
             storageState = .ICLOUD
+            iCloudState = .ICLOUD
+        }
+        
+        if (Takes.sharedInstance.takesDropbox.contains(where: { $0.takeName == takeName})) {
+            dropboxState = .DROPBOX
         }
         
         //        let group = DispatchGroup()
@@ -165,13 +171,24 @@ class Take {
     init(takeCKRecord: TakeCKRecord, takeName: String) {
         // takename in takeRecord is with file extension
         self.takeName = takeName
-        let url = takeCKRecord.audioAsset.fileURL
+        // let url = takeCKRecord.audioAsset.fileURL
         
         iCloudState = .ICLOUD
         
-        //print("ICLOUD TAKE: \(takeName), \(url)")
+        // print("ICLOUD TAKE: \(takeName), \(url)")
     }
     
+    /// Use to add a Dropbox take to takes
+    ///
+    init(takeName: String, storageState: TakeStorageState) {
+        self.takeName = takeName
+        self.storageState = storageState
+        
+        if storageState == .DROPBOX {
+            // is there a take with dame name?
+            
+        }
+    }
     
     
     /// Add data generated at recording of take

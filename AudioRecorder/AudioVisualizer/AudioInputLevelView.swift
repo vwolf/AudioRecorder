@@ -101,7 +101,7 @@ class AudioInputLevelView: UIView {
         audioInputDeviceMonitor.startCaptureSession() { result in
             let linearLevel = powf(10, result / 20)
             //print("linearLevel: \(linearLevel)")
-            var levelToDisplay = (1 - linearLevel) * 100
+            let levelToDisplay = (1 - linearLevel) * 100
             self.newLevel = CGFloat(levelToDisplay) * self.dbDisplayFactor
             //print("level: \(self.newLevel)")
         }

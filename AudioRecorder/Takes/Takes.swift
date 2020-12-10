@@ -21,6 +21,7 @@ class Takes {
     var takesLocal: [Take] = []
     var takesCloud: [Take] = []
     var takesDrive: [Take] = []
+    var takesDropbox: [Take] = []
     
     var reloadFlag = false
     
@@ -48,7 +49,7 @@ class Takes {
             let directoryContent = try FileManager.default.contentsOfDirectory(at: documentPath, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
             /// we only wants the files with right fileExtension, ignore folder at the moment
             /// folders could come imported if we add more assets (images, sub takes, ...)
-            let filePaths = directoryContent.filter { $0.pathExtension == fileExtension }
+//            let filePaths = directoryContent.filter { $0.pathExtension == fileExtension }"
             let takeFolders = directoryContent.filter { $0.hasDirectoryPath == true }
             /// get all Take Records from CoreData
             let takeMOs = coreDataController?.getTakes()
@@ -110,7 +111,7 @@ class Takes {
                 print("metadataQuery with result \(result), takes: \(CloudDataManager.sharedInstance.cloudURLs.count)")
            
                 for t  in takesLocal {
-                    print("#### \(t.takeName)")
+                    print("#### \(String(describing: t.takeName))")
                 }
                 
                 let takeMOs = coreDataController?.getTakes()
@@ -157,8 +158,16 @@ class Takes {
     
     
     
-    
-    func getAllTakesInDropbox() {}
+    func getAllTakesInDropbox() {
+        if DropboxManager.sharedInstance.client != nil {
+            print("getAllTakesInDropbox")
+            DropboxManager.sharedInstance.listFiles() { result in
+                for take in DropboxManager.sharedInstance.takesInDropbox {
+                    self.takesDropbox.append(Take(takeName: take, storageState: .DROPBOX))
+                }
+            } 
+        }
+    }
     
     /// Add takes from iCloud.
     /// Same take could be in app and in iCloud 
@@ -182,6 +191,18 @@ class Takes {
         for take in takesDrive {
             if let idx = takesLocal.firstIndex(where: { $0.takeName == take.takeName }) {
                 takesLocal[idx].iDriveState = .IDRIVE
+            }
+        }
+    }
+    
+    /// Connection same take local and Dropbox
+    ///
+    func connectDropboxTakes() {
+        print("connectDropboxTakes: \(takesDropbox.count)")
+        for take in takesDropbox {
+            print("try connect take: \(take.takeName)")
+            if let idx = takesLocal.firstIndex(where: { $0.takeName == take.takeName }) {
+                takesLocal[idx].dropboxState = .DROPBOX
             }
         }
     }
@@ -272,7 +293,7 @@ class Takes {
     private func addToTakesInShare(takeURLs: [URL]) {
         let takeMOs = coreDataController?.getTakes()
         for t in takeMOs! {
-            print(t.name)
+            print(t.name ?? "missing name?")
         }
         let resourceKeys = Set<URLResourceKey>([.nameKey, .isUbiquitousItemKey])
         for item in takeURLs {
@@ -289,7 +310,7 @@ class Takes {
             if isUbiquitous {
                 print("\(name) is ubiquitous")
                 /// does a CoreData Take Record exist for take?
-                if let takeMO = takeMOs?.first(where: { $0.name == name }) {
+                if (takeMOs?.first(where: { $0.name == name })) != nil {
                     print("TakeMO Record for take \(name)")
                 }
             }
@@ -574,7 +595,7 @@ class Takes {
         let loadedTake = coreDataController?.getTake(takeName: takeName)
         
         if (loadedTake?.count)! > 0 {
-            print("take loaded: \(String(describing: loadedTake?[0].name))")
+           // print("take loaded: \(String(describing: loadedTake?[0].name))")
             
 //            let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeName)
             
@@ -681,7 +702,6 @@ class Takes {
             } catch {
                 print (error)
             }
-            
             
         }
         return false

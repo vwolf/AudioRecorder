@@ -12,6 +12,7 @@
 		791D505E2577F54B000CD35E /* AudioLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791D505D2577F54A000CD35E /* AudioLevelView.swift */; };
 		792D6AFD2570618D006B5360 /* ICloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792D6AFC2570618D006B5360 /* ICloudView.swift */; };
 		7931A661256F154A005F1FDB /* CloudVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7931A660256F154A005F1FDB /* CloudVC.swift */; };
+		793D907D2580FFB8004F8A81 /* DropboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 793D907C2580FFB8004F8A81 /* DropboxView.swift */; };
 		7946F1AC251F1FA500EA9580 /* PopoverVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1AB251F1FA500EA9580 /* PopoverVC.swift */; };
 		7946F1B1251F223E00EA9580 /* PopoverTableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7946F1B0251F223E00EA9580 /* PopoverTableView.xib */; };
 		7946F1B6251F282600EA9580 /* PopoverCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7946F1B5251F282600EA9580 /* PopoverCellController.swift */; };
@@ -84,7 +85,6 @@
 		79D223F724D9600C00900F31 /* RecordVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223F624D9600C00900F31 /* RecordVC.swift */; };
 		79D223FC24D967DB00900F31 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223FB24D967DB00900F31 /* Colors.swift */; };
 		79D223FF24D975B500900F31 /* RecordingTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D223FE24D975B500900F31 /* RecordingTimer.swift */; };
-		79D5D26E2573D2A20098F196 /* LoadVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D5D26D2573D2A20098F196 /* LoadVC.swift */; };
 		79DC8CE52510010300396FE1 /* ShareVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CE42510010200396FE1 /* ShareVC.swift */; };
 		79DC8CE8251003E800396FE1 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CE7251003E800396FE1 /* CloudDataManager.swift */; };
 		79DC8CEC25100F3300396FE1 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC8CEB25100F3300396FE1 /* CloudKit.framework */; };
@@ -118,6 +118,7 @@
 		791D505D2577F54A000CD35E /* AudioLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevelView.swift; sourceTree = "<group>"; };
 		792D6AFC2570618D006B5360 /* ICloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudView.swift; sourceTree = "<group>"; };
 		7931A660256F154A005F1FDB /* CloudVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudVC.swift; sourceTree = "<group>"; };
+		793D907C2580FFB8004F8A81 /* DropboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxView.swift; sourceTree = "<group>"; };
 		7946F1AB251F1FA500EA9580 /* PopoverVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverVC.swift; sourceTree = "<group>"; };
 		7946F1B0251F223E00EA9580 /* PopoverTableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopoverTableView.xib; sourceTree = "<group>"; };
 		7946F1B5251F282600EA9580 /* PopoverCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverCellController.swift; sourceTree = "<group>"; };
@@ -195,7 +196,6 @@
 		79D223F624D9600C00900F31 /* RecordVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordVC.swift; sourceTree = "<group>"; };
 		79D223FB24D967DB00900F31 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		79D223FE24D975B500900F31 /* RecordingTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingTimer.swift; sourceTree = "<group>"; };
-		79D5D26D2573D2A20098F196 /* LoadVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadVC.swift; sourceTree = "<group>"; };
 		79DC8CE42510010200396FE1 /* ShareVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareVC.swift; sourceTree = "<group>"; };
 		79DC8CE7251003E800396FE1 /* CloudDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudDataManager.swift; sourceTree = "<group>"; };
 		79DC8CE925100F2C00396FE1 /* AudioRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AudioRecorder.entitlements; sourceTree = "<group>"; };
@@ -240,6 +240,7 @@
 			children = (
 				7931A660256F154A005F1FDB /* CloudVC.swift */,
 				792D6AFC2570618D006B5360 /* ICloudView.swift */,
+				793D907C2580FFB8004F8A81 /* DropboxView.swift */,
 			);
 			path = Cloud;
 			sourceTree = "<group>";
@@ -314,7 +315,6 @@
 		79BDA0732502548E0000B18B /* TakeCollectionView */ = {
 			isa = PBXGroup;
 			children = (
-				79D5D26D2573D2A20098F196 /* LoadVC.swift */,
 				798545AD2506D69400D6A1D2 /* Modals */,
 				79BDA075250254B80000B18B /* Xib */,
 				79BDA074250254A50000B18B /* Controller */,
@@ -723,6 +723,7 @@
 				792D6AFD2570618D006B5360 /* ICloudView.swift in Sources */,
 				7975051325246B50002C21C5 /* MDataAudioPopoverVC.swift in Sources */,
 				7975050D2523D22D002C21C5 /* MDataAudioCellController.swift in Sources */,
+				793D907D2580FFB8004F8A81 /* DropboxView.swift in Sources */,
 				79BDA070250125B00000B18B /* JSONParser.swift in Sources */,
 				79CDBBA824FE44E3005AA182 /* Extensions.swift in Sources */,
 				79825BA524DA1082008C0D04 /* SettingsTableViewCell.swift in Sources */,
@@ -731,7 +732,6 @@
 				7931A661256F154A005F1FDB /* CloudVC.swift in Sources */,
 				7975051D2524DAE8002C21C5 /* Recorder.swift in Sources */,
 				79825BA724DA145A008C0D04 /* Settings.swift in Sources */,
-				79D5D26E2573D2A20098F196 /* LoadVC.swift in Sources */,
 				795A0DE125134F3B00DE340B /* WaveformImageTypes.swift in Sources */,
 				79CDBBA524FDA7AE005AA182 /* Take.swift in Sources */,
 				7960298E257D8C0D00BC038A /* AudioInputGainView.swift in Sources */,

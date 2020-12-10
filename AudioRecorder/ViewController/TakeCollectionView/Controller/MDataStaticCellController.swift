@@ -27,22 +27,33 @@ class MDataStaticCellController: UICollectionViewCell {
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
-//        NSLayoutConstraint.activate([
-//            contentView.leftAnchor.constraint(equalTo: leftAnchor),
-//            contentView.rightAnchor.constraint(equalTo: rightAnchor),
-//            contentView.topAnchor.constraint(equalTo: topAnchor),
-//            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-//        ])
+        //        NSLayoutConstraint.activate([
+        //            contentView.leftAnchor.constraint(equalTo: leftAnchor),
+        //            contentView.rightAnchor.constraint(equalTo: rightAnchor),
+        //            contentView.topAnchor.constraint(equalTo: topAnchor),
+        //            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        //        ])
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-          
-          descriptionLabel.preferredMaxLayoutWidth = maxWidth!
-          layoutAttributes.bounds.size.width = maxWidth!
-        //print("systemLayoutSizeFitting.height: \(systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height)")
-          layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
-          
-          return layoutAttributes
-      }
+        print("MDataStaticCellController.preferredLayoutAttributesFitting maxWidth: \(String(describing: maxWidth))")
+        
+        descriptionLabel.preferredMaxLayoutWidth = maxWidth!
+        ValueLabel.frame.size.width = maxWidth!
+        
+        layoutAttributes.bounds.size.width = maxWidth!
+        print("layoutFittingCompressedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height)")
+        print("layoutFittingExpandedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height)")
+        
+        layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        //layoutAttributes.bounds.size.width = systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).width
+        //frame.size.width = maxWidth!
+        
+        setNeedsLayout()
+        layoutIfNeeded()
+        
+        //super.preferredLayoutAttributesFitting(layoutAttributes)
+        return layoutAttributes
+    }
 
 }

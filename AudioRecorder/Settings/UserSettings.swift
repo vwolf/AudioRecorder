@@ -165,6 +165,13 @@ class UserSettings {
         setUserDefaults(key: name, value: value)
     }
     
+    /// UserDefaults.standard can be mofified outside Settings
+    /// Will return false if key does't exist
+    ///
+    func reloadUserDefaults() {
+        useDropbox = UserDefaults.standard.bool(forKey: "useDropbox")
+    }
+    
     
     func userSettingsForDisplay() -> [String: String] {
         //"shareClient": shareClient,

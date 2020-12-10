@@ -391,7 +391,7 @@ class ShareVC: UIViewController {
     }
     
     func presentOptions(takeName: String, idx: Int) {
-        let alertController = optionAlert(name: takeName, completion: { [self] optionAction in
+        let alertController = optionAlert(name: takeName, completion: { optionAction in
             switch optionAction {
             case "delete":
                 print(optionAction)

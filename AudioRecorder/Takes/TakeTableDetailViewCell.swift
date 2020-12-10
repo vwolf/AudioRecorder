@@ -64,7 +64,7 @@ class TakesTableDetailViewCell: UITableViewCell {
         let recordingDate = takeMO.recordedAt
         let recordingDateString = recordingDate?.toString(dateFormat: "dd.MM.YY' at' HH:mm:ss")
 
-        takeDetailsLabel.text = "Recorded: \(recordingDateString ?? "?"), length: \(takeMO.length)"
+        takeDetailsLabel.text = "Recorded: \(recordingDateString ?? "?"), length: \(String(format: "%.2f", takeMO.length))"
     
         /// Case: recording with no imput source then length == 0
         /// No playing, icloud or metadata
@@ -84,8 +84,8 @@ class TakesTableDetailViewCell: UITableViewCell {
         
         //take = Take(withTakeMO: takeMO)
         
-        if let takeCKRecord = TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: takeName) {
-            
-        }
+//        if let takeCKRecord = TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: takeName) {
+//
+//        }
     }
 }

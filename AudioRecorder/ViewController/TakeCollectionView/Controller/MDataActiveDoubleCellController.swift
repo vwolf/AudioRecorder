@@ -34,6 +34,12 @@ class MDataActiveDoubleCellController: UICollectionViewCell {
         
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
+        NSLayoutConstraint.activate([
+            contentView.leftAnchor.constraint(equalTo: leftAnchor),
+            contentView.rightAnchor.constraint(equalTo: rightAnchor),
+            contentView.topAnchor.constraint(equalTo: topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
 //        let screenWidth = UIScreen.main.bounds.width
 //        widthConstraint.constant = screenWidth //- (2 * 8)
         
@@ -41,12 +47,17 @@ class MDataActiveDoubleCellController: UICollectionViewCell {
     }
 
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        setNeedsLayout()
-        layoutIfNeeded()
+    
+        descriptionLabel.preferredMaxLayoutWidth = maxWidth!
+        self.frame.size.width = maxWidth!
+        print("MDataActiveDoubleCellController.layoutFittingCompressedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height)")
+        print("MDataActiveDoubleCellController.layoutFittingExpandedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height)")
         
         layoutAttributes.bounds.size.width = maxWidth!
         layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
         
+        setNeedsLayout()
+        layoutIfNeeded()
         return layoutAttributes
     }
     

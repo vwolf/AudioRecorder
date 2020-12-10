@@ -10,11 +10,9 @@ import Foundation
 import UIKit
 import CloudKit
 
-/**
- Add, update, delete, refresh
- 
- 
- */
+
+ /// ICloud service: Add, update, delete, refresh
+ ///
 class TakeCKRecordModel {
     
     static let sharedInstance = TakeCKRecordModel()
@@ -75,6 +73,9 @@ class TakeCKRecordModel {
     }
     
     
+    /// Add Take to iCloud
+    ///
+    /// - Parameter url: url to take in documents directory
     func addTake(url: URL) {
         var takeRecord = TakeCKRecord()
         takeRecord.name = url.lastPathComponent
@@ -148,17 +149,14 @@ class TakeCKRecordModel {
     }
     
     
-    /**
-     Get records not in cloud storage.
-     
-     Use field value to compare records. That should be the name field
-     
-     - parameter field: name of value to compare
-     - parameter recordNames: array of take names
-     
-     - returns array with new record names
-    
-     */
+    /// Get records not in cloud storage.
+    ///
+    /// Use field value to compare records. That should be the name field
+    ///
+    /// - parameter field: name of value to compare
+    /// - parameter recordNames: array of take names
+    ///
+    /// - returns array with new record names
     func getNewRecords(with field: String, in recordNames: [String] ) -> [String] {
        
         var newRecords = recordNames
@@ -250,7 +248,7 @@ class TakeCKRecordModel {
                 if error == nil {
                     print("Record deleted")
                 } else {
-                    print("DeleteTake Error: \(error?.localizedDescription)")
+                    print("DeleteTake Error: \(String(describing: error?.localizedDescription))")
                 }
             }
         }

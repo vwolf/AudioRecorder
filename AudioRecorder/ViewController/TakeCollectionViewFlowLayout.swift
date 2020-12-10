@@ -41,7 +41,8 @@ final class TakeCollectionViewFlowLayout: UICollectionViewFlowLayout {
             seperatorAttribute.zIndex = Int.max
             decorationAttributes.append(seperatorAttribute)
         }
-        
+//        shouldInvalidateLayout(forBoundsChange: decorationAttributes.first!.frame)
+        //invalidateLayout()
         return layoutAttributes + decorationAttributes
     }
     

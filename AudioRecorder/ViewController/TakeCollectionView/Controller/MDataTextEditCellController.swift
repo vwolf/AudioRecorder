@@ -31,12 +31,12 @@ class MDataTextEditCellController: UICollectionViewCell, UITextViewDelegate {
        
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         
-//        NSLayoutConstraint.activate([
-//            contentView.leftAnchor.constraint(equalTo: leftAnchor),
-//            contentView.rightAnchor.constraint(equalTo: rightAnchor),
-//            contentView.topAnchor.constraint(equalTo: topAnchor),
-//            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-//        ])
+        NSLayoutConstraint.activate([
+            contentView.leftAnchor.constraint(equalTo: leftAnchor),
+            contentView.rightAnchor.constraint(equalTo: rightAnchor),
+            contentView.topAnchor.constraint(equalTo: topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
 //        let screenWidth = UIScreen.main.bounds.size.width
 //        widthConstraint.constant = screenWidth //- (2 * 8)
         
@@ -48,11 +48,15 @@ class MDataTextEditCellController: UICollectionViewCell, UITextViewDelegate {
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        setNeedsLayout()
-        layoutIfNeeded()
-        
+      
+        print("MDataTextEditCellController.contentView.frame.size.height: \(contentView.frame.height)")
         layoutAttributes.bounds.size.width = maxWidth!
         layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        print(layoutAttributes.bounds.size.height)
+        //contentView.bounds.size.height = 200
+        
+        setNeedsLayout()
+        layoutIfNeeded()
         
         return layoutAttributes
     }

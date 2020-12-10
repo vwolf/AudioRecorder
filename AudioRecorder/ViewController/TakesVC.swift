@@ -8,6 +8,8 @@
 
 import UIKit
 
+/// List of recorded takes
+///
 class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
 
     @IBOutlet weak var takesTableView: UITableView!
@@ -51,13 +53,13 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
         self.performSegue(withIdentifier: "TakeSegueIdentifier", sender: take)
     }
     
-    /**
-     Delete action from table cell
-     First let user confirm delete action (alert)
-     
-     - parameter row: row index
-     - parameter cell: selected table cell
-     */
+    
+    /// Delete action from table cell
+    /// First let user confirm delete action (alert)
+    ///
+    /// - parameter row: row index
+    /// - parameter cell: selected table cell
+    ///
     func deleteTake(row: Int, cell: UITableViewCell? ) {
         //let takeName = takes[row]
         guard let takeName = Takes.sharedInstance.takesLocal[row].takeName else {
@@ -115,6 +117,11 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate {
     }
     
     
+    /// Play take through ModalAudioPlayerVC
+    ///
+    /// - Parameters:
+    ///   - row:
+    ///   - cell:
     func playTake(row: Int, cell: UITableViewCell? ) {
         print("playTake Popover")
         //let sourceRect = cell.frame
@@ -216,10 +223,6 @@ extension TakesVC: UITableViewDelegate, UITableViewDataSource {
         
         let take = Takes.sharedInstance.takesLocal[indexPath.row]
         cell.take = take
-        //cell.takeName = take.takeName!
-        
-        //cell.takeNameLabel.text = takes[indexPath.row]
-        //cell.takeName = takes[indexPath.row]
         
         if cell.take.takeLength > 0 {
             cell.playBtn.tag = indexPath.row
@@ -239,8 +242,6 @@ extension TakesVC: UITableViewDelegate, UITableViewDataSource {
        
         cell.trashBtn.tag = indexPath.row
         cell.trashBtn.addTarget(self, action: #selector(deleteTake(_:)), for: .touchUpInside)
-        
-        
         
         return cell
     }

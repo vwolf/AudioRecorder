@@ -65,8 +65,8 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         //widthConstraint.constant = screenWidth - (2 * 8)
         
         if let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            //flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-            flowLayout.estimatedItemSize = CGSize(width: estimatedItemWidth, height: 80)
+            flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+            flowLayout.estimatedItemSize = CGSize(width: estimatedItemWidth, height: 100)
             flowLayout.headerReferenceSize = CGSize(width: self.view.frame.width, height: 60)
             
         }
@@ -197,6 +197,15 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
 //
 //        }
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        
+        collectionView.layoutIfNeeded()
+        //collectionView.invalidateIntrinsicContentSize()
+    }
+    
     
     @objc func alertOnNavigationBack(completion: @escaping (Bool) -> ()) -> UIAlertController {
         let ok = UIAlertAction(title: "Save", style: .default) { _ in
@@ -549,6 +558,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
 
             cell.maxWidth = collectionView.bounds.width - 16
             
+            
             let categoryValueSet = !(takeItem.value as! String).isEmpty
 
             if !categoryValueSet {
@@ -567,6 +577,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                     }
                 }
             }
+            
             
             return cell
 
@@ -670,6 +681,9 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.ValueLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.maxWidth = collectionView.bounds.width - 16
             
+//            print("MDataStaticCell.width: \(cell.maxWidth)")
+//            print("MdataStaticCell valueLabel.frame: \(cell.ValueLabel.frame)")
+           
             return cell
         }
     }

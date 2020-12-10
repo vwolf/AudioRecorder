@@ -28,7 +28,7 @@ class CloudVC: UIViewController {
     
     @IBOutlet weak var iCloudView: ICloudView!
     @IBOutlet weak var iDriveView: ICloudView!
-    @IBOutlet weak var DropboxView: ICloudView!
+    @IBOutlet weak var DropboxView: DropboxView!
     
     var take: Take = Take()
     
@@ -45,6 +45,8 @@ class CloudVC: UIViewController {
             print("AccountStatus problem: \(accountStatus.rawValue)")
         }
         
+        Takes.sharedInstance.connectDropboxTakes()
+        
         initICloudView()
         initIDriveView()
         initDropboxView()
@@ -53,15 +55,25 @@ class CloudVC: UIViewController {
 //        DropboxView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dropBoxAction(_:))))
         
         navigationItem.title = take.takeName
+        
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        if isMovingFromParent {
-            
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if DropboxView.loggingIn {
+            initDropboxView()
+            DropboxView.loggingIn = false
         }
     }
     
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {}
+    }
+    
+  
     private func findTakeIniCloud() -> Bool {
         if (TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: take.takeName!) != nil) {
             return true
@@ -137,9 +149,39 @@ class CloudVC: UIViewController {
     
     @objc func dropBoxAction(_ sender: UITapGestureRecognizer) {
         print("dropBoxAction \(sender)")
-        
-        DropboxManager.sharedInstance.listFiles()
+        // user auth with dropbox?
+        if DropboxManager.sharedInstance.client == nil {
+            auth()
+        } else {
+            let takeName = take.takeName
+            if let dirURL = Takes.sharedInstance.getDirectoryForFile(takeName: takeName!, takeDirectory: AppConstants.takesFolder.rawValue) {
+                DropboxManager.sharedInstance.uploadTakeFolder(folderURL: dirURL) { result in
+                    if result {
+                        self.take.dropboxState = .DROPBOX
+                        self.initDropboxView()
+                    }
+                }
+            }
+        }
     }
+    
+    /// Activate Dropbox usage
+    @objc func dropBoxActivation(_ sender: UITapGestureRecognizer) {
+        DropboxView.loggingIn = true
+        UserDefaults.standard.setValue(true, forKey: "useDropbox")
+        if DropboxManager.sharedInstance.client == nil {
+            auth()
+        } else {
+            initDropboxView()
+        }
+    }
+    
+    
+    func auth() {
+        // DropboxManager.sharedInstance.auth(controller: self)
+        DropboxManager.sharedInstance.authV2(controller: self)
+    }
+    
     
     private func initICloudView() {
         
@@ -179,22 +221,46 @@ class CloudVC: UIViewController {
         }
     }
     
+    /// Using Dropbox needs two steps: activation in Settings and authorization with Dropbox
+    ///
     private func initDropboxView() {
         let dropboxActive = UserDefaults.standard.bool(forKey: "useDropbox")
         
         if !dropboxActive {
+            // dropbox inactive in User Settings
             DropboxView.label.text = CloudStrings.DropboxDontUse.rawValue
             DropboxView.detailLabel.text = CloudStrings.DropboxEnable.rawValue
             
-            DropboxView.addBtn.alpha = 0.4
-        } else {
-            if take.storageState != .DROPBOX {
+            //DropboxView.addBtn.alpha = 0.4
+            DropboxView.addBtn.setTitle("Enable Dropbox", for: .normal)
+            if DropboxView.addBtn.allTargets.count != 0 {
+                for target in DropboxView.addBtn.allTargets {
+                    DropboxView.addBtn.removeTarget(target, action: #selector(dropBoxAction(_:)), for: .touchUpInside)
+                }
+            }
+            DropboxView.addBtn.addTarget(self, action: #selector(dropBoxActivation(_:)), for: .touchUpInside)
+            
+        } else  {
+            if DropboxManager.sharedInstance.client == nil {
+                // Usersettings dropbox usage active but no authorization with Dropbox
+                DropboxView.label.text = CloudStrings.DropboxAuth.rawValue
+                
+                DropboxView.addBtn.setTitle("Login", for: .normal)
+            } else if take.dropboxState != .DROPBOX {
+                // take not yet in dropbox
                 DropboxView.label.text = CloudStrings.NotInDropbox.rawValue
                 DropboxView.detailLabel.text = CloudStrings.DropboxDetails.rawValue
         
                 DropboxView.addBtn.setTitle("Move to Dropbox", for: .normal)
                 DropboxView.addBtn.addTarget(self, action: #selector(dropBoxAction(_:)), for: .touchUpInside)
+            } else {
+                // take already in dropbox
+                DropboxView.detailLabel.text = CloudStrings.InDropbox.rawValue
+                
+                DropboxView.addBtn.isEnabled = false
+                DropboxView.addBtn.alpha = 0.4
             }
+            
         }
     }
 }
@@ -214,4 +280,5 @@ enum CloudStrings: String {
     case DropboxDetails = "Copy take to your Dropbox"
     case DropboxDontUse = "Enable Dropbox"
     case DropboxEnable = "Enable Dropbox in Settings"
+    case DropboxAuth = "Login Dropbox"
 }

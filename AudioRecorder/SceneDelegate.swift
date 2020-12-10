@@ -23,21 +23,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
         
-//        if ((self.window?.rootViewController) != nil) {
-//            print("We have a rootViewController in SceneDelegate")
-//        }
-//
-//        coreDataController = CoreDataController(modelName: "AudioRecorder") {
-//            print("coreDataController.completionClosure")
-//            if ((self.window?.rootViewController) != nil) {
-//                print("We have a rootViewController in SceneDelegate")
-//                let vc = self.window?.rootViewController as? LoadVC
-//                if let rvc = self.window?.rootViewController as? LoadVC {
-//                    rvc.msgFromDelegate()
-//                }
-//            }
-//
-//        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

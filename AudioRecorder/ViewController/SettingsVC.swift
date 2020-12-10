@@ -11,11 +11,9 @@
 import UIKit
 import AVFoundation
 
-/**
- ViewController for Settings screen.
- Settings screen has two parts: Audio format and User settings
- 
- */
+/// ViewController for Settings screen.
+/// Settings screen has two parts: Audio format and User settings
+///
 class SettingsVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
@@ -40,6 +38,14 @@ class SettingsVC: UIViewController {
             
         }
         //displaySetting = (settings?.settingForDisplay(name: settings!.currentSettingsName))!
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let dropboxValue = userSettings?.getUserDefaults(key: "useDropbox")
+        userSettings?.updateUserDefaults(name: "useDropbox", value: dropboxValue!)
+            
     }
     
     
@@ -94,13 +100,12 @@ class SettingsVC: UIViewController {
         }
     }
     
-    /**
-     Settings value changed
-     Usersetting->Name of Recording Setting then update Format Settings
-     
-     - parameter indexPath: tableView indexPath of change setting
-     - parameter value: new value
-     */
+    
+    /// Settings value changed
+    /// Usersetting->Name of Recording Setting then update Format Settings
+    ///
+    /// - parameter indexPath: tableView indexPath of change setting
+    /// - parameter value: new value
     private func settingValueUpdate(indexPath: IndexPath, value: String, displayValue: String) {
         switch displaySetting[indexPath.section][indexPath.row].id {
         case "recordingSettings" :
@@ -265,8 +270,8 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             switch displaySetting[indexPath.section][indexPath.row].id {
             case "recordingSettings" :
                 // get all awailable recording format preset names
-                let names = settings?.getSettingsName()
-                var editingParams = SettingDefinitions.recordingSetting.getSettingEditingParams()
+                //let names = settings?.getSettingsName()
+                let editingParams = SettingDefinitions.recordingSetting.getSettingEditingParams()
                // editingParams.presets = names ?? ["no Settings?"]
                 selectPreset(index: indexPath, params: editingParams)
                 //
