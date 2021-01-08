@@ -45,54 +45,98 @@ class Recorder: NSObject, AVAudioRecorderDelegate {
         recordingSession = AVAudioSession.sharedInstance()
         
         /// request RecordPermission
-        if requestRecordingPermission() == .granted {
-            do {
-                if recordingSession.availableCategories.contains(.playAndRecord) {
-                    try recordingSession.setCategory(AVAudioSession.Category.playAndRecord)
-                }
-                
-                try recordingSession.setActive(true)
-                
-                if recordingSession.isInputAvailable {
-                    let availableInputs = recordingSession.availableInputs
-                    let it = availableInputs?.makeIterator()
-                    
-                    inputGain = recordingSession.inputGain
-                    inputGainSettable = recordingSession.isInputGainSettable
-                    
-                    print("###### AVAILABLE INPUTS #######")
-                    for input in it! {
-                        print("Descriptive name for input: \(input.portName)")
-                        print(input.portType)
-                        print(input.selectedDataSource ?? "Port doesn't support selecting between data sources")
-                        print(input.preferredDataSource ?? "Port doesn't support selecting between data sources")
-                    }
-                    
-                    print("NumberOfChannels: \(recordingSession.inputNumberOfChannels)")
-                    print("MaximumInputNumberOfChannels: \(recordingSession.maximumInputNumberOfChannels)")
-                    print("preferredInputNumberOfChannels: \(recordingSession.preferredInputNumberOfChannels)")
-                    
-                    // Collect Audio Device Settings
-                    print("InputGain: \(recordingSession.inputGain)")
-                    print("InputGainSettable: \(recordingSession.isInputGainSettable)")
-                    print("SampleRate: \(recordingSession.sampleRate)")
-                    print("preferredSampleRate: \(recordingSession.preferredSampleRate)")
-                    
-                    print("###### AVAILABLE INPUTS END #######")
-                    recordingSessionStatus = true
-                
-                    try recordingSession.setActive(false)
-                } else {
-                    print("No audio input path availabel")
-                }
-            }catch {
-                print("Error initializing recordinSession \(error)")
-            }
-        } else {
-            
-        }
+//        if requestRecordingPermission() == .granted {
+//            do {
+//                if recordingSession.availableCategories.contains(.playAndRecord) {
+//                    try recordingSession.setCategory(AVAudioSession.Category.playAndRecord)
+//                }
+//
+//                try recordingSession.setActive(true)
+//
+//                if recordingSession.isInputAvailable {
+//                    let availableInputs = recordingSession.availableInputs
+//                    let it = availableInputs?.makeIterator()
+//
+//                    inputGain = recordingSession.inputGain
+//                    inputGainSettable = recordingSession.isInputGainSettable
+//
+//                    print("###### AVAILABLE INPUTS #######")
+//                    for input in it! {
+//                        print("Descriptive name for input: \(input.portName)")
+//                        print(input.portType)
+//                        print(input.selectedDataSource ?? "Port doesn't support selecting between data sources")
+//                        print(input.preferredDataSource ?? "Port doesn't support selecting between data sources")
+//                    }
+//
+//                    print("NumberOfChannels: \(recordingSession.inputNumberOfChannels)")
+//                    print("MaximumInputNumberOfChannels: \(recordingSession.maximumInputNumberOfChannels)")
+//                    print("preferredInputNumberOfChannels: \(recordingSession.preferredInputNumberOfChannels)")
+//
+//                    // Collect Audio Device Settings
+//                    print("InputGain: \(recordingSession.inputGain)")
+//                    print("InputGainSettable: \(recordingSession.isInputGainSettable)")
+//                    print("SampleRate: \(recordingSession.sampleRate)")
+//                    print("preferredSampleRate: \(recordingSession.preferredSampleRate)")
+//
+//                    print("###### AVAILABLE INPUTS END #######")
+//                    recordingSessionStatus = true
+//
+//                    try recordingSession.setActive(false)
+//                } else {
+//                    print("No audio input path availabel")
+//                }
+//            }catch {
+//                print("Error initializing recordinSession \(error)")
+//            }
+//        } else {
+//
+//        }
     }
     
+    func initSession() {
+        do {
+            if recordingSession.availableCategories.contains(.playAndRecord) {
+                try recordingSession.setCategory(AVAudioSession.Category.playAndRecord)
+            }
+            
+            try recordingSession.setActive(true)
+            
+            if recordingSession.isInputAvailable {
+                let availableInputs = recordingSession.availableInputs
+                let it = availableInputs?.makeIterator()
+                
+                inputGain = recordingSession.inputGain
+                inputGainSettable = recordingSession.isInputGainSettable
+                
+                print("###### AVAILABLE INPUTS #######")
+                for input in it! {
+                    print("Descriptive name for input: \(input.portName)")
+                    print(input.portType)
+                    print(input.selectedDataSource ?? "Port doesn't support selecting between data sources")
+                    print(input.preferredDataSource ?? "Port doesn't support selecting between data sources")
+                }
+                
+                print("NumberOfChannels: \(recordingSession.inputNumberOfChannels)")
+                print("MaximumInputNumberOfChannels: \(recordingSession.maximumInputNumberOfChannels)")
+                print("preferredInputNumberOfChannels: \(recordingSession.preferredInputNumberOfChannels)")
+                
+                // Collect Audio Device Settings
+                print("InputGain: \(recordingSession.inputGain)")
+                print("InputGainSettable: \(recordingSession.isInputGainSettable)")
+                print("SampleRate: \(recordingSession.sampleRate)")
+                print("preferredSampleRate: \(recordingSession.preferredSampleRate)")
+                
+                print("###### AVAILABLE INPUTS END #######")
+                recordingSessionStatus = true
+                
+                try recordingSession.setActive(false)
+            } else {
+                print("No audio input path availabel")
+            }
+        }catch {
+            print("Error initializing recordinSession \(error)")
+        }
+    }
     
     func setInputGain(gain: Float) {
         self.inputGain = gain

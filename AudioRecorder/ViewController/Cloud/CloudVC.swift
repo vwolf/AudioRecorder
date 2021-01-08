@@ -95,11 +95,24 @@ class CloudVC: UIViewController {
         if TakeCKRecordModel.sharedInstance.accountStatus != .available {
             // apple id verification?
         } else {
-            addTakeToICloud()
+            switch take.storageState {
+            case .NONE, .LOCAL:
+                addTakeToICloud()
+            case .ICLOUD:
+                addTakeToLocal()
+            
+            default: print("Take storageState: \(take.storageState)")
+
+            }
         }
     }
     
-    
+    /// Add selected take to app's iCloud container.
+    ///
+    /// Two possible scenarios:
+    /// 1. Add take to iCloud and leave local copy as it.
+    /// 2. Add take to iCloud and delete local copy (files and coredata record).
+    ///
     func addTakeToICloud() {
         let takeName = take.takeName
         var urls: [URL] = []
@@ -115,10 +128,42 @@ class CloudVC: UIViewController {
             print(error.localizedDescription)
         }
         
-        // get wav file
-        if let wavFile = urls.firstIndex(where: { $0.pathExtension == "wav"}) {
-            //takeCKRecordModel.addTake(url: urls[wavFile])
-            TakeCKRecordModel.sharedInstance.addTake(url: urls[wavFile])
+        TakeCKRecordModel.sharedInstance.addTake(take: take) { result, error in
+            if error == nil {
+                // take saved to iCloud, remove local data
+//                self.take.storageState = TakeStorageState.ICLOUD
+//                self.take.iCloudState = TakeStorageState.ICLOUD
+                guard Takes.sharedInstance.deleteTake(take: self.take) else {
+                    print("Could not delete take \(self.take.takeName ?? "unkown")")
+                    return
+                }
+                
+                guard ((self.take.coreDataController?.deleteTake(takeName: takeName!)) != nil) else {
+                    return
+                }
+                
+                // take data in app's documents directory and record in CoreData deleted.
+                // Move take from takesLocal to takesICloud to updata TakesVC tableView
+                if !Takes.sharedInstance.moveTakeToCloud(take: self.take) {
+                    print("Could not move take \(self.take.takeName) to takesCloud")
+                }
+                
+                
+                Takes.sharedInstance.reloadFlag = true
+                
+            } else {
+                print(error?.localizedDescription ?? "Error addTakeToICloud")
+            }
+        }
+    }
+    
+    /// Move a take from iCloud container to app's document directory
+    ///
+    ///
+    func addTakeToLocal() {
+        print("addTakeToLocal: \(take.takeName!)")
+        take.cloudTakeToLocal() { result in
+            print(result)
         }
     }
     
@@ -137,9 +182,17 @@ class CloudVC: UIViewController {
 //        }
 //    }
     
+    func addTakeToIDrive() {}
     
     @objc func iDriveAction(_ sender: UITapGestureRecognizer) {
         print("iDriveAction \(sender)")
+        
+        if take.metadataFile() == nil {
+            Takes.sharedInstance.makeMetadataFile(takeName: take.takeName!)
+        } else {
+            let metadataFileURL = take.metadataFile()
+            print("metadataFileURL: \(metadataFileURL)")
+        }
         
         if CloudDataManager.sharedInstance.takeFolderToCloud(takeName: take.takeName!, takeDirectory: "takes") {
             // take moved (ubiqutios), remove from local takes
@@ -187,12 +240,13 @@ class CloudVC: UIViewController {
         
         if take.iCloudState == .ICLOUD {
             iCloudView.label.text = CloudStrings.IniCloud.rawValue
-            iCloudView.detailLabel.text = CloudStrings.ICloudDetails.rawValue
+            iCloudView.detailLabel.text = CloudStrings.ICloudBackDetails.rawValue
             
             //iCloudView.addBtn.setTitle("Replace", for: .normal)
-            iCloudView.addBtn.setTitle("Copy To iCloud", for: .normal)
-            iCloudView.addBtn.isEnabled = false
-            iCloudView.addBtn.alpha = 0.4
+            iCloudView.addBtn.setTitle("Move to app", for: .normal)
+            iCloudView.addBtn.addTarget(self, action: #selector(iCloudAction(_:)), for: .touchUpInside)
+            //iCloudView.addBtn.isEnabled = false
+            //iCloudView.addBtn.alpha = 0.4
         }
         
         if take.storageState == .LOCAL && take.iCloudState == .NONE {
@@ -270,6 +324,7 @@ enum CloudStrings: String {
     case NotIniCloud = "Copy take to iCloud."
     case IniCloud = "Copy of take is in iCloud."
     case ICloudDetails = "This makes a copy in your iCloud. \nGet takes from iCloud using macOS app. \nMore..."
+    case ICloudBackDetails = "Remove take from iCloud and add to App."
     
     case NotIniDrive = "Move take to iDrive."
     case IniDrive = "This take is already in iDrive"

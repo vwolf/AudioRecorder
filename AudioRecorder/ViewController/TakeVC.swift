@@ -24,7 +24,7 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
   
     
     @IBOutlet weak var collectionView: UICollectionView!
-    var takeMO:TakeMO?
+    //var takeMO:TakeMO?
     var take = Take()
     
     var categoryDict = [String: [String]]()
@@ -51,11 +51,6 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         collectionView.register(UINib.init(nibName: "MDataAudioCell", bundle: nil), forCellWithReuseIdentifier: "MDataAudioCell")
         
         collectionView.register(UINib.init(nibName: "MDataSectionHeader", bundle: nil), forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "MDataSectionHeader")
-        
-        if (takeMO != nil) {
-            print(takeMO!.name!)
-            take = Take(withTakeMO: takeMO!)
-        }
         
         collectionView.contentInset = .zero
         collectionView.backgroundColor = Colors.Base.background_item.toUIColor()
@@ -280,6 +275,8 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         
     }
     
+    /// This popover shows possible extra metadata items
+    ///
     func presentMetadataAddPopover(typ: String) {
         
         let popoverContentController = MetadataAddPopoverVC(nibName: "MetadataAddPopoverView", bundle: nil)
@@ -625,7 +622,12 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             
             cell.maxWidth = collectionView.bounds.width - 16
             
-            cell.setImage(urlString: takeItem.value as! String)
+            if let takeFolder = take.getTakeFolder() {
+                if takeItem.value as! String != "" {
+                    cell.setImageFromTake(imageName: takeItem.value as! String, takeFolder: takeFolder)
+                }
+            }
+            //cell.setImage(urlString: takeItem.value as! String)
             
             return cell
         
@@ -665,6 +667,23 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.valueTextField.text = takeItem.value as! String?
             cell.originalValue = cell.valueTextField.text!
             
+            cell.maxWidth = collectionView.bounds.width - 16
+            
+            return cell
+          
+        case "location" :
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataStaticCell", for: indexPath) as! MDataStaticCellController
+            let takeItem = take.items[indexPath.section][indexPath.row]
+            cell.nameLabel.text = takeItem.name
+            cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
+            cell.descriptionLabel.text = takeItem.description
+            cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
+            // item value as [String: Double]
+            if let takeValue = takeItem.value as? Dictionary<String,Double> {
+                cell.ValueLabel.text = takeValue.map{ "\($0): \($1)" }.joined(separator: ", ")
+            }
+            //cell.ValueLabel.text = takeItem.value as! String?
+            cell.ValueLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.maxWidth = collectionView.bounds.width - 16
             
             return cell
@@ -779,15 +798,31 @@ extension TakeVC: ImagePickerDelegate {
         imageCell?.imageView.image = image
     }
     
-    func didSelect(image: UIImage, imageURL: NSURL) {
+    func didSelect(image: UIImage, referenceURL: NSURL, imageURL: URL) {
         imageCell?.imageView.image = image
+        imageCell?.imageURL = referenceURL
         
-        imageCell?.imageURL = imageURL
+        take.addImageToTake(imageURL: imageURL, completion: { destinationURL, error in
+            print (destinationURL)
+            if (error != nil) {
+                
+            } else {
+                
+            }
+            /// metadataItem image value: takes/takeName/imageName
+            if let takeNameUnWrapped = take.takeName {
+                //let imageRelativePath = "takes/\(takeNameUnWrapped)/\(destinationURL.lastPathComponent)"
+               // let result = take.updateItem(id: "image", value: imageRelativePath, section: .METADATASECTION)
+//                if result {
+//                    take.updateTake()
+//                }
+            }
+        })
         
-        let result = take.updateItem(id: "image", value: imageURL.absoluteString!, section: .METADATASECTION)
-        if result {
-            take.updateTake()
-        }
+//        let result = take.updateItem(id: "image", value: referenceURL.absoluteString!, section: .METADATASECTION)
+//        if result {
+//            take.updateTake()
+//        }
     }
 }
 

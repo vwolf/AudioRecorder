@@ -32,7 +32,7 @@ class ModalAudioPlayerVC: UIViewController, AVAudioPlayerDelegate {
 //        print("positionLineGesture")
 //    }
     
-       
+    var take: Take?
     var takeName = "" {
         didSet {
             takeNameLabel.text = takeName

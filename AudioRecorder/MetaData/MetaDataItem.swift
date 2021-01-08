@@ -42,6 +42,17 @@ class MetaDataItem {
         self.value = value
     }
     
+    // For location item
+    init(description: [String: String], value: [String: Double]) {
+        self.id = description["id"]!
+        self.name = description["name"]!
+        self.type = description["type"]!
+        self.description = description["description"]!
+        
+        self.value = value
+    }
+    
+    
     init(description: MetaDataDescription, value: String) {
         self.id = description.id
         self.name = description.name

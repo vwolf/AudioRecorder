@@ -19,8 +19,13 @@ class CloudDataManager {
     var cloudURLs: [URL] = []
     var takeDirectories: [String] = []
     
+    let appDirectory: String = "AudioRecorder"
+    let takeDirectory: String = "takes"
+    
     private init() {
         metaDataQuery = NSMetadataQuery()
+        // first time directory creation
+        makeAppDirectory()
     }
     
     
@@ -51,6 +56,23 @@ class CloudDataManager {
         else { return false }
     }
     
+    /// iCloudDocumentsURL is iCloudDrive URL + Container name
+    ///
+    private func makeAppDirectory() {
+        let destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
+        
+        var isDirectory: ObjCBool = true
+        if !FileManager.default.fileExists(atPath: destinationDirURL.path, isDirectory: &isDirectory) {
+            do {
+                print("makeAps take directory at \(destinationDirURL.path)")
+                try FileManager.default.createDirectory(at: destinationDirURL, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    
     func copyFileToCloud(fileNames: [String]) {
         if isCloudEnabled() {
             do {
@@ -73,19 +95,25 @@ class CloudDataManager {
         }
     }
     
-    /**
-     Copy all take directories to cloud (directory named takeName)
-     
-     - parameter takeName: name of take without extension
-     - parameter takeDirectory: folder name for all takes
-     */
+    
+    /// Copy all take directories to cloud (directory named takeName).
+    ///
+    /// - parameter takeName: name of take without extension
+    /// - parameter takeDirectory: folder name for all takes
+    ///
     func takeFolderToCloud(takeName: String, takeDirectory: String) -> Bool {
         if isCloudEnabled() {
             
             do {
                 var sourceDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent(takeDirectory, isDirectory: true)
                 sourceDirURL.appendPathComponent(takeName)
+                
+                let contents = try FileManager.default.contentsOfDirectory(atPath: sourceDirURL.path)
+                for file in contents {
+                    print(file)
+                }
                 var destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
+   
                 destinationDirURL.appendPathComponent(takeName)
                 
                 try FileManager.default.setUbiquitous(true, itemAt: sourceDirURL, destinationURL: destinationDirURL)

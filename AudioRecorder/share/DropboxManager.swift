@@ -83,7 +83,7 @@ class DropboxManager {
     
     // MARK: Upload to Drobbox
     
-    /// Upload a take folder
+    /// Upload a take folder. Create metadata file if nessecary.
     ///
     /// - parameter folderURL: directory url
     ///

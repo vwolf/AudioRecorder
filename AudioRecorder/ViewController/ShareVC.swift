@@ -178,11 +178,10 @@ class ShareVC: UIViewController {
 //    }
     
     
-    /**
-      Save selected takes (including metadata.json, notes, images) to CloudDrive
-      Move whole directory
-      
-     */
+    
+    /// Save selected takes (including metadata.json, notes, images) to CloudDrive
+    /// Move whole directory
+    ///
     @IBAction func toolbarCloudDriveBtnAction(_ sender: UIBarButtonItem) {
         //copyFilesToDrive()
         
@@ -267,11 +266,11 @@ class ShareVC: UIViewController {
     }
     
     
-    /**
-     Return or create and return metadata json file url
-     
-     - parameters takeName: without file extension
-     */
+    
+    /// Return or create and return metadata json file url
+    ///
+    /// - parameters takeName: without file extension
+    ///
     func metadataJsonForTake(takeName: String) -> URL? {
 //         metadataFile? (*.json)
                 if let url = Takes().getURLForFile(takeName: takeName, fileExtension: "wav", takeDirectory: "takes") {
@@ -378,7 +377,7 @@ class ShareVC: UIViewController {
             if deleteAction {
                 // delete action
                 if deleteAction == true {
-                    takeCKRecordModel.deleteTake(takeName: takeName)
+                    //takeCKRecordModel.deleteTake(takeName: takeName)
                     takesInShare[idx].state = .LOCAL
                     tableView.reloadData()
                 }

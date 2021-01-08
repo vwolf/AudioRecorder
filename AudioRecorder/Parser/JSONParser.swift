@@ -20,9 +20,9 @@ class JSONParser {
         var json: Any
         
         do {
-            let data = try Data(contentsOf: resourcePath)
+            let data = try Data(contentsOf: resourcePath, options: .mappedIfSafe)
             
-            json = try JSONSerialization.jsonObject(with: data, options: [])
+            json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
             return json
             
         } catch {
@@ -42,16 +42,37 @@ class JSONParser {
      */
     func write(url: URL, data: Data) -> Bool? {
         
-        let nameWithOutExtension = url.deletingPathExtension()
-        let jsonFile = nameWithOutExtension.appendingPathExtension("json")
+//        let nameWithOutExtension = url.deletingPathExtension()
+//        let jsonFile = nameWithOutExtension.appendingPathExtension("json")
         
-        if FileManager.default.createFile(atPath: jsonFile.path, contents: data, attributes: nil) {
+        if FileManager.default.createFile(atPath: url.path, contents: data, attributes: nil) {
             return true
         } else {
-            print("Error writing file: \(jsonFile)")
+            print("Error writing file: \(url)")
             return false
         }
     }
      
    
+    /// Write *,json file at url.
+    ///
+    /// - Parameter url: take audio recording file url.
+    /// - Parameter data: Data to write to json file
+    ///
+    func writeTakeMeta(url: URL, data: Data) throws -> URL {
+    
+        let takeMetaURL = url.deletingPathExtension().appendingPathExtension("json")
+        
+        guard FileManager.default.createFile(atPath: takeMetaURL.path, contents: data, attributes: nil) else {
+            throw JSONParserError.createFileError(takeMetaURL)
+        }
+        
+        return takeMetaURL
+    }
+    
+    enum JSONParserError: Error {
+        case createFileError(URL)
+        
+        //func map<P>(f: T -> P) ->
+    }
 }

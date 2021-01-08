@@ -107,19 +107,19 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         recordingTimer.isHidden = true
         recording = false
         
-        initSettings()
-        
-        takeNamePreset = userSettings!.takeName
-        recordingName.text = "\(takeNamePreset)_\(userSettings!.takeNameExtension)"
-        //Takes()
-        Takes.sharedInstance.getAllTakesInApp(directory: "takes", fileExtension: "wav")
-        
+        // Legacy - no inputLevelView anymore - audio level monitoring instead
         audioInputLevelView.isHidden = true
 //        audioInputVisualizer.setBarViewPosition()
 //        audioInputVisualizer.isHidden = true
+//        audioLevelView.completion = audioLevelExtented(_:)
         
-        //audioLevelView.completion = audioLevelExtented(_:)
+        // Print as info to get documents folder path
+        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        print(documentPath)
         
+        // Initalize app data and recording
+        initApp()
+
         locationManager.requestWhenInUseAuthorization()
         /// current location
         if CLLocationManager.locationServicesEnabled() {
@@ -129,52 +129,100 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             locationManager.startUpdatingLocation()
         }
         
-        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        print(documentPath)
+    }
+    
+    /// First get [UserSetting](UserSettings), then load audio format setting depending on userSettings
+    /// Takes in app's documents directory
+    ///
+    func initApp() {
+        let group = DispatchGroup()
         
-//        DispatchQueue.main.async {
-//            CloudDataManager.sharedInstance.metadataQuery { [self] result in
-//                print("metadataQuery return result \(result)")
-//                //self.addToTakesInShare(takeURLs:  self.cloudDataManager.cloudURLs)
-//                self.takeName = makeTakeName()
-//            }
-//        }
-        
-       /// setup Recorder ->  AVAudioSession  -> use completion closure to get result
-        recorder = Recorder()
-        if recorder.recordingSessionStatus == true {
-            recordBtn.isEnabled = true
-            //recorder.startInputLevel()
+        group.enter()
+        self.readSettings(name: "middle") { userSettings in
+            self.userSettings = userSettings
+            settings = Settings.init(name: userSettings.recordingsetting)
             
-            if recorder.inputGainSettable == false {
-                gainBtn.isEnabled = false
-            }
+            group.leave()
         }
         
-        /// TrackCKRecord's
+        group.enter()
+        if Takes.sharedInstance.getAllTakesInApp(directory: "takes", fileExtension: "wav") {
+            group.leave()
+        } else {
+            group.leave()
+        }
+        
+        group.enter()
         TakeCKRecordModel.sharedInstance.refresh {
-            print("refreshClosure")
             if TakeCKRecordModel.sharedInstance.records.count > 0 {
                 var takes = [String: URL]()
                 for take in TakeCKRecordModel.sharedInstance.takeRecords {
                     takes[take.name] = take.audioAsset.fileURL
-                    //print(take.name)
                 }
                 DispatchQueue.main.async {
                     Takes.sharedInstance.getAllTakesIniCloud()
                 }
             }
+            group.leave()
         }
         
-        Takes.sharedInstance.getAllTakesIniDrive()
+        group.enter()
+        Takes.sharedInstance.getAllTakesIniDrive() {
+            group.leave()
+        }
         
-        if UserDefaults.standard.bool(forKey: "useDropbox") {
-            Takes.sharedInstance.getAllTakesInDropbox()
-            //Takes.sharedInstance.connectDropboxTakes()
+        group.notify(queue: .main) { [self] in
+            print("initApp.group.notify")
+            
+            self.recorder = Recorder()
+            self.recorderPermissions()
+            
+            takeNamePreset = self.userSettings!.takeName
+           // recordingName.text = "\(takeNamePreset)_\(self.userSettings!.takeNameExtension)"
         }
     }
     
-
+    
+    private func readSettings(name: String = "middle", clos: (UserSettings) -> Void) {
+        userSettings = UserSettings.init()
+        clos( userSettings!)
+    }
+    
+    
+    private func recorderPermissions() {
+        switch recorder.requestRecordingPermission() {
+        case .granted :
+            print("RecordingPermission.granted")
+            recorder.initSession()
+            recordBtn.isEnabled = true
+            if recorder.inputGainSettable == false {
+                gainBtn.isEnabled = false
+            }
+        case .denied :
+            print("RecordingPermission.denied")
+            
+        case .undetermined :
+            print("RecordingPermission.undetermined")
+            recorder.recordingSession.requestRecordPermission() { allowed in
+                if allowed {
+                    print("RecordPermission granted")
+                    self.recorder.initSession()
+                    
+                    DispatchQueue.main.sync {
+                        self.recordBtn.isEnabled = true
+                        if self.recorder.inputGainSettable == false {
+                            self.gainBtn.isEnabled = false
+                        }
+                    }
+                    
+                } else {
+                    print("RecordPermission denied")
+                }
+            }
+        default:
+            print("Unknown RecordingPermission")
+        }
+    }
     
     // MARK: - Navigation
 
@@ -296,6 +344,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         if Takes.sharedInstance.getDirectoryForFile(takeName: takeName, takeDirectory: AppConstants.takesFolder.rawValue) != nil {
             // directory takeName exist in takes directiory
             takeName = makeTakeName()
+        } else {
+            takeName = makeTakeName()
         }
         
         let directoryName = takeName
@@ -343,9 +393,9 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     }
     
     
-     /// Recording finished event message
-     ///
-     /// - parameter success: recording successful
+    /// Recording finished event message
+    ///
+    /// - parameter success: recording successful
     private func finishRecording(success: Bool) {
 //        let takeLength = audioRecorder.currentTime
         let takeLength = recorder.audioRecorder.currentTime
@@ -366,6 +416,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         }
         recording = false
         recordingTimer.stopTimer()
+        
+        takeName = makeTakeName()
 //        audioInputVisualizer.stopVisualize()
 //        audioInputVisualizer.isHidden = true
     }
@@ -418,22 +470,6 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     
     // MARK: Settings And UserSettings
-    
-    /// First get [UserSetting](UserSettings), then load audio format setting depending on userSettings
-    ///
-    /// - Parameter name: name of recording format setting
-    private func initSettings(name: String = "middle") {
-        if userSettings == nil {
-            userSettings = UserSettings.init()
-        }
-        
-        if settings == nil {
-            settings = Settings.init(name: userSettings?.recordingsetting ?? name)
-        }
-        
-        // userSettings needs recording setting names
-        
-    }
  
     
     /// Make a valid take name

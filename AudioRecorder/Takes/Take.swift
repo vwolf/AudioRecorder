@@ -12,11 +12,13 @@ import Foundation
 import AVFoundation
 import UIKit
 import CoreLocation
+import CloudKit
 
-/**
- Take properties
- Each property is an MetaDataItem and belongs to a Section
- */
+/// Take properties
+/// Each property is an MetaDataItem and belongs to a Section.
+/// Metadata items are saved to coredata record.
+/// Coredata record of take should always reflect the state of take instance.
+///
 class Take {
     
     var items = [[MetaDataItem]]()
@@ -74,16 +76,66 @@ class Take {
                 recordingDataItems.append(self.setRecordedAt(date: creationDate))
             }
             
-            let audioPlayer = try AVAudioPlayer(contentsOf: takeURL)
-            takeLength = audioPlayer.duration
+            
             
             // location only if metadata file url
             if metaDataURL != nil {
                 if let parserResult = JSONParser().parseJSONFile(metaDataURL!) as? [String: Any] {
+                    if parserResult.contains(where: { $0.key == "latitude" }) {
+                        if let lat = parserResult["latitude"] as? Double {
+                            if parserResult.contains(where: { $0.key == "longitude"}) {
+                                if let lon = parserResult["longitude"] as? Double {
+                                    let userLocation = CLLocation(latitude: lat, longitude: lon)
+                                    recordingDataItems.append(self.setLocation(location: userLocation))
+                                   
+                                }
+                            }
+                        }
+                    }
+                    
                     for item in parserResult {
                         print(item.key)
+                        switch item.key {
+                        case "category" :
+                            if parserResult.contains(where: { $0.key == "subCategory" }) {
+                                let subCategory = parserResult["subcategory"] as? String
+                                if let category = parserResult["category"] as? String {
+                                    let categories = addCategory(category: category, subCategory: subCategory ?? "")
+                                    addItem(item: categories, section: .METADATASECTION)
+                                }
+                            }
+                        default:
+                            print(item.key)
+                        }
                     }
+                    
+                    if parserResult.contains(where: { $0.key == "length" }) {
+                        if let length = parserResult["length"] as? Double {
+                            takeLength = length
+                        }
+                        //recordingDataItems.append(self.setRecordedAt(date: creationDate))
+                    } else {
+                        // get length of take if not already set in metadata
+                        let audioPlayer = try AVAudioPlayer(contentsOf: takeURL)
+                        takeLength = audioPlayer.duration
+                    }
+                    
+                    // Description
+                    if parserResult.contains(where: { $0.key == "description"}) {
+                        if let description = parserResult["description"] as? String {
+                            addDescription(description: description)
+                        }
+                    }
+                    // Image
+                    if parserResult.contains(where: { $0.key == "image"}) {
+                        if let imageDescription = parserResult["image"] as? String {
+                            addImage(imageURL: imageDescription)
+                        }
+                    }
+                    // Note
+                    
                 }
+                
             }
             
             itemSections.append(MetaDataSections.RECORDINGDATA)
@@ -166,7 +218,8 @@ class Take {
         //        group.wait()
     }
     
-    /// Take from TakeCKRecord. These are always .ICOUD takes
+    /// Take from TakeCKRecord. These are always .ICOUD takes.
+    /// This takes should have a CoreData record.
     ///
     init(takeCKRecord: TakeCKRecord, takeName: String) {
         // takename in takeRecord is with file extension
@@ -174,7 +227,7 @@ class Take {
         // let url = takeCKRecord.audioAsset.fileURL
         
         iCloudState = .ICLOUD
-        
+        storageState = .ICLOUD
         // print("ICLOUD TAKE: \(takeName), \(url)")
     }
     
@@ -279,9 +332,10 @@ class Take {
     
     
     func setLocation(location: CLLocation) -> MetaDataItem {
-        print("Take.location: \(location)")
+        //print("Take.location: \(location)")
         let locationDesc = MetaDataDefault().location
-        let locationValue = "Lat: \(location.coordinate.latitude) Lon: \(location.coordinate.longitude)"
+//        let locationValue = "Lat: \(location.coordinate.latitude) Lon: \(location.coordinate.longitude)"
+        let locationValue = ["lat" : location.coordinate.latitude, "lon": location.coordinate.longitude]
         let takeLocation = MetaDataItem(description: locationDesc, value: locationValue)
         
         //items.append(takeLocation)
@@ -364,7 +418,7 @@ class Take {
                 takeName = rename.name
                 url = url?.deletingLastPathComponent().appendingPathComponent(rename.name!)
             }
-            	
+            //print("saveTake.latitude: \(location?.coordinate.latitude)")
             guard (coreDataController?.seedTake(name : takeName!,
                                                 filePath: takePath,
                                                 recordeAt: recordedAt!,
@@ -381,7 +435,9 @@ class Take {
             
             
             if writeJson {
-                writeJsonForTake()
+                writeJsonForTake() { result, error in
+                    print("writeJsonForTake: \(result)")
+                }
             }
         } else {
             updateTake()
@@ -731,15 +787,29 @@ class Take {
     
     // MARK: Services
     
-    /**
-     Return path url
-     
-     - returns path to take in documents directory
-     */
-    func getTakePath() {
+    
+    /// Return path url
+    ///
+    /// - returns url to take in documents directory
+    ///
+    func getTakeURL() -> URL? {
+        let takeURL = Takes().getURLForFile(takeName: takeName!, fileExtension: takeType!, takeDirectory: "takes")!
         
+        if FileManager.default.fileExists(atPath: takeURL.path) {
+            return takeURL
+        }
+        
+        return nil
     }
     
+    /// Return take folder url
+    ///
+    func getTakeFolder() -> URL? {
+        if let takeFolderURL = Takes().getDirectoryForFile(takeName: takeName!, takeDirectory: "takes") {
+            return takeFolderURL
+        }
+        return nil
+    }
     
     /**
      Add a MetadataItem
@@ -849,6 +919,18 @@ class Take {
         return itemIndex
     }
     
+    /// Returns the metadata file url
+    ///
+    func metadataFile() -> URL? {
+        guard let metadataFileUrl = url?.deletingPathExtension().appendingPathExtension("json") else {
+            return nil
+        }
+        if FileManager.default.fileExists(atPath: metadataFileUrl.path) {
+           return metadataFileUrl
+        }
+        return nil
+    }
+    
     /**
      Does a recorded note for take exist?
      Save note to take directory
@@ -869,6 +951,47 @@ class Take {
         return nil
     }
     
+    /// This add's an image to take. Copy image into take directory and save image name as metadataItem value.
+    /// Delete existing metadata image and update metadateItem value.
+    ///
+    /// - Parameter imageURL
+    ///
+    func addImageToTake(imageURL: URL, completion: ((URL, Error?) -> Void) ) {
+        if let takeURL = getTakeURL() {
+            let takeFolderURL = takeURL.deletingLastPathComponent()
+            let destinationURL = takeFolderURL.appendingPathComponent(imageURL.lastPathComponent)
+            
+            do {
+                try FileManager.default.copyItem(at: imageURL, to: destinationURL)
+                
+                // there should always be a imageItem!
+                if let imageItem = getItemForID(id: "image", section: .METADATASECTION) {
+                    if imageItem.value as? String != "" {
+                        // remove previous imgage and update metadata item
+                        let previousImagePath = imageItem.value as? String
+                        let previousImageURL = takeFolderURL.appendingPathComponent(previousImagePath!)
+                        // valid image url?
+                        if FileManager.default.fileExists(atPath: previousImageURL.path) {
+                            if FileManager.default.isDeletableFile(atPath: previousImageURL.path) {
+                                try FileManager.default.removeItem(atPath: previousImageURL.path)
+                                imageItem.value = imageURL.lastPathComponent
+                            }
+                        } else {
+                            imageItem.value = imageURL.lastPathComponent
+                        }
+                    } else {
+                        _ = updateItem(id: "image", value: imageURL.lastPathComponent, section: .METADATASECTION)
+                    }
+                    updateTake()
+                    completion(destinationURL, nil)
+                }
+            } catch {
+                print(error.localizedDescription)
+                completion(destinationURL, error)
+            }
+        }
+    }
+    
     func sortMetadataForDisplay() -> Bool?{
         let itemOrder = MetaDataOptional().itemOrder
         
@@ -879,55 +1002,438 @@ class Take {
             
         return true
     }
+
+    /// To move a take from iCloud to app's documents directory is only possible if
+    /// - no take with same name exist in app
+    /// - there is a TakeCKRecord in TakeCKRecordModel with matching name
+    ///
+    func canMoveTakeToLocal() throws {
+        if (Takes.sharedInstance.takeInLocal(takeName: takeName!)) {
+            //return TakeError.NameNotUnique(takeName ?? "unknown")
+            throw TakeError.NameNotUnique(takeName ?? "unknown")
+        }
+        if !TakeCKRecordModel.sharedInstance.takeCKRecordExist(takeName: takeName!) {
+            throw TakeError.NoTakeCKRecord
+        }
+    }
     
-    // MARK: Take to Json
-    
-    /**
-     Write take metadata to *.json file
-     
-     */
-    func writeJsonForTake() {
-        print("writeJsonForTake")
-        var metaData = [String: String]()
-        let itemIds = ["location", "description", "addCategory"]
-        //let itemIds = [String]()
-        for itemArray in items {
-            for item in itemArray {
-                if itemIds.firstIndex(of: item.id) != nil {
-                    // special case item with possible children (addCategory)
-                    if item.id == "addCategory" {
-                        metaData["category"] = item.value as? String
-                        if (item.children?.count)! > 0 {
-                            if let subCategoryItem = item.children?.first {
-                                metaData["subcategory"] = subCategoryItem.value as? String
+    /// Copy assets of iCloud take to app's documents directory
+    ///
+    func copyAssetsToLocal() {
+        // copy files to app directory "takes/takeName"
+        var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        documentPath.appendPathComponent("takes/\(takeName!)", isDirectory: true)
+        
+        // take assets to copy: take, metadata, note, image
+        let assetFields = ["take": "wav", "metadata": "json", "note": "wav", "image": "png"]
+        
+        // get record
+        guard let takeCKRecord = TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: takeName!) else {
+            print("No iCloud Record for take \(takeName!)")
+            return
+        }
+        
+        // fetch record
+        CKContainer.default().publicCloudDatabase.fetch(withRecordID: takeCKRecord.record.recordID) { [unowned self] record, error in
+            if (error != nil) {
+                print(error?.localizedDescription)
+            } else {
+                if let record = record {
+                    // first create take directory
+                    do {
+                        try FileManager.default.createDirectory(at: documentPath, withIntermediateDirectories: true, attributes: nil)
+                        var fileCount = 0
+                        // get all assets and copy
+                        for asset in assetFields {
+                            if let takeAsset = record[asset.key] as? CKAsset {
+                                let takeURL = takeAsset.fileURL
+                                let takeDestinationURL = documentPath.appendingPathComponent(takeName!).appendingPathExtension(asset.value)
+                                fileCount += 1
+                                print("fileCount + :\(fileCount)")
+                                assetToApp(assetURL: takeURL!, destinationURL: takeDestinationURL) { result in
+                                    if result {
+                                        print("Take \(takeName!) \(asset) copy to app")
+                                        fileCount -= 1
+                                        //if fileCount == 0 { deleteTakeFromICloud(recordID: record.recordID, takeURL: documentPath)}
+                                    }
+                                }
                             }
                         }
-                    } else {
-                        metaData[item.name!] = item.value as? String
+                        
+                    } catch {
+                        print(error.localizedDescription)
                     }
-                    
                 }
+                
             }
         }
         
-        if JSONSerialization.isValidJSONObject(metaData) {
-            do {
-                let data = try JSONSerialization.data(withJSONObject: metaData, options: .prettyPrinted)
-                let dataString = NSString(data: data, encoding: 8)
-                print(dataString?.description ?? "no data!")
-                
-                let takeURL = Takes().getUrlforFile(fileName: takeName! + ".wav")
-                
-                if JSONParser().write(url: takeURL!, data: data) == false {
-                    print("Error writing json")
+        
+    }
+    
+    
+    /// A cloud take should become a local take.
+    /// Takename has to be unique. This always adds a new take to app.
+    ///
+    /// 1. Copy take to app's document directory and remove from cloud
+    /// 2. Get audio format details and save coredata record
+    ///
+    func cloudTakeToLocal(completion: @escaping (String) -> Void) {
+        guard let takeCKRecord = TakeCKRecordModel.sharedInstance.getTakeCKRecord(takeName: takeName!) else {
+            print("No iCloud Record for take \(takeName!)")
+            completion("No TakeCKRecord")
+            return
+        }
+        
+        // only proceed if no take with same name in takesLocal
+        if !(Takes.sharedInstance.takeInLocal(takeName: takeName!)) {
+            
+        } else {
+            completion("Take exist!")
+            return
+        }
+        
+        // assets: take, metadata, note, image
+        // let assetFields = ["take", "metadata", "note", "image"]
+        
+        // is there a local take with same name?
+        if !(Takes.sharedInstance.takeInLocal(takeName: takeName!)) {
+            // copy files to app directory "takes/takeName"
+            var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            documentPath.appendPathComponent("takes/\(takeName!)", isDirectory: true)
+            
+            CKContainer.default().publicCloudDatabase.fetch(withRecordID: takeCKRecord.record.recordID) { [unowned self] record, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    if let record = record {
+                        var fileCount = 0
+                        // there should be a better way to do this
+                        do {
+                            // create root for take
+                            try FileManager.default.createDirectory(at: documentPath, withIntermediateDirectories: true, attributes: nil)
+                            // three possible files (take, metadata and note)
+                            if let takeAsset = record["take"] as? CKAsset {
+                                let takeURL = takeAsset.fileURL
+                                let takeDestinationURL = documentPath.appendingPathComponent(takeName!).appendingPathExtension("wav")
+                                fileCount += 1
+                                print("fileCount + :\(fileCount)")
+                                assetToApp(assetURL: takeURL!, destinationURL: takeDestinationURL) { result in
+                                    if result {
+                                        print("Take \(takeName!) audio copy to app")
+                                        fileCount -= 1
+                                        if fileCount == 0 { deleteTakeFromICloud(recordID: record.recordID, takeURL: documentPath, completion: completion)}
+                                    }
+                                }
+                            }
+                            
+                            
+                            if let metadataAsset = record["metadata"] as? CKAsset {
+                                let metadataURL = metadataAsset.fileURL
+                                let metadataDestinationURL = documentPath.appendingPathComponent("metadata").appendingPathExtension("json")
+                                fileCount += 1
+                                print("fileCount + : \(fileCount)")
+                                assetToApp(assetURL: metadataURL!, destinationURL: metadataDestinationURL) { result in
+                                    if result {
+                                        print("Take \(takeName!) metadata copy to app")
+                                        fileCount -= 1
+                                        if fileCount == 0 { deleteTakeFromICloud(recordID: record.recordID, takeURL: documentPath, completion: completion)}
+                                        
+                                    }
+                                }
+                            } else {
+                                // create an take coredata record if no metadata file
+                            }
+                            
+                            if let noteAsset = record["note"] as? CKAsset {
+                                let noteURL = noteAsset.fileURL
+                                let noteDestinationURL = documentPath.appendingPathComponent("note").appendingPathExtension("wav")
+                                fileCount += 1
+                                print("fileCount + : \(fileCount)")
+                                assetToApp(assetURL: noteURL!, destinationURL: noteDestinationURL) { result in
+                                    if result {
+                                        print("Take \(takeName!) note copy to app")
+                                        fileCount -= 1
+                                        if fileCount == 0 { deleteTakeFromICloud(recordID: record.recordID, takeURL: documentPath, completion: completion) }
+                                    }
+                                }
+                            }
+                            
+                            if let imageAsset = record["image"] as? CKAsset {
+                                let imageURL = imageAsset.fileURL
+                                let imageDestinationURL = documentPath.appendingPathComponent("image")
+                                fileCount += 1
+                                imageToApp(assetURL: imageURL!, destinationURL: imageDestinationURL) { result, format in
+                                    if result {
+                                        fileCount -= 1
+                                        
+                                        if fileCount == 0 { deleteTakeFromICloud(recordID: record.recordID, takeURL: documentPath, completion: completion)}
+                                    }
+                                }
+                            }
+                            
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+            
+                    }
                 }
-            } catch {
-                print (error)
             }
+            
+            
         }
         
     }
     
+    func assetToApp(assetURL: URL, destinationURL: URL, with completion: @escaping (Bool) -> Void ) {
+        DispatchQueue.main.async {
+            do {
+                try FileManager.default.copyItem(at: assetURL, to: destinationURL)
+                completion(true)
+            } catch {
+                print(error.localizedDescription)
+                completion(false)
+            }
+        }
+    }
+    
+    
+    func imageToApp(assetURL: URL, destinationURL: URL, with completion: @escaping (Bool, ImageFormat) -> Void) {
+        DispatchQueue.main.async {
+            do {
+                try FileManager.default.copyItem(at: assetURL, to: destinationURL)
+                
+                let imageData = try Data(contentsOf: destinationURL) as NSData
+                let imageFormat = imageData.imageFormat
+                var imageTypeExtension = ""
+                switch imageFormat {
+                case .JPEG :
+                    imageTypeExtension = "jpeg"
+                case .PNG:
+                    imageTypeExtension = "png"
+                default:
+                    imageTypeExtension = "unknown"
+                }
+                
+                let fullURL = destinationURL.appendingPathExtension(imageTypeExtension)
+                try FileManager.default.moveItem(at: destinationURL, to: fullURL)
+                
+                completion(true, imageFormat)
+            } catch {
+                print(error.localizedDescription)
+                completion(false, ImageFormat.Unknown)
+            }
+        }
+    }
+    
+    
+    /// Clear take from TakeCKRecordModel
+    /// Instanciate new Take object ( and CoreData record)
+    /// Update TakeVC tableView
+    ///
+    func deleteTakeFromICloud(recordID: CKRecord.ID, takeURL: URL, completion: (String) -> Void) {
+        print("deleteTakeFromICloud")
+        TakeCKRecordModel.sharedInstance.deleteTake(with: recordID)
+        
+        // no we have take files in app's documents directory and take removed form iCloud
+        let metadataURL = takeURL.appendingPathComponent("metadata").appendingPathExtension("json")
+        if FileManager.default.fileExists(atPath: metadataURL.path) {
+            let takeAudioURL = takeURL.appendingPathComponent(takeName!).appendingPathExtension("wav")
+            let importTake = Take.init(takeURL: takeAudioURL, metaDataURL: metadataURL)
+            
+            importTake.storageState = .LOCAL
+            importTake.iCloudState = .NONE
+            
+            if !Takes.sharedInstance.moveTakeToLocal(take: importTake) {
+                print("Error: Could not move take \(String(describing: importTake.takeName)) to local")
+            } else {
+                
+                print("Take transfer from iCloud to App complete")
+                completion("complete")
+            }
+            
+        }
+    }
+    
+//    guard (coreDataController?.seedTake(name : takeName!,
+//                                        filePath: takePath,
+//                                        recordeAt: recordedAt!,
+//                                        length: takeLength,
+//                                        latitude: location?.coordinate.latitude,
+//                                        longitude: location?.coordinate.longitude)) != nil else {
+//
+//                                            print("error saving take")
+//                                            return
+//    }
+    /// Read metadata.json file and make coredata record of it
+    ///
+    /// - Parameter url: metadata json file url
+    ///
+    func metadataFileToRecord(metaDataURL: URL) {
+        //Take.init(takeURL: <#T##URL#>, metaDataURL: url)
+    }
+    
+    
+    // MARK: Take to Json
+    
+    
+    /// Write take metadata to *.json file. Use TakeMO for data
+    /// First update take record in CoreData.
+    /// Metadata file contains all Metadata items and location details, recording date and length?
+    ///
+    func writeJsonForTake(completion: (URL, Error?) -> Void ) {
+        print("writeJsonForTake")
+        // update CoreData record
+        updateMetaDataForTake(takeNameWithExtension: takeName!)
+        if let takeMO = try? coreDataController?.getTake(takeName: takeName!) {
+            var jsonData = [String: Any]()
+            // this will update property items
+            getMetaDateForTake(takeNameWithoutExtension: takeName!)
+            // transform items format to be serialized or use MetadataMO
+            if let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeName!) {
+                for item in takeMetaDataItems {
+                    jsonData[item.name!] = item.value
+                    print(item.value)
+                }
+            } else {
+                // no metadata records for take
+            }
+            
+            // now add TakeMO attributes to jsonData
+            // use first one - more with same name?
+            if let firstTakeMO = takeMO.first {
+                jsonData["name"] = firstTakeMO.name
+                jsonData["length"] = firstTakeMO.length
+                jsonData["recordedAt"] = firstTakeMO.recordedAt!.toString(dateFormat: "dd-MM-YY")
+                jsonData["latitude"] = firstTakeMO.latitude
+                jsonData["longitude"] = firstTakeMO.longitude
+            }
+            
+            // validate json data and try to write file
+            if JSONSerialization.isValidJSONObject(jsonData) {
+                do {
+                    let data = try JSONSerialization.data(withJSONObject: jsonData, options: .prettyPrinted)
+                    let dataString = NSString(data: data, encoding: 8)
+                    print(dataString?.description ?? "no data!")
+                    
+                    guard let takeURL = Takes().getURLForFile(takeName: takeName!, fileExtension: "wav", takeDirectory: "takes") else {
+                        completion(url!, TakeError.JSONWriteError("No take url"))
+                        return
+                    }
+                    let result = try JSONParser().writeTakeMeta(url: takeURL, data: data)
+                    completion(result, nil)
+                    
+                } catch {
+                    print (error)
+                    completion(url!, error)
+                }
+            }
+            
+        }
+    }
+        
+//        var metaData = [String: Any]()
+//        let itemIds = ["location", "description", "addCategory"]
+//        //let itemIds = [String]()
+//        for itemArray in items {
+//            for item in itemArray {
+//                if itemIds.firstIndex(of: item.id) != nil {
+//                    switch item.id {
+//                    case "addCategory":
+//                        metaData["category"] = item.value as? String
+//                        if (item.children?.count)! > 0 {
+//                            if let subCategoryItem = item.children?.first {
+//                                metaData["subcategory"] = subCategoryItem.value as? String
+//                            }
+//                        }
+//
+//                    case "location":
+//                        metaData["location"] = item.value
+//
+//                    default:
+//                        metaData[item.name!] = item.value as? String
+//                    }
+//
+//                    // special case item with possible children (addCategory)
+////                    if item.id == "addCategory" {
+////                        metaData["category"] = item.value as? String
+////                        if (item.children?.count)! > 0 {
+////                            if let subCategoryItem = item.children?.first {
+////                                metaData["subcategory"] = subCategoryItem.value as? String
+////                            }
+////                        }
+////                    } else {
+////                        metaData[item.name!] = item.value as? String
+////                    }
+//
+//                }
+//            }
+//        }
+        
+//        if JSONSerialization.isValidJSONObject(metaData) {
+//            do {
+//                let data = try JSONSerialization.data(withJSONObject: metaData, options: .prettyPrinted)
+//                let dataString = NSString(data: data, encoding: 8)
+//                print(dataString?.description ?? "no data!")
+//
+//                guard let takeURL = Takes().getURLForFile(takeName: takeName!, fileExtension: "wav", takeDirectory: "takes") else {
+//                    completion(url!, TakeError.JSONWriteError("No take url"))
+//                    return
+//                }
+////                if !FileManager.default.fileExists(atPath: url!.path)  {
+////                    completion(url!, TakeError.JSONWriteError("No take at \(url!)"))
+////                    return
+////                }
+//
+////                let takeURL = url
+////                var jsonURL = takeURL.deletingPathExtension().appendingPathExtension("json")
+//
+//                let result = try JSONParser().writeTakeMeta(url: takeURL, data: data)
+//                completion(result, nil)
+//
+//
+////                if JSONParser().write(url: jsonURL, data: data) == false {
+////                    print("Error writing json")
+////                    completion(jsonURL, TakeError.JSONWriteError("Error writing json"))
+////                } else {
+////                    completion(url!, nil)
+////                }
+//            } catch {
+//                print (error)
+//                completion(url!, error)
+//            }
+//        }
+//
+//        //completion(url!, TakeError.JSONSerilizationError("JSONSerilization error!"))
+//    }
+    
+}
+
+enum TakeError: Error {
+    case TakeNameError(String)
+    case JSONWriteError(String)
+    case JSONSerilizationError(String)
+    case NoTakeCKRecord
+    case NameNotUnique(String)
+}
+
+extension TakeError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .TakeNameError:
+            return NSLocalizedString("Take name error", comment: "")
+        case .JSONSerilizationError:
+            return NSLocalizedString("Json seriliztion error", comment: "")
+            
+        case .JSONWriteError:
+            return NSLocalizedString("Json writer error", comment: "")
+        case .NoTakeCKRecord:
+            return NSLocalizedString("No TakeCKRecord for take", comment: "")
+        case .NameNotUnique:
+            return NSLocalizedString("Take name not unique", comment: "")
+        }
+        
+    }
 }
 
 
@@ -941,7 +1447,7 @@ struct AudioFormatDescription {
     func asString() -> String {
         let s = "Type: \(type!) \nSampelRate: \(sampleRate!) \nBitPerChannel: \(bitPerChannel!) \nChannelsPerFrame: \(channelsPerFrame!) \nBytesPerFrame: \(bytesPerFrame!)"
         
-        print(s)
+        //print(s)
         
         return s
     }

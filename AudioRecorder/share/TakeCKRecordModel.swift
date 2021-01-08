@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 import CloudKit
-
+import Photos
 
  /// ICloud service: Add, update, delete, refresh
  ///
@@ -17,7 +17,7 @@ class TakeCKRecordModel {
     
     static let sharedInstance = TakeCKRecordModel()
     
-    private let database = CKContainer.default().publicCloudDatabase
+    private let publicDatabase = CKContainer.default().publicCloudDatabase
     private let privateDatabase = CKContainer.default().privateCloudDatabase
     private let sharedDatabase = CKContainer.default().sharedCloudDatabase
     
@@ -72,6 +72,86 @@ class TakeCKRecordModel {
         }
     }
     
+    /// Add a take to iCloud reading the Take object.
+    /// Only add new take (unique takename).
+    ///
+    /// - Parameter take: selected take object
+    ///
+    func addTake(take: Take,  completion: @escaping (Bool, Error?) -> Void ) {
+        if takeRecords.contains(where: { $0.name == take.takeName }) {
+            // takeCKRecord with name exist!
+            // abort or update?
+            print("TakeCKRecord with name \(String(describing: take.takeName)) exist")
+            completion(false, TakeCKRecordModelError.NoTakeCKRecord(take.takeName ?? "?"))
+        } else {
+            var takeRecord = TakeCKRecord()
+            
+            // add recorded audio
+            guard let takeURL = take.getTakeURL() else {
+                // no recorded take
+                print("no take url")
+                return
+            }
+            
+            let takeAudioAsset = CKAsset(fileURL: takeURL)
+            takeRecord.audioAsset = takeAudioAsset
+            
+            takeRecord.name = takeURL.lastPathComponent
+            
+            // image Asset
+            if let imageItem = take.getItemForID(id: "image", section: .METADATASECTION) {
+                if let imageName = imageItem.value as? String {
+                    if imageName != "" {
+                        // now we have the name of image in app's documents directory
+                        let takeFolderURL = take.getTakeFolder()
+                        let imageURL = takeFolderURL?.appendingPathComponent(imageName)
+                        if FileManager.default.fileExists(atPath: imageURL!.path) {
+                            takeRecord.imageAsset = CKAsset(fileURL: imageURL!)
+                        }
+                    }
+//                    let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [imageAssetURL], options: nil)
+//                    if let photo = fetchResult.firstObject{
+//                        PHImageManager.default().requestImage(for: photo,
+//                                                              targetSize: CGSize(width: photo.pixelWidth, height: photo.pixelHeight),
+//                                                              contentMode: .default,
+//                                                              options: nil) { image, info in
+//                            //CKAsset(fileURL: <#T##URL#>)
+//
+//                        }
+//                    }
+////                    takeRecord.imageAsset = CKAsset(fileURL: imageAssetURL)
+                }
+            }
+            
+            // add metadata file, overwriting existing one
+            take.writeJsonForTake() { metadataURL, error in
+                if (error != nil) {
+                    // problem writing metadata file
+                    print(error!)
+                    completion(false, error)
+                } else {
+                    print(metadataURL)
+                    takeRecord.metadataAsset = CKAsset(fileURL: metadataURL)
+                    
+                    // update public CloudDatabase
+                    publicDatabase.save(takeRecord.record) { _, error in
+                        guard error == nil else {
+                            self.handle(error: error!)
+                            return
+                        }
+
+                        self.insertedObjects.append(takeRecord)
+                        self.updateTakeRecords()
+                        
+                        completion(true, nil)
+                        //CloudDataManager.sharedInstance.takeFolderToCloud(takeName: take.takeName!, takeDirectory: "takes")
+                    }
+                }
+            }
+            
+            
+        }
+    }
     
     /// Add Take to iCloud
     ///
@@ -106,6 +186,8 @@ class TakeCKRecordModel {
             takeRecord.noteAsset = CKAsset(fileURL: takeNoteFileURL)
         }
         
+        // set files ubiquitous to remove from app's document directory
+        // FileManager.default.setUbiquitous(true, itemAt: url, destinationURL: url)
         //FileManager.default.setUbiquitous(true, itemAt: url, destinationURL: <#T##URL#>)
 //        privateDatabase.save(takeRecord.record) { _, error in
 //            guard error == nil else {
@@ -118,7 +200,7 @@ class TakeCKRecordModel {
 //        }
         
         // update public CloudDatabase
-        database.save(takeRecord.record) { _, error in
+        publicDatabase.save(takeRecord.record) { _, error in
             guard error == nil else {
                 self.handle(error: error!)
                 return
@@ -130,14 +212,14 @@ class TakeCKRecordModel {
         
     }
     
-    /**
-     Delete take at index
-     
-     - parameters index: index of take to delete in takeRecords
-     */
+    
+    /// Delete take at index
+    ///
+    /// - parameters index: index of take to delete in takeRecords
+    ///
     func deleteTake(at index: Int) {
         let recordID = takeRecords[index].record.recordID
-        database.delete(withRecordID: recordID) { _, error in
+        publicDatabase.delete(withRecordID: recordID) { _, error in
             guard error == nil else {
                 self.handle(error: error!)
                 return
@@ -148,6 +230,23 @@ class TakeCKRecordModel {
         updateTakeRecords()
     }
     
+    
+    /// Delete take with id
+    ///
+    /// - Parameter id: 
+    func deleteTake(with id: CKRecord.ID) {
+        publicDatabase.delete(withRecordID: id) { _, error in
+            guard error == nil else {
+                self.handle(error: error!)
+                return
+            }
+            self.deletedObjectIDs.insert(id)
+            self.updateTakeRecords()
+        }
+        
+//        deletedObjectIDs.insert(id)
+//        updateTakeRecords()
+    }
     
     /// Get records not in cloud storage.
     ///
@@ -228,7 +327,7 @@ class TakeCKRecordModel {
     @objc func refresh( completion: @escaping () -> Void ) {
         let query = CKQuery(recordType: TakeCKRecord.recordType, predicate: NSPredicate(value: true))
         
-        database.perform(query, inZoneWith: nil) { records, error in
+        publicDatabase.perform(query, inZoneWith: nil) { records, error in
             guard let records = records, error == nil else {
                 self.handle(error: error!)
                 return
@@ -240,34 +339,31 @@ class TakeCKRecordModel {
     }
     
     
-    func deleteTake(takeName: String) {
+    func deleteTake(takeName: String, completion: @escaping (Bool) -> Void )  {
         
-        if let idx = (takeRecords.firstIndex(where: { $0.name == takeName }))  {
+        if let idx = (takeRecords.firstIndex(where: { $0.name == takeName })) {
             let recordID = takeRecords[idx].record.recordID
-            database.delete(withRecordID: recordID) { (deletedRecordID, error) in
+            publicDatabase.delete(withRecordID: recordID) { (deletedRecordID, error) in
                 if error == nil {
                     print("Record deleted")
+                    completion(true)
                 } else {
                     print("DeleteTake Error: \(String(describing: error?.localizedDescription))")
+                    completion(false)
                 }
             }
         }
-        
-//        if takeRecords.contains(where: { $0.name == takeName }) {
-//            if let i = newRecords.firstIndex(of: recordNames[idx]) {
-//                newRecords.remove(at: i)
-//            }
-//        }
-//        database.delete(withRecordID: recordID) { (deletedRecordID, error) in
-//
-//        }
     }
     
     
     func getTakeCKRecord(takeName: String) -> TakeCKRecord? {
         let takeNameWithExtension = "\(takeName).wav"
         return takeRecords.first(where: { $0.name == takeNameWithExtension })
-        
+    }
+    
+    func takeCKRecordExist(takeName: String) -> Bool {
+        let takeNameWithExtension = "\(takeName).wav"
+        return takeRecords.contains(where: { $0.name == takeNameWithExtension})
     }
 }
 
@@ -278,6 +374,7 @@ struct TakeCKRecord {
     fileprivate static let keyTake = "take"
     fileprivate static let keyMetaData = "metadata"
     fileprivate static let keyAudioNote = "audioNote"
+    fileprivate static let keyImageNote = "image"
     
     var record: CKRecord
     
@@ -322,6 +419,28 @@ struct TakeCKRecord {
         }
         set {
             self.record.setValue(newValue, forKey: TakeCKRecord.keyAudioNote)
+        }
+    }
+    
+    var imageAsset: CKAsset {
+        get {
+            return self.record.value(forKey: TakeCKRecord.keyImageNote) as! CKAsset
+        }
+        set {
+            self.record.setValue(newValue, forKey: TakeCKRecord.keyImageNote)
+        }
+    }
+}
+
+enum TakeCKRecordModelError {
+    case NoTakeCKRecord(String)
+}
+
+extension TakeCKRecordModelError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .NoTakeCKRecord:
+            return NSLocalizedString("No TakeCKRecord with takeName: ", comment: "")
         }
     }
 }

@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import ImageIO
+import UIKit
 
 extension Date {
     func toString( dateFormat format: String) -> String {
@@ -31,5 +33,29 @@ extension FourCharCode {
         let result = String(cString: bytes)
         let characterSet = CharacterSet.whitespaces
         return result.trimmingCharacters(in: characterSet)
+    }
+}
+
+enum ImageFormat {
+    case Unknown, PNG, JPEG, GIF, TIFF
+}
+
+extension NSData {
+    var imageFormat: ImageFormat{
+        var buffer = [UInt8](repeating: 0, count: 1)
+        self.getBytes(&buffer, range: NSRange(location: 0, length: 1))
+        switch buffer {
+        case [0x89]:
+            return .PNG
+        case [0xFF]:
+            return .JPEG
+        case [0x47]:
+            return .GIF
+        case [0x49], [0x40]:
+            return .TIFF
+        default:
+            return .Unknown
+        }
+        
     }
 }

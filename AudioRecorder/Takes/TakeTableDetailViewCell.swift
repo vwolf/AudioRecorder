@@ -19,6 +19,11 @@ class TakesTableDetailViewCell: UITableViewCell {
     @IBOutlet weak var trashBtn: UIButton!
     @IBOutlet weak var metadataBtn: UIButton!
     
+    var cellIndexPath: IndexPath?
+    var tableIdx: Int = -1
+    var sectionIdx: Int = -1
+    
+    var delegate: TakesTableCellDelegate?
     
     var take = Take() {
         didSet {
@@ -46,25 +51,42 @@ class TakesTableDetailViewCell: UITableViewCell {
     
     @IBAction func playBtnAction(_ sender: UIButton) {
         print("Cell playBtnAction")
+        if cellIndexPath != nil {
+            delegate?.playCellTake(cellIndex: cellIndexPath!)
+        }
     }
     
     @IBAction func cloudBtnAction(_ sender: UIButton) {
+        if cellIndexPath != nil {
+            delegate?.shareCellTake(cellIndex: cellIndexPath!)
+        }
     }
     
     @IBAction func trashBtnAction(_ sender: UIButton) {
+        if cellIndexPath != nil {
+            delegate?.deleteCellTake(cellIndex: cellIndexPath!)
+        }
     }
     
     @IBAction func metadataBtnAction(_ sender: UIButton) {
+        if cellIndexPath != nil {
+            delegate?.loadCellMetadata(cellIndex: cellIndexPath!)
+        }
     }
     
     func loadTake(takeName: String) {
-        guard let takeMO = Takes().loadTake(takeName: takeName) else {
+        guard let takeMO = Takes().loadTakeRecord(takeName: takeName) else {
             return
         }
         let recordingDate = takeMO.recordedAt
         let recordingDateString = recordingDate?.toString(dateFormat: "dd.MM.YY' at' HH:mm:ss")
 
-        takeDetailsLabel.text = "Recorded: \(recordingDateString ?? "?"), length: \(String(format: "%.2f", takeMO.length))"
+        if takeMO.length > 0 {
+            takeDetailsLabel.text = "Recorded: \(recordingDateString ?? "?"), length: \(String(format: "%.2f", takeMO.length))"
+        } else {
+            takeDetailsLabel.text = "This is an empty take!"
+            takeDetailsLabel.textColor = UIColor.red
+        }
     
         /// Case: recording with no imput source then length == 0
         /// No playing, icloud or metadata
@@ -72,6 +94,7 @@ class TakesTableDetailViewCell: UITableViewCell {
             playBtn.isEnabled = false
             cloudBtn.isEnabled = false
             metadataBtn.isEnabled = false
+//            metadataBtn.alpha = 0.5
             if #available(iOS 13.0, *) {
 //                let systemImage = UIImage(systemName: "icloud.fill")
 //                cloudBtn.setImage(systemImage, for: .normal)
@@ -88,4 +111,16 @@ class TakesTableDetailViewCell: UITableViewCell {
 //
 //        }
     }
+    
+    /// Load all metadata for take, then trigger segue to 'TakeVC'
+    ///
+    /// - parameter row:  row index
+    /// - parameter cell: selected table cell
+    ///
+//    func loadMetadata(row: Int, cell: UITableViewCell?) {
+//
+//        if cellIndexPath != nil {
+//            delegate?.loadMetadata(cellIndexPath: cellIndexPath!)
+//        }
+//    }
 }

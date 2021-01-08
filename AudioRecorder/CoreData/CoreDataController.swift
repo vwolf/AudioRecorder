@@ -162,32 +162,41 @@ class CoreDataController: DataControllerDelegate {
                     longitude: Double?) -> Bool {
         
         // does this take exist?
-        let takes = getTake(takeName: takeNameToUpdate)
-        if let take = takes.first {
-            take.name = name
-            take.filepath = filePath
-            take.recordedAt = recordedAt as NSDate? as Date?
-            take.latitude = latitude!
-            take.longitude = longitude!
+        do {
+            let takes = try getTake(takeName: takeNameToUpdate)
+            if let take = takes?.first {
+                take.name = name
+                take.filepath = filePath
+                take.recordedAt = recordedAt as NSDate? as Date?
+                take.latitude = latitude!
+                take.longitude = longitude!
+            }
+            
+            saveContext()
+            
+            return true
+        } catch {
+            print(error.localizedDescription)
+            return false
         }
-        
-        saveContext()
-        
-        return true
     }
        
-    /**
-     Return take with name takeName
-     
-     - Parameters:
-        - takeName: name in TakeMO
-    */
-    func getTake(takeName: String) -> [TakeMO] {
+    
+    /// Return take with name takeName
+    ///
+    /// - Parameters:
+    ///    - takeName: name in TakeMO
+    ///
+    func getTake(takeName: String) throws -> [TakeMO]? {
         let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
         fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
-        let take = try! managedObjectContext.fetch(fetchRequest)
-        
-        return take
+        do {
+            let take = try managedObjectContext.fetch(fetchRequest)
+            return take
+        } catch {
+            print(error.localizedDescription)
+        }
+        return nil
     }
     
     /**
@@ -197,6 +206,8 @@ class CoreDataController: DataControllerDelegate {
         let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
         let take = try! managedObjectContext.fetch(fetchRequest)
         
+        // debug print all take details
+        //printTakeDetails(takes: take)
         return take
     }
     
@@ -209,6 +220,9 @@ class CoreDataController: DataControllerDelegate {
         fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
         let take = try! managedObjectContext.fetch(fetchRequest)
 
+        if ((take.first?.metadata) != nil) {
+            deleteMetadataForTake(takeName: takeName)
+        }
         if take.first != nil {
             managedObjectContext.delete(take.first!)
             do {
@@ -304,6 +318,36 @@ class CoreDataController: DataControllerDelegate {
         return meta
     }
     
+    
+    /// Delete metadata records for take with takeName
+    /// - Parameter takeName:
+    /// - Returns: true if no records to delete or operation successful
+    ///
+    func deleteMetadataForTake(takeName: String) -> Bool {
+        let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
+        fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
+        let take = try! managedObjectContext.fetch(fetchRequest)
+        let metadataRecords = take[0].metadata?.allObjects as! [MetadataMO]
+        
+        if metadataRecords.isEmpty {
+            return true
+        }
+        
+        for item in metadataRecords {
+            managedObjectContext.delete(item)
+        }
+        
+        do {
+            try managedObjectContext.save()
+            return true
+        } catch let error as NSError {
+            NSLog("Error while deleting take: \(error.userInfo)")
+        }
+        
+        return false
+    }
+    
+    
     // MARK: Settings
     
     func fetchSettings() -> [SettingsMO] {
@@ -355,6 +399,7 @@ class CoreDataController: DataControllerDelegate {
         return userSettings
     }
     
+    
     func seedUserSettings(settings: [String: String] ) {
         
         let newSetting = NSEntityDescription.insertNewObject(forEntityName: "UserSettings", into: managedObjectContext) as! UserSettingsMO
@@ -395,6 +440,16 @@ class CoreDataController: DataControllerDelegate {
         saveContext()
     }
     
+    
+    // MARK Debug
+    
+    func printTakeDetails(takes: [TakeMO]) {
+        for take in takes {
+            print(take.name)
+            print(take.filepath)
+            print("\(take.latitude), \(take.longitude)")
+        }
+    }
 }
 
 protocol DataControllerDelegate {

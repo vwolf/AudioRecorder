@@ -64,4 +64,16 @@ class MDataImageCellController: UICollectionViewCell {
             }
         }
     }
+    
+    
+    /// Image saved in take folder.
+    ///
+    func setImageFromTake(imageName: String, takeFolder: URL) {
+        let imageURL = takeFolder.appendingPathComponent(imageName)
+        if FileManager.default.fileExists(atPath: imageURL.path) {
+            let img = UIImage(contentsOfFile: imageURL.path)
+            //img?. = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
+            self.imageView.image = img
+        }
+    }
 }

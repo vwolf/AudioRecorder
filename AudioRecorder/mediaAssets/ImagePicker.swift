@@ -10,7 +10,7 @@ import UIKit
 
 public protocol ImagePickerDelegate: class {
     func didSelect(image: UIImage)
-    func didSelect(image: UIImage, imageURL: NSURL)
+    func didSelect(image: UIImage, referenceURL: NSURL, imageURL: URL)
 }
 
 		
@@ -81,9 +81,9 @@ open class ImagePicker : NSObject {
         }
     }
     
-    public func pickerController(_ controller: UIImagePickerController, didSelect image: UIImage?, imageURL: NSURL) {
+    public func pickerController(_ controller: UIImagePickerController, didSelect image: UIImage?, referenceURL: NSURL, imageURL: URL) {
         controller.dismiss(animated: true, completion: nil)
-        self.delegate?.didSelect(image: image!, imageURL: imageURL)
+        self.delegate?.didSelect(image: image!, referenceURL: referenceURL, imageURL: imageURL)
     }
 }
 
@@ -100,18 +100,30 @@ extension ImagePicker: UIImagePickerControllerDelegate {
         }
         
         if #available(iOS 11.0, *) {
-            guard let imageURL = info[UIImagePickerController.InfoKey.referenceURL] as? NSURL else {
+            guard let referenceURL = info[UIImagePickerController.InfoKey.referenceURL] as? NSURL else {
                 return self.pickerController(picker, didSelect: nil)
             }
-            print(imageURL.absoluteString ?? "No image url")
-            self.pickerController(picker, didSelect: image, imageURL: imageURL)
+            
+            let mediaType = info[UIImagePickerController.InfoKey.mediaType]
+            guard let imageURL = info[UIImagePickerController.InfoKey.imageURL] as? URL else {
+                return self.pickerController(picker, didSelect: nil)
+            }
+            print(imageURL.path)
+            self.pickerController(picker, didSelect: image, referenceURL: referenceURL, imageURL: imageURL)
         } else {
             // Fallback on earlier versions
-            guard let imageURL = info[UIImagePickerController.InfoKey.referenceURL] as? NSURL else {
+            guard let referenceURL = info[UIImagePickerController.InfoKey.referenceURL] as? NSURL else {
                 return self.pickerController(picker, didSelect: nil)
             }
-            print(imageURL.absoluteString ?? "No image url!")
-            self.pickerController(picker, didSelect: image, imageURL: imageURL)
+            
+            let mediaType = info[UIImagePickerController.InfoKey.mediaType]
+            
+            guard let imageURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL else {
+                return self.pickerController(picker, didSelect: nil)
+            }
+            
+            print(imageURL.path)
+            self.pickerController(picker, didSelect: image, referenceURL: referenceURL, imageURL: imageURL)
         }
         
     }

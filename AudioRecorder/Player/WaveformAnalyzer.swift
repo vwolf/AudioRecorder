@@ -24,7 +24,7 @@ public class WaveformAnalyzer {
         
         guard let assetReader = try? AVAssetReader(asset: audioAsset),
             let assetTrack = audioAsset.tracks(withMediaType: .audio).first else {
-                print("ERROR loading ass / audio trakc")
+                print("ERROR loading asset / audio track")
                 return nil
         }
         

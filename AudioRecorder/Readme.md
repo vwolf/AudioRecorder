@@ -34,14 +34,26 @@ Share data with Airdrop and CloudDrive
 Share data with Cloudkit 
     Files are moved to CloudDrive - UbiquitousContainer
     
-Takes to iCloud
+#### Takes to iCloud
     - copy take to iCloud
-        Copy take to iCloud, leave take in App's Documents folder, leave CoreData record of take
-        Set field in CoreData?
-    - remove take from iCloud
-        Delete take in iCloud
-        Set field in CoreData?
+        Copy take + metadata.json to iCloud (set ubquitios). Take is no longer in in App's Documents folder so remove from CoreData
         
+    - remove take from iCloud
+        reset ubquitios
+        Set field in CoreData?
+ 
+ #### Take from iCloud to App
+    - copy take to app's documents directory
+    
+    - copy process is triggered through metadata request
+    - show alert to confirm transfer 
+    - take.cloudTakeToLocal()
+    1. get TakeCKRecord and Take object
+    2. fetch files from iCloud and copy to app's document directory
+    3. when all files in app's document directory take.deleteTakeFromICloud() 
+    4. use metadata.json to add instance CoreData record for take
+    5. update TakeVC tableView
+  
 When take in iCloud, display take in Takes View?
 
 Can be a take in iCloud and iCloudDrive?
@@ -51,4 +63,9 @@ What happens if a take gets, which is in iCloud, get's modified in app?
         
 Takes to iDrive
     
-        
+#### Image to take
+    - select image
+    - copy image to take folder
+    - save image name in metadata item
+    - when loading into TakeVC metadata item load from take folder
+    - when changing selected image then replace in take folder

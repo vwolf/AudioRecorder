@@ -28,17 +28,16 @@ class Takes {
     init() {
         /// get CoreDataController
         coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
-        /// get takes in app's documents directory, iCloud, iDrive
-        //getAllTakesInApp(directory: "takes", fileExtension: "wav")
     }
     
     /// Get all takes in documents directory. Each take has its own subdirectory.
     /// For each found take add [Take] to allTakes
+    /// Also get all TakeMO for CoreData controller. If take has TakeMO then initialize take with TakeMO.
     ///
     /// - Parameters directory: Takes are in subfolder
     /// - Parameters fileExtension: file type, always "wav"
     ///
-    func getAllTakesInApp(directory: String?, fileExtension: String) {
+    func getAllTakesInApp(directory: String?, fileExtension: String) -> Bool {
         var documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         if (directory != nil) {
             documentPath = documentPath.appendingPathComponent(directory!).absoluteURL
@@ -82,9 +81,13 @@ class Takes {
             }
             
             print("Takes in app's take directory: \(takesLocal.count)")
+            return true
         } catch {
             print(error.localizedDescription)
+            return false
         }
+        
+        return false
     }
     
     /// Get all takes in app's iCloud directory.
@@ -96,7 +99,13 @@ class Takes {
     func getAllTakesIniCloud() {
         for take in TakeCKRecordModel.sharedInstance.takeRecords {
             let takeName = stripFileExtension(take.name)
-            takesCloud.append( Take(takeCKRecord: take, takeName: takeName))
+            // CoreData record
+            let takeMO = try? coreDataController?.getTake(takeName: takeName)
+            if (takeMO?.first != nil) {
+                takesCloud.append(Take(withTakeMO: takeMO!.first!))
+            } else {
+                takesCloud.append( Take(takeCKRecord: take, takeName: takeName))
+            }
         }
         
         connectICloudTakes()
@@ -105,7 +114,8 @@ class Takes {
     
     /// Get all takes in app iDrive directory
     /// 
-    func getAllTakesIniDrive() {
+    func getAllTakesIniDrive(completion: @escaping( () -> Void ) ) {
+        print("\n #### TAKES IN IDRIVE #### \n")
         DispatchQueue.main.async {
             CloudDataManager.sharedInstance.metadataQuery { [self] result in
                 print("metadataQuery with result \(result), takes: \(CloudDataManager.sharedInstance.cloudURLs.count)")
@@ -153,6 +163,8 @@ class Takes {
                 }
                 //self.addToTakesInShare(takeURLs:  CloudDataManager.sharedInstance.cloudURLs)
             }
+            print("#################################### \n")
+            completion()
         }
     }
     
@@ -165,7 +177,7 @@ class Takes {
                 for take in DropboxManager.sharedInstance.takesInDropbox {
                     self.takesDropbox.append(Take(takeName: take, storageState: .DROPBOX))
                 }
-            } 
+            }
         }
     }
     
@@ -580,6 +592,11 @@ class Takes {
         return "0001"
     }
     
+    /// Return bool if take with takeName exist in takesLocal array
+    func takeInLocal(takeName: String) -> Bool {
+        return takesLocal.contains(where: { $0.takeName == takeName })
+    }
+    
     
     // MARK: Take & CoreData
     
@@ -589,52 +606,32 @@ class Takes {
      - Parameters:
         - takeName: name of take without extension
     */
-    func loadTake(takeName: String) -> TakeMO? {
+    func loadTakeRecord(takeName: String) -> TakeMO? {
         
         let coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
-        let loadedTake = coreDataController?.getTake(takeName: takeName)
+        let loadedTake = try? coreDataController?.getTake(takeName: takeName)
         
         if (loadedTake?.count)! > 0 {
-           // print("take loaded: \(String(describing: loadedTake?[0].name))")
-            
-//            let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeName)
-            
-//            for mdItem in takeMetaDataItems! {
-//                guard let itemName = mdItem.name else {
-//                    break
-//                }
-//
-////                // itemName from CoreData is item.id
-////                if getItemForID(id: itemName) != nil {
-////                    // remove item
-////                    deleteItem(id: itemName)
-////                }
-//
-//                switch itemName {
-//                case "addCategory":
-//                    let category = mdItem.value
-//                    guard let subCategory = takeMetaDataItems?.first(where: { $0.name == "addSubCategory"}) else {
-//                        print("Subcategory not set")
-//                        //self.addCategory()
-//                        break
-//                    }
-//
-//                default:
-//                    print("Unkown item name \(String(describing: mdItem.name))")
-//                }
-//            }
+          
+            print(loadedTake?[0].name)
+            print("Takes.loadTake: lat: \(loadedTake?[0].latitude), lon: \(loadedTake?[0].longitude)")
             return loadedTake?[0]
         }
         
         return nil
     }
     
-    /**
-     Try to delete take with takeName
-     Take CoreData data are not deleted
-     
-     - parameter takeName: Name of take with file extension
-    */
+    // MARK: Take & ICloud
+    /// Take was added to iCloud, add to takesICloud
+    func newTakeInICloud(take: Take) {
+        takesCloud.append(take)
+    }
+    
+    /// Try to delete take with takeName
+    /// Take CoreData data are not deleted
+    ///
+    /// - parameter takeName: Name of take with file extension
+    ///
     func  deleteTake(takeName: String) -> Bool {
         let directoryName = stripFileExtension(takeName)
         guard let takePath = getDirectoryForFile(takeName: directoryName, takeDirectory: "takes") else {
@@ -652,6 +649,64 @@ class Takes {
         return false
     }
     
+    
+    /// Try to delete take (take data, remove take from takesLocale in Takes.
+    /// Remove take's CoreData record?
+    ///
+    func deleteTake(take: Take) -> Bool {
+        guard let takePath = getDirectoryForFile(takeName: take.takeName!, takeDirectory: "takes") else {
+            print("No URL for take directory with name \(take.takeName!)")
+            return false
+        }
+        
+        do {
+            // delete files
+            try FileManager.default.removeItem(at: takePath)
+            // remove take instance from takesLocal
+            if let idx = takesLocal.firstIndex(where: { $0.takeName == take.takeName}) {
+                takesLocal.remove(at: idx)
+            }
+            return true
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        return false
+    }
+
+    /// Move take from local to icloud.
+    /// First remove take from app's documents directory.
+    /// The take was already added to iCloud, just update take instance
+    ///
+    func moveTakeToCloud(take: Take) -> Bool {
+        if !takesCloud.contains(where: { $0.takeName == take.takeName}) {
+            take.storageState = TakeStorageState.ICLOUD
+            take.iCloudState = TakeStorageState.ICLOUD
+            
+            takesCloud.append(take)
+            
+            return true
+        }
+        return false
+    }
+    
+    /// Move take from icloud to local
+    ///
+    func moveTakeToLocal(take: Take) -> Bool {
+        if !takesLocal.contains(where: { $0.takeName == take.takeName }) {
+            take.storageState = .ICLOUD
+            take.iCloudState = .NONE
+            
+            takesLocal.append(take)
+            
+            if let idx = takesCloud.firstIndex(where: { $0.takeName == take.takeName}) {
+                takesCloud.remove(at: idx)
+            }
+            return true
+        }
+        
+        return false
+    }
     // MARK: Take support data
     
     /**
@@ -664,20 +719,12 @@ class Takes {
     
     
     func makeMetadataFile(takeName: String) -> Bool {
-        guard let md = loadTake(takeName: takeName) else {
+        guard let md = loadTakeRecord(takeName: takeName) else {
             return false
         }
         
         let takeMD = md.metadata
-        //print("Custom metadata count: \(takeMD?.count)")
-        
         var metaData = [String: String]()
-        
-        // add location
-//        if md.latitude != 0.0 {
-//            metaData["latitude"] = String(md.latitude)
-//            metaData["longitude"] = String(md.longitude)
-//        }
         
         for data in takeMD! {
             if data is MetadataMO {

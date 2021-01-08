@@ -223,6 +223,9 @@
                                                                 <constraint firstAttribute="width" constant="32" id="N56-Qd-o6S"/>
                                                             </constraints>
                                                             <state key="normal" image="play_circle"/>
+                                                            <connections>
+                                                                <action selector="playBtnAction:" destination="x4R-iS-7LU" eventType="touchUpInside" id="Yzt-05-GTU"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Jc-6e-T6N">
                                                             <rect key="frame" x="101.5" y="0.0" width="48" height="33"/>
@@ -231,6 +234,9 @@
                                                             </constraints>
                                                             <color key="tintColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <state key="normal" image="cloud_base"/>
+                                                            <connections>
+                                                                <action selector="cloudBtnAction:" destination="x4R-iS-7LU" eventType="touchUpInside" id="CRd-0b-579"/>
+                                                            </connections>
                                                         </button>
                                                         <button contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="osz-E0-Fh4">
                                                             <rect key="frame" x="218.5" y="0.0" width="29" height="33"/>
@@ -242,6 +248,9 @@
                                                             <state key="normal" image="trash">
                                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default" weight="bold"/>
                                                             </state>
+                                                            <connections>
+                                                                <action selector="trashBtnAction:" destination="x4R-iS-7LU" eventType="touchUpInside" id="ZfD-8C-enh"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ng6-3B-4SD">
                                                             <rect key="frame" x="317" y="0.0" width="22" height="33"/>
@@ -250,6 +259,9 @@
                                                             </constraints>
                                                             <color key="tintColor" red="0.78823529410000004" green="0.85882352939999995" blue="0.91764705879999997" alpha="1" colorSpace="deviceRGB"/>
                                                             <state key="normal" image="forward"/>
+                                                            <connections>
+                                                                <action selector="metadataBtnAction:" destination="x4R-iS-7LU" eventType="touchUpInside" id="Xer-CY-xK3"/>
+                                                            </connections>
                                                         </button>
                                                     </subviews>
                                                     <constraints>
