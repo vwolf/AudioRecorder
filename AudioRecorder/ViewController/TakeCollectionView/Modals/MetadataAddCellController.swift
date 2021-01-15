@@ -25,5 +25,6 @@ class MetadataAddCellController: UITableViewCell {
 //        ])
     }
     @IBAction func addBtnAction(_ sender: UIButton) {
+        
     }
 }

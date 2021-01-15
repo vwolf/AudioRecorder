@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>aps-environment</key>
+	<string>development</string>
+	<key>com.apple.developer.icloud-container-environment</key>
+	<array>
+		<string>Production</string>
+	</array>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
 		<string>iCloud.com.devwolf.AudioRecorder</string>
@@ -14,10 +20,6 @@
 	<key>com.apple.developer.ubiquity-container-identifiers</key>
 	<array>
 		<string>iCloud.com.devwolf.AudioRecorder</string>
-	</array>
-	<key>com.apple.developer.icloud-container-environment</key>
-	<array>
-		<string>Production</string>
 	</array>
 </dict>
 </plist>

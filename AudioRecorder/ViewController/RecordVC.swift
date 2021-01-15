@@ -81,6 +81,8 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     var audioInputDeviceMonitor: AudioInputDeviceMonitor!
     
+    var iCloudActive = false
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("viewWillAppear")
@@ -135,7 +137,17 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     /// Takes in app's documents directory
     ///
     func initApp() {
+        let indicatorView = IndicatorViewController()
+        self.addChild(indicatorView)
+        indicatorView.view.frame = self.view.frame
+        self.view.addSubview(indicatorView.view)
+        indicatorView.didMove(toParent: self)
+        
         let group = DispatchGroup()
+        
+        //let dispatchGroup = DispatchGroup
+        // init TakeCKRecordModel to see if iCloud service available
+        _ = TakeCKRecordModel.sharedInstance
         
         group.enter()
         self.readSettings(name: "middle") { userSettings in
@@ -152,24 +164,38 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             group.leave()
         }
         
-        group.enter()
-        TakeCKRecordModel.sharedInstance.refresh {
-            if TakeCKRecordModel.sharedInstance.records.count > 0 {
-                var takes = [String: URL]()
-                for take in TakeCKRecordModel.sharedInstance.takeRecords {
-                    takes[take.name] = take.audioAsset.fileURL
-                }
-                DispatchQueue.main.async {
-                    Takes.sharedInstance.getAllTakesIniCloud()
+        let accountStatus = TakeCKRecordModel.sharedInstance.accountStatus
+        if accountStatus == .available {
+            
+            
+            if iCloudActive {
+                group.enter()
+                TakeCKRecordModel.sharedInstance.refresh {
+                    
+                    print(accountStatus)
+                    if TakeCKRecordModel.sharedInstance.records.count > 0 {
+                        var takes = [String: URL]()
+                        for take in TakeCKRecordModel.sharedInstance.takeRecords {
+                            takes[take.name] = take.audioAsset.fileURL
+                        }
+                        DispatchQueue.main.async {
+                            Takes.sharedInstance.getAllTakesIniCloud()
+                        }
+                    }
+                    group.leave()
                 }
             }
-            group.leave()
+            
+            group.enter()
+            Takes.sharedInstance.getAllTakesIniDrive() {
+                group.leave()
+            }
+            
+        } else {
+            print("iCloud Accountstatus: \(accountStatus)")
         }
         
-        group.enter()
-        Takes.sharedInstance.getAllTakesIniDrive() {
-            group.leave()
-        }
+       
         
         group.notify(queue: .main) { [self] in
             print("initApp.group.notify")
@@ -178,6 +204,10 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             self.recorderPermissions()
             
             takeNamePreset = self.userSettings!.takeName
+            
+            indicatorView.willMove(toParent: nil)
+            indicatorView.view.removeFromSuperview()
+            indicatorView.removeFromParent()
            // recordingName.text = "\(takeNamePreset)_\(self.userSettings!.takeNameExtension)"
         }
     }
@@ -255,10 +285,10 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
                 }
             }
             
-        case SegueIdentfiers.ShowTakesDetails :
-            let destination = segue.destination as? TakesVC
-            let takes = Takes().getAllTakeNames()
-            destination?.takes = takes
+//        case SegueIdentfiers.ShowTakesDetails :
+//            let destination = segue.destination as? TakesVC
+//            let takes = Takes.sharedInstance.getAllTakeNames()
+//            destination?.takes = takes
          
         default:
             NSLog("Navigation: Segue with unknown identifier")
@@ -480,7 +510,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         
         switch userSettings!.takeNameExtension {
         case "index":
-            let nextIndex = Takes().getIndexForName(name: takeNamePreset,
+            let nextIndex = Takes.sharedInstance.getIndexForName(name: takeNamePreset,
                                                     seperator: "_",
                                                     type: userSettings!.takeNameExtension,
                                                     indexLength: 4,
@@ -490,7 +520,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         case "date_index":
             let today = Date().toString(dateFormat: "dd-MM-YY")
             let presetAndDate = takeNamePreset + "-" + today
-            let nextIndex = Takes().getIndexForName(name: presetAndDate, seperator: "_",
+            let nextIndex = Takes.sharedInstance.getIndexForName(name: presetAndDate, seperator: "_",
                                                     type: userSettings!.takeNameExtension,
                                                     indexLength: 4,
                                                     ubiqutios: ubiqutios)
@@ -519,7 +549,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     }
     
     
-    // MARK: CAPTURE SESSION
+    // MARK: - CAPTURE SESSION
     
     func initCaptureSession() {
         

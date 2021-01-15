@@ -13,10 +13,13 @@ class MetadataAddPopoverVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var instructionLabel: UILabel!
     
-//    let tableData = ["Image", "Audio"]
+    @IBOutlet weak var doneBtn: UIButton!
+    //    let tableData = ["Image", "Audio"]
     var take: Take? = nil
     var allMetaDataNames = MetaDataOptional().getAllNames()
     var existingMetaData = [String]()
+    
+    var delegate: MetadataAddPopoverDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +53,13 @@ class MetadataAddPopoverVC: UIViewController {
         }
     }
 
+    @IBAction func doneBtnAction(_ sender: UIButton) {
+//        if let pvc = self.presentationController {
+//            pvc.delegate?.presentationControllerWillDismiss?(pvc)
+//        }
+        self.dismiss(animated: true, completion: nil)
+        delegate?.dismissMetadataAddPopover()
+    }
 }
 
 extension MetadataAddPopoverVC: UITableViewDelegate, UITableViewDataSource {
@@ -72,5 +82,9 @@ extension MetadataAddPopoverVC: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    
+}
+
+
+protocol MetadataAddPopoverDelegate {
+    func dismissMetadataAddPopover()
 }

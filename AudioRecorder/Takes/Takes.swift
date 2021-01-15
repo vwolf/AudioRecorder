@@ -52,6 +52,7 @@ class Takes {
             let takeFolders = directoryContent.filter { $0.hasDirectoryPath == true }
             /// get all Take Records from CoreData
             let takeMOs = coreDataController?.getTakes()
+            //print(takeMOs?.first?.description)
             for take in takeFolders {
                 let takeName = take.lastPathComponent
                 let takeURLName = "\(takeName).\(fileExtension)"
@@ -87,7 +88,7 @@ class Takes {
             return false
         }
         
-        return false
+        //return false
     }
     
     /// Get all takes in app's iCloud directory.
@@ -212,7 +213,7 @@ class Takes {
     func connectDropboxTakes() {
         print("connectDropboxTakes: \(takesDropbox.count)")
         for take in takesDropbox {
-            print("try connect take: \(take.takeName)")
+            print("try connect take: \(String(describing: take.takeName))")
             if let idx = takesLocal.firstIndex(where: { $0.takeName == take.takeName }) {
                 takesLocal[idx].dropboxState = .DROPBOX
             }
@@ -221,10 +222,13 @@ class Takes {
     
     
     /// A take is moved to iDrive, so it's no longer a local take
+    /// Remove coredata record
     ///
+    /// - Parameter takeName
     func takeIsUbiquitous(takeName: String) {
         if let takeIdx = takesLocal.firstIndex(where: { $0.takeName == takeName}) {
             takesLocal.remove(at: takeIdx)
+            
             reloadFlag = true
         }
     }
@@ -302,6 +306,29 @@ class Takes {
         return takeNames
     }
     
+    
+    /// Get all take names with a base name. Collect take names found in
+    /// takesLocal, takesCloud and takesDrive
+    ///
+    func getAllTakeNames(base: String) -> [String] {
+        //var takeNames = [String]()
+        
+        // get local takes which start with base
+        var takeNames = [String]()
+        takeNames = takesLocal.map({ $0.takeName! })
+        takeNames.append(contentsOf: takesCloud.map({ $0.takeName! }))
+        takeNames.append(contentsOf: takesDrive.map({ ($0.takeName ?? "") }))
+        
+        let takesWithName = takeNames.filter( {(item: String) -> Bool in
+            let stringMatch = item.range(of: base)
+            return stringMatch != nil ? true : false
+        })
+        
+        
+        return takesWithName
+    }
+    
+    
     private func addToTakesInShare(takeURLs: [URL]) {
         let takeMOs = coreDataController?.getTakes()
         for t in takeMOs! {
@@ -348,15 +375,14 @@ class Takes {
         return nil
     }
     
-    /**
-     Return url for take [takeName]
-     This is the version when takes are in special takeDirectory and each take is in its own folder
-     
-     - parameter takeName: name of take without extension
-     - parameter fileExtension: file type
-     - parameter takeDirectory: take directory
-     
-     */
+    
+    /// Return url for take [takeName]
+    /// This is the version when takes are in special takeDirectory and each take is in its own folder
+    ///
+    /// - parameter takeName: name of take without extension
+    /// - parameter fileExtension: file type
+    /// - parameter takeDirectory: take directory
+    ///
     func getURLForFile(takeName: String, fileExtension: String, takeDirectory: String) -> URL? {
         
         let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -532,17 +558,17 @@ class Takes {
         return components.joined(separator: ".")
     }
     
-    /**
-     When takename extensions are index then get next index
-     First: get all takenames starting with name
-     Second: get takenames
-     */
+    
+    /// When takename extensions are index then get next index
+    /// First: get all takenames starting with name
+    /// Second: get takenames
+    ///
     func getIndexForName(name: String, seperator: String, type: String, indexLength: Int, ubiqutios: [String] = []) -> String {
         var maxIdx = 0
         let nameWithSeperator = name + seperator
         
-        var allTakeNames = getAllTakeNames()
-        allTakeNames.append(contentsOf: ubiqutios)
+        let allTakeNames = getAllTakeNames(base: name)
+        //allTakeNames.append(contentsOf: ubiqutios)
         
         switch type {
         case "index", "date_index":
@@ -583,8 +609,6 @@ class Takes {
                 
             return formattedIndex!
             
-       
-            
         default:
             print("no index1")
         }
@@ -613,8 +637,8 @@ class Takes {
         
         if (loadedTake?.count)! > 0 {
           
-            print(loadedTake?[0].name)
-            print("Takes.loadTake: lat: \(loadedTake?[0].latitude), lon: \(loadedTake?[0].longitude)")
+            print(loadedTake?[0].name as Any)
+            print("Takes.loadTake: lat: \(String(describing: loadedTake?[0].latitude)), lon: \(String(describing: loadedTake?[0].longitude))")
             return loadedTake?[0]
         }
         
@@ -694,8 +718,8 @@ class Takes {
     ///
     func moveTakeToLocal(take: Take) -> Bool {
         if !takesLocal.contains(where: { $0.takeName == take.takeName }) {
-            take.storageState = .ICLOUD
-            take.iCloudState = .NONE
+//            take.storageState = .ICLOUD
+//            take.iCloudState = .NONE
             
             takesLocal.append(take)
             

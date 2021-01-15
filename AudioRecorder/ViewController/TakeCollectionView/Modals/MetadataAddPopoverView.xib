@@ -3,7 +3,7 @@
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MetadataAddPopoverVC" customModule="AudioRecorder" customModuleProvider="target">
             <connections>
+                <outlet property="doneBtn" destination="cMK-Cn-GbJ" id="zhA-Ee-OJs"/>
                 <outlet property="instructionLabel" destination="yy9-AW-OsN" id="MoH-Gc-N6u"/>
                 <outlet property="tableView" destination="0zu-40-fJI" id="D3Q-B3-Ss6"/>
                 <outlet property="view" destination="fhf-qr-SD9" id="xvr-Jm-1B9"/>
@@ -28,26 +29,39 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="0zu-40-fJI">
-                    <rect key="frame" x="0.0" y="133" width="375" height="534"/>
+                    <rect key="frame" x="0.0" y="133" width="375" height="484"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <connections>
                         <outlet property="dataSource" destination="-1" id="YAd-6M-4OP"/>
                         <outlet property="delegate" destination="-1" id="RSo-Q0-ft9"/>
                     </connections>
                 </tableView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cMK-Cn-GbJ">
+                    <rect key="frame" x="159.5" y="615" width="56" height="41"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="41" id="Bu2-US-NLx"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                    <state key="normal" title="Done"/>
+                    <connections>
+                        <action selector="doneBtnAction:" destination="-1" eventType="touchUpInside" id="umz-9e-aph"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="ZCX-xM-5bE"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="yy9-AW-OsN" secondAttribute="trailing" constant="8" id="BtX-4x-Uk8"/>
+                <constraint firstItem="ZCX-xM-5bE" firstAttribute="bottom" secondItem="cMK-Cn-GbJ" secondAttribute="bottom" constant="11" id="HKQ-8j-JKm"/>
                 <constraint firstItem="yy9-AW-OsN" firstAttribute="leading" secondItem="fhf-qr-SD9" secondAttribute="leading" constant="8" id="X4j-ql-BOJ"/>
                 <constraint firstItem="0zu-40-fJI" firstAttribute="top" secondItem="yy9-AW-OsN" secondAttribute="bottom" constant="40.5" id="iqC-dm-WIV"/>
-                <constraint firstItem="0zu-40-fJI" firstAttribute="bottom" secondItem="fhf-qr-SD9" secondAttribute="bottom" id="lUM-ij-QNV"/>
+                <constraint firstItem="0zu-40-fJI" firstAttribute="bottom" secondItem="fhf-qr-SD9" secondAttribute="bottom" constant="-50" id="lUM-ij-QNV"/>
                 <constraint firstItem="0zu-40-fJI" firstAttribute="trailing" secondItem="fhf-qr-SD9" secondAttribute="trailing" id="nhR-on-nT4"/>
                 <constraint firstItem="0zu-40-fJI" firstAttribute="leading" secondItem="fhf-qr-SD9" secondAttribute="leading" id="ox4-Fi-Xde"/>
                 <constraint firstItem="yy9-AW-OsN" firstAttribute="top" secondItem="fhf-qr-SD9" secondAttribute="top" constant="72" id="wCR-R4-ySJ"/>
+                <constraint firstItem="cMK-Cn-GbJ" firstAttribute="centerX" secondItem="fhf-qr-SD9" secondAttribute="centerX" id="xuw-Qm-RVY"/>
             </constraints>
-            <point key="canvasLocation" x="597.10144927536237" y="32.8125"/>
+            <point key="canvasLocation" x="596" y="31.934032983508249"/>
         </view>
     </objects>
     <resources>

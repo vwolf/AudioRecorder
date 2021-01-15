@@ -18,12 +18,12 @@ class CoreDataController: DataControllerDelegate {
     var initialized = false
     // MARK: Initialization
     
-    /**
-     Initialze CoreData stack
-     
-     - parameter modelName:  CoreData Model name
-     - parameter completionClosure
-    */
+    
+    /// Initialze CoreData stack
+    ///
+    /// - parameter modelName:  CoreData Model name
+    /// - parameter completionClosure
+    ///
     init(modelName: String, completionClosure: @escaping () -> ()) {
         xcdatamodelName = modelName
         
@@ -31,14 +31,6 @@ class CoreDataController: DataControllerDelegate {
         guard let modelURL = Bundle.main.url(forResource: xcdatamodelName, withExtension: "momd" ) else {
             fatalError("Error loading model from bundle")
         }
-        
-//        var persistentContainer = NSPersistentContainer(name: "AudioRecorder")
-//        persistentContainer.loadPersistentStores() { (description, error) in
-//            if let error = error {
-//                fatalError("Failed to load CoreData stack: \(error)")
-//            }
-//            completionClosure()
-//        }
         
         // load managed object model for the application
         guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
@@ -112,16 +104,16 @@ class CoreDataController: DataControllerDelegate {
     }
     // MARK: Take
     
-    /**
-     Add new take to CoreData or update existing take
-     
-     - Parameters:
-        - name: file name of take
-        - filePath: path to file
-        - recordedAt: Date object
-        - latitude: latitude as Double
-        - longitude: longitude as Double
-    */
+    
+    /// Add new take to CoreData or update existing take
+    ///
+    /// - Parameters:
+    ///   - name: file name of take
+    ///   - filePath: path to file
+    ///   - recordedAt: Date object
+    ///   - latitude: latitude as Double
+    ///   - longitude: longitude as Double
+    ///
     func seedTake(name: String,
                   filePath: String,
                   recordeAt: Date,
@@ -148,12 +140,17 @@ class CoreDataController: DataControllerDelegate {
         return true
     }
     
-    /**
-     Update existing take
-     
-     - Parameters:
-     - takeNameToUpdate: TakeMO name
-     */
+    
+    /// Update existing take
+    ///
+    /// - Parameters:
+    ///   - takeNameToUpdate: TakeMO name
+    ///   - name: file name of take
+    ///   - filePath:
+    ///   - recordedAt:
+    ///   - latiude:
+    ///   - longitude:
+    ///
     func updateTake(takeNameToUpdate : String,
                     name: String,
                     filePath: String,
@@ -199,9 +196,9 @@ class CoreDataController: DataControllerDelegate {
         return nil
     }
     
-    /**
-     Return all takes
-     */
+    
+    /// Return all takes
+    ///
     func getTakes() -> [TakeMO] {
         let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
         let take = try! managedObjectContext.fetch(fetchRequest)
@@ -211,17 +208,18 @@ class CoreDataController: DataControllerDelegate {
         return take
     }
     
-    /**
-     
-     - parameter takeName: take name without file extension
-     */
+    
+    /// Delete record with name takename
+    ///
+    /// - parameter takeName: take name without file extension
+    ///
     func deleteTake( takeName: String) -> Bool {
         let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
         fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
         let take = try! managedObjectContext.fetch(fetchRequest)
 
         if ((take.first?.metadata) != nil) {
-            deleteMetadataForTake(takeName: takeName)
+            _ = deleteMetadataForTake(takeName: takeName)
         }
         if take.first != nil {
             managedObjectContext.delete(take.first!)
@@ -302,13 +300,14 @@ class CoreDataController: DataControllerDelegate {
         }
     }
     
-    /**
-     Get metadata items for take
-     Add extension to name of take
-     
-     - Parameters:
-        takeName: name of take
-    */
+    
+    /// Get metadata items for take
+    /// Add extension to name of take
+    ///
+    /// - Parameters:
+    ///   - takeName: name of take
+    /// - Returns: Array MetadataMO objects
+    ///
     func getMetadataForTake(takeName: String) -> [MetadataMO] {
         let fetchRequest = NSFetchRequest<TakeMO>(entityName: "Take")
         fetchRequest.predicate = NSPredicate(format: "name == %@", takeName)
@@ -348,8 +347,10 @@ class CoreDataController: DataControllerDelegate {
     }
     
     
-    // MARK: Settings
+    // MARK: - Settings
     
+    /// Return records for entity Settings
+    ///
     func fetchSettings() -> [SettingsMO] {
         let fetchRequest = NSFetchRequest<SettingsMO>(entityName: "Settings")
         let settings = try! managedObjectContext.fetch(fetchRequest)
@@ -357,6 +358,12 @@ class CoreDataController: DataControllerDelegate {
         return settings
     }
 
+    
+    /// return record from entity Settings with name
+    ///
+    /// - Parameter name: settings name (key)
+    /// - Returns: Optional SettingsMO object
+    ///
     func fetchSettings( name: String) -> SettingsMO? {
         
         let fetchRequest = NSFetchRequest<SettingsMO>(entityName: "Settings")
@@ -369,6 +376,11 @@ class CoreDataController: DataControllerDelegate {
         return nil
     }
     
+    /// Save settings dict
+    ///
+    /// - Parameter settings: Dict settingsKey and value
+    /// - Returns
+    ///
     func seedSettings(settings: [[String: Any]]) -> Bool {
         //let e = fetchSettings()
         
@@ -386,10 +398,7 @@ class CoreDataController: DataControllerDelegate {
         return true
     }
     
-//    func updateSetting(name: String, value: Any) {
-//        let fetchRequest = NSFetchRequest<SettingsMO>(entityName: "Setting")
-//        
-//    }
+    
     // MARK: User Settings
     
     func fetchUserSettings() -> [UserSettingsMO] {
@@ -445,8 +454,8 @@ class CoreDataController: DataControllerDelegate {
     
     func printTakeDetails(takes: [TakeMO]) {
         for take in takes {
-            print(take.name)
-            print(take.filepath)
+            print(take.name ?? "no take name")
+            print(take.filepath ?? "no filepath")
             print("\(take.latitude), \(take.longitude)")
         }
     }

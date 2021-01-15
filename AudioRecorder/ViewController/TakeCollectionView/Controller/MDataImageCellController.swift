@@ -43,12 +43,12 @@ class MDataImageCellController: UICollectionViewCell {
         return layoutAttributes
     }
     
-    /**
-     Fetch asset from url and display in imageView.image
-     (retrieve original size use PHImageManagerMaximumSize as targetSize)
-     
-     - parameter urlString: URL of image
-    */
+    
+    /// Fetch asset from url and display in imageView.image
+    /// (retrieve original size use PHImageManagerMaximumSize as targetSize)
+    ///
+    /// - parameter urlString: URL of image
+    ///
     func setImage(urlString: String) {
         if let assetURL = URL(string: urlString) {
             let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [assetURL], options: nil)

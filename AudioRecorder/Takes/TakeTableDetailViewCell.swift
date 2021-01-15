@@ -8,6 +8,8 @@
 
 import UIKit
 
+/// TableViewCell for a Take. Button events are handled by TakesTableCellDelegate
+///
 class TakesTableDetailViewCell: UITableViewCell {
     
     
@@ -28,7 +30,6 @@ class TakesTableDetailViewCell: UITableViewCell {
     var take = Take() {
         didSet {
             takeName = take.takeName!
-//            takeNameLabel.text = take.takeName
             loadTake(takeName: takeName)
         }
     }
@@ -36,7 +37,6 @@ class TakesTableDetailViewCell: UITableViewCell {
     var takeName: String = "" {
         didSet {
             takeNameLabel.text = takeName
-            //loadTake(takeName: takeName)
         }
     }
     
@@ -74,12 +74,13 @@ class TakesTableDetailViewCell: UITableViewCell {
         }
     }
     
+    
     func loadTake(takeName: String) {
         guard let takeMO = Takes().loadTakeRecord(takeName: takeName) else {
             return
         }
         let recordingDate = takeMO.recordedAt
-        let recordingDateString = recordingDate?.toString(dateFormat: "dd.MM.YY' at' HH:mm:ss")
+        let recordingDateString = recordingDate?.toString(dateFormat: "dd.MM.YY' at ' HH:mm:ss")
 
         if takeMO.length > 0 {
             takeDetailsLabel.text = "Recorded: \(recordingDateString ?? "?"), length: \(String(format: "%.2f", takeMO.length))"

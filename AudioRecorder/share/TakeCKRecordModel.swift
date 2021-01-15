@@ -86,7 +86,7 @@ class TakeCKRecordModel {
         } else {
             var takeRecord = TakeCKRecord()
             
-            // add recorded audio
+            // add recorded audioNote
             guard let takeURL = take.getTakeURL() else {
                 // no recorded take
                 print("no take url")
@@ -98,7 +98,7 @@ class TakeCKRecordModel {
             
             takeRecord.name = takeURL.lastPathComponent
             
-            // image Asset
+            // image asset
             if let imageItem = take.getItemForID(id: "image", section: .METADATASECTION) {
                 if let imageName = imageItem.value as? String {
                     if imageName != "" {
@@ -109,19 +109,20 @@ class TakeCKRecordModel {
                             takeRecord.imageAsset = CKAsset(fileURL: imageURL!)
                         }
                     }
-//                    let fetchResult = PHAsset.fetchAssets(withALAssetURLs: [imageAssetURL], options: nil)
-//                    if let photo = fetchResult.firstObject{
-//                        PHImageManager.default().requestImage(for: photo,
-//                                                              targetSize: CGSize(width: photo.pixelWidth, height: photo.pixelHeight),
-//                                                              contentMode: .default,
-//                                                              options: nil) { image, info in
-//                            //CKAsset(fileURL: <#T##URL#>)
-//
-//                        }
-//                    }
-////                    takeRecord.imageAsset = CKAsset(fileURL: imageAssetURL)
                 }
             }
+            
+            // note asset
+            if let audioItem = take.getItemForID(id: "audioNote", section: .METADATASECTION) {
+                let takeFolderURL = take.getTakeFolder()
+                if let audioItemName = audioItem.value as? String {
+                    let audioItemURL = takeFolderURL?.appendingPathComponent(audioItemName)
+                    if FileManager.default.fileExists(atPath: audioItemURL!.path) {
+                        takeRecord.noteAsset = CKAsset(fileURL: audioItemURL!)
+                    }
+                }
+            }
+            
             
             // add metadata file, overwriting existing one
             take.writeJsonForTake() { metadataURL, error in

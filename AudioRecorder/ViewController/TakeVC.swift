@@ -12,19 +12,16 @@
 import Foundation
 import UIKit
 
-/**
- Take details
- 
- # Notes: #
- Rename take needs an overhaul
- 
- - ToDo: rename take needs an overhaul
- */
-class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  CategoryPopoverDelegate  {
+
+/// Take details
+///
+/// - ToDo: rename take needs an overhaul
+///
+class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate, CategoryPopoverDelegate, MetadataAddPopoverDelegate  {
   
     
     @IBOutlet weak var collectionView: UICollectionView!
-    //var takeMO:TakeMO?
+
     var take = Take()
     
     var categoryDict = [String: [String]]()
@@ -39,10 +36,12 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
     var imageCell: MDataImageCellController?
     
     @IBOutlet weak var navigationBar: UINavigationItem!
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // this are the possible metadata item cells
         collectionView.register(UINib.init(nibName: "MDataStaticCell", bundle: nil), forCellWithReuseIdentifier: "MDataStaticCell")
         collectionView.register(UINib.init(nibName: "MDataEditCell", bundle: nil), forCellWithReuseIdentifier: "MDataEditCell")
         collectionView.register(UINib.init(nibName: "MDataActiveDoubleCell", bundle: nil), forCellWithReuseIdentifier: "MDataActiveDoubleCell")
@@ -83,122 +82,69 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil )
 //        notifictationCenter.addObserver(self, selector: #selector(adjustForKeyboarDidHide), name: UIResponder.keyboardDidHideNotification, object: nil )
         
+        self.hideKeyboardWhenTappedOutside()
+        
     }
     
-//    override func willMove(toParent parent: UIViewController?) {
-//        super.willMove(toParent: parent)
-//
-//        if parent == nil {
-//            print("willMove")
-//
-//            if modified == true {
-//                var topVC = UIApplication.shared.keyWindow?.rootViewController
-//                while let presentedViewController = topVC?.presentedViewController {
-//                    topVC = presentedViewController
-//                }
-//                DispatchQueue.main.async {
-//                    let alertController = self.alertOnNavigationBack(completion: { saveTake in
-//                        if saveTake {
-//                            print("save take!!!")
-//                            self.take.updateMetaDataForTake(takeNameWithExtension: self.take.takeName!  + "." + (self.take.takeType ?? "wav"))
-//
-//
-//                        }
-//                    })
-//
-//                    topVC?.present(alertController, animated: true, completion: nil)
-//                }
-//            }
-//        }
-//
-//    }
-    
-    
+    /// Use to handle take name change
+    ///
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        //self.findViewController()
         
         if isMovingToParent {
             print("isMovingToParent")
         }
         
-        //modified = false
+        // keyboard visible?
+        if selectedItemWithTextField != nil {
+            print("keyboard visible")
+        }
         
         // new take name then reload TakeVC table data
         if self.newTakeName == true {
             if let viewControllers = self.navigationController?.viewControllers {
                 if (viewControllers.count >= 1) {
-                    let previousViewController = viewControllers[viewControllers.count - 1] as! TakesVC
+                    if let previousViewController = viewControllers[viewControllers.count - 1] as? TakesVC {
                         previousViewController.reloadTakes()
+                    }
+                        
                 }
             }
         }
         
-        
         if isMovingFromParent && modified == true {
-            
             var topVC = UIApplication.shared.keyWindow?.rootViewController
             while let presentedViewController = topVC?.presentedViewController {
                 topVC = presentedViewController
             }
             
-            DispatchQueue.main.async {
-                let alertController = self.alertOnNavigationBack(completion: { saveTake in
-                    if saveTake {
-                        print("Save changes!")
-                        self.take.updateMetaDataForTake(takeNameWithExtension: self.take.takeName! + "." + (self.take.takeType ?? "wav"))
-                    }
-                })
-                
-                topVC?.present(alertController, animated: true, completion: nil)
-            }
+            self.take.updateMetaDataForTake(takeNameWithExtension: self.take.takeName! + "." + (self.take.takeType ?? "wav"))
             
             // new take name then reload TakeVC table data
             if self.newTakeName == true {
                 if let viewControllers = self.navigationController?.viewControllers {
                     if (viewControllers.count >= 1) {
-                        let previousViewController = viewControllers[viewControllers.count - 1] as! TakesVC
-                        
-                        if self.modified == true {
-                            previousViewController.reloadTakes()
+                        if let previousViewController = viewControllers[viewControllers.count - 1] as? TakesVC {
+                            if self.modified == true {
+                                previousViewController.reloadTakes()
+                            }
                         }
-                        
                     }
                 }
             }
         }
-        
-        //self.removeObserver(self, forKeyPath: <#T##String#>)
-//        if isMovingFromParent && modified == true {
-//            print("isMovingFromParent")
-//
-//            var topVC = UIApplication.shared.keyWindow?.rootViewController
-//            while let presentedViewController = topVC?.presentedViewController {
-//                topVC = presentedViewController
-//            }
-//            DispatchQueue.main.async {
-//                let alertController = self.alertOnNavigationBack(completion: { saveTake in
-//                    if saveTake {
-//                        print("save take!!!")
-//                        self.take.updateMetaDataForTake(takeNameWithExtension: self.take.takeName!  + "." + (self.take.takeType ?? "wav"))
-//
-//
-//                    }
-//                })
-//
-//                topVC?.present(alertController, animated: true, completion: nil)
-//            }
-//
-//        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        
         collectionView.layoutIfNeeded()
         //collectionView.invalidateIntrinsicContentSize()
+    }
+    
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        print("view did disappear")
     }
     
     
@@ -230,22 +176,22 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         return alertController
     }
     
-    /**
-     Possible states:
-     - category and subcategory are emtpy - send categories perdefined when categoryType == category
-     - category set with predefined value, subcategory empty - send subcategories perdefined
-     - category set with custom value, subcategory empty - send empty subcategories
-     - category set with perdefined value, subcategory with perdefined value
-     - category set with perdefined value, subcategory with custom value
-     - category set with custom value, subcategory with perdefined value
-     - category set with custom value, subcategory with custom value
-     - category empty and subcategory not empty? That's not valid
-     
-     Clear subcategory when category is empty
-     
-     - parameter cellIdx: selected cell index
-     - parameter categoryType: category or subcategory
-    */
+    
+    /// Possible states:
+    /// - category and subcategory are emtpy - send categories perdefined when categoryType == category
+    /// - category set with predefined value, subcategory empty - send subcategories perdefined
+    /// - category set with custom value, subcategory empty - send empty subcategories
+    /// - category set with perdefined value, subcategory with perdefined value
+    /// - category set with perdefined value, subcategory with custom value
+    /// - category set with custom value, subcategory with perdefined value
+    /// - category set with custom value, subcategory with custom value
+    /// - category empty and subcategory not empty? That's not valid
+    ///
+    /// Clear subcategory when category is empty
+    ///
+    /// - parameter cellIdx: selected cell index
+    /// - parameter categoryType: category or subcategory
+    ///
     func presentCategoryPopover(cellIdx: Int, categoryType: String) {
         
         // always set to predefined categories
@@ -285,10 +231,11 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
             popoverContentController.modalPresentationStyle = .automatic
             
             popoverContentController.presentationController?.delegate = self
+            popoverContentController.delegate = self
         } else {
             if #available(iOS 10.3, *) {
                 popoverContentController.take = take
-                //popoverContentController.delegate = self
+                popoverContentController.delegate = self
                 popoverContentController.modalPresentationStyle = .popover
                 
                 if let popoverPresentationController = popoverContentController.popoverPresentationController {
@@ -299,26 +246,13 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
                 }
             }
         }
-        
-        
-        
-//        popoverContentController.presentationController?.containerView?.frame.size.height = 200
-//        popoverContentController.presentationController?.delegate = self
-        
-//        popoverContentController.popoverPresentationController?.delegate = self
-//        popoverContentController.popoverPresentationController?.sourceView = view
-//        popoverContentController.popoverPresentationController?.sourceRect = CGRect(x: view.frame.minX,
-//                                                                                    y: view.frame.midY,
-//                                                                                    width: view.frame.size.width,
-//                                                                                    height: view.frame.size.height - 50)
-//        popoverContentController.popoverPresentationController?.containerView?.frame.size.height = view.frame.size.height / 2
-        
         self.present(popoverContentController, animated: true) {
             print("MetadataAddPopover didAppear")
         }
     }
     
-    
+    /// Present Audio recording popover
+    ///
     func presentMetadataAudioPopover() {
         let popoverContentController = MDataAudioPopoverVC(nibName: "MDataAudioPopover", bundle: nil)
         popoverContentController.take = take
@@ -346,7 +280,6 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
             
             if let popoverController = popoverContentController {
                 present(popoverController, animated: true, completion: nil)
-                
                 popoverContentController?.takeURL = audioURL
             }
         }
@@ -366,6 +299,11 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
     
     @objc func adjustForKeyboardWillShow(notification: Notification) {
         print("TakeVC: keyboardWillShow")
+//        navigationBar.backBarButtonItem?.isEnabled = false
+//        navigationBar.backBarButtonItem?.style = .done
+        navigationController?.navigationBar.isUserInteractionEnabled = false
+        navigationController?.navigationBar.tintColor = UIColor.lightGray
+        
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             print("keyboard height: \(keyboardSize.height)")
 //            let userInfo = notification.userInfo!
@@ -392,6 +330,9 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
     @objc func adjustForKeyboardWillHide(notifiction: Notification) {
         print("keyboardWillHide")
         
+        navigationController?.navigationBar.isUserInteractionEnabled = true
+        navigationController?.navigationBar.tintColor = .none
+        
         selectedItemWithTextField = nil
         collectionView.contentInset = .zero
         collectionView.scrollIndicatorInsets = .zero
@@ -404,6 +345,8 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
     @objc func adjustForKeyboarDidHide(notification: Notification) {
         print("keyboardDidHide")
         
+        
+        
         selectedItemWithTextField = nil
         //collectionView.contentInset = .zero
         //collectionView.scrollIndicatorInsets = .zero
@@ -411,18 +354,19 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         collectionView.setNeedsLayout()
         collectionView.layoutIfNeeded()
     }
+    
     // MARK: DELEGATE CategoryPopoverVC
     
-    /**
-     Category returned from popup modal
-     Parameter userText can be empty string, then set state
-        
-     ToDo: 
-     - Parameters:
-        - userText: Category from popup
-        - cellIdx: Index of selected cell
-        - categoryType: category or subcategory
-    */
+    
+    /// Category returned from popup modal
+    /// Parameter userText can be empty string, then set state
+    ///
+    /// ToDo:
+    /// - Parameters:
+    ///    - userText: Category from popup
+    ///    - cellIdx: Index of selected cell
+    ///    - categoryType: category or subcategory
+    ///
     func saveCategory(userText: String, cellIdx: Int, categoryType: String) {
         print("Category: \(userText) for cell: \(cellIdx)")
         
@@ -436,21 +380,26 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
             cellData.children?.first?.value = userText
         }
         
-        //let idp = IndexPath(item: cellIdx, section: sectionIndex!)
-        //collectionView.reloadItems(at: [idp])
-        //collectionView.reloadSections(IndexSet(integer: sectionIndex!))
         modified = true
-        
         collectionView.reloadData()
+    }
+    
+    // MARK: DELEGATE MetadataAddPopoverVC
+    
+    /// This is called when MetadataAddPopover is dismissed programmaticaly
+    ///
+    func dismissMetadataAddPopover() {
+        if take.takeModified {
+            collectionView.reloadData()
+            take.takeModified = false
+        }
     }
     
     // MARK: - Navigation
 
-    /**
-     Before any navigation to new view, recording should stop and take saved.
-     Always?
-     
-     */
+    /// Before any navigation to new view, recording should stop and take saved.
+    /// Always?
+    ///
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         NSLog("prepare for segue \(String(describing: segue.identifier))")
         
@@ -458,7 +407,6 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
         case "ShowItemDetailsSegueIdentifier":
             let destination = segue.destination as? ItemDetailVC
             if destination != nil {
-//                let loc = take.location
                 destination?.location = take.location
             }
         default:
@@ -469,6 +417,7 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate,  Catego
     
 }
 
+// MARK: - TableView Delegate
 
 extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     
@@ -627,11 +576,10 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
                     cell.setImageFromTake(imageName: takeItem.value as! String, takeFolder: takeFolder)
                 }
             }
-            //cell.setImage(urlString: takeItem.value as! String)
-            
+           
             return cell
         
-        case "audio" :
+        case "audioNote" :
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MDataAudioCell", for: indexPath) as! MDataAudioCellController
             let takeItem = take.items[indexPath.section][indexPath.row]
             
@@ -696,21 +644,30 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             cell.nameLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.descriptionLabel.text = takeItem.description
             cell.descriptionLabel.textColor = Colors.Base.text_01.toUIColor()
-            cell.ValueLabel.text = takeItem.value as! String?
+            if itemId == "creationDate" {
+                let formater = DateFormatter()
+                formater.dateFormat = "yyyy-MM-dd'T'HH:mm:ssX"
+                let dateString = takeItem.value as! String
+                if let date = formater.date(from: dateString) {
+                    let dateToString = date.toString(dateFormat: "dd.MM.YY HH:mm:ss")
+                    cell.ValueLabel.text = dateToString
+                }
+
+            } else {
+                cell.ValueLabel.text = takeItem.value as! String?
+            }
+            
             cell.ValueLabel.textColor = Colors.Base.text_01.toUIColor()
             cell.maxWidth = collectionView.bounds.width - 16
-            
-//            print("MDataStaticCell.width: \(cell.maxWidth)")
-//            print("MdataStaticCell valueLabel.frame: \(cell.ValueLabel.frame)")
            
             return cell
         }
     }
     
     
-    /**
-     Header view for sections
-     */
+    
+    /// Header view for sections
+    ///
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
@@ -747,16 +704,6 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
             self.performSegue(withIdentifier: "ShowItemDetailsSegueIdentifier", sender: self)
         }
     }
-//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        print("shouldSelectItemAt")
-//        return true
-//    }
-    
-//    func collectionView(_ collectionView: UICollectionView,
-//                        layout collectionViewLayout: UICollectionViewLayout,
-//                        referenceSizeForHeaderInSection section: Int) -> CGSize {
-//        return CGSize(width: collectionView.frame.size.width, height: 60)
-//    }
     
     // MARK: Item button events
     
@@ -793,6 +740,8 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
 }
 
+// MARK: - ImagePicker Delegate
+
 extension TakeVC: ImagePickerDelegate {
     func didSelect(image: UIImage) {
         imageCell?.imageView.image = image
@@ -809,56 +758,33 @@ extension TakeVC: ImagePickerDelegate {
             } else {
                 
             }
-            /// metadataItem image value: takes/takeName/imageName
-            if let takeNameUnWrapped = take.takeName {
-                //let imageRelativePath = "takes/\(takeNameUnWrapped)/\(destinationURL.lastPathComponent)"
-               // let result = take.updateItem(id: "image", value: imageRelativePath, section: .METADATASECTION)
-//                if result {
-//                    take.updateTake()
-//                }
-            }
         })
-        
-//        let result = take.updateItem(id: "image", value: referenceURL.absoluteString!, section: .METADATASECTION)
-//        if result {
-//            take.updateTake()
-//        }
     }
 }
 
 
-// MARK: PresentationControllerDelegate
+// MARK: - PresentationControllerDelegate
 
+/// Modal view dismissed through swipe
 extension TakeVC: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         print("Presented view did dismiss")
         
         if take.takeModified {
             collectionView.reloadData()
+            take.takeModified = false
         }
     }
 }
-//extension UIViewController {
-//    func findParentController<T: UIViewController>() -> T? {
-//        return self is T ? self as? T : self.parent?.findParentController() as T?
-//    }
-//
-//    func findViewController() -> UIViewController? {
-//        var traveled = false
-//         var nextResponder = self.next
-//
-//        while traveled == false {
-//            nextResponder = nextResponder?.next
-//            print(nextResponder.debugDescription)
-//
-//            if nextResponder == nil { traveled = true }
-//        }
-//
-//        return nil
-////        if let nextResponder = self.next as? UIViewController {
-////            return nextResponder
-////        } else {
-////            return nil
-////        }
-//    }
-//}
+
+extension UIViewController {
+    func hideKeyboardWhenTappedOutside() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}

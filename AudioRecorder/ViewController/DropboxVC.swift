@@ -307,7 +307,7 @@ class DropboxVC: UIViewController {
 //                        }
 //                    }
 //
-//                    // audio note?
+//                    // audioNote note?
 //                    var takeNoteFileURL = url.deletingPathExtension().appendingPathComponent("notes")
 //                    takeNoteFileURL.appendPathComponent(takeNames[selectedRows![row]], isDirectory: false)
 //

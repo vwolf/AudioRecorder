@@ -20,6 +20,8 @@ class MDataAudioPopoverVC: UIViewController {
     var recordingType: RecordingTypes = RecordingTypes.TAKE
     var recorder: Recorder?
     
+    var noteURL: URL?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -36,6 +38,7 @@ class MDataAudioPopoverVC: UIViewController {
                     if FileManager.default.fileExists(atPath: noteTakePath.path)  {
                         noteTakePath.appendPathComponent(takeName + AppConstants.notesFileExtension.rawValue)
                         noteTakePath.appendPathExtension("wav")
+                        noteURL = noteTakePath
                         
                         recorder = Recorder()
                         
@@ -54,19 +57,6 @@ class MDataAudioPopoverVC: UIViewController {
                     } else {
                         print("Error no directory for take note audio file")
                     }
-                    
-                    
-//                    do {
-//                        try FileManager.default.createDirectory(at: noteTakePath, withIntermediateDirectories: true, attributes: nil)
-//                        //noteTakePath.appendPathExtension((take?.takeType)!)
-//                        recorder = Recorder(takeName: takeName, takeURL: noteTakePath)
-//                        recordBtn.isEnabled = true
-//                        if ((take?.getNoteForTake()) != nil)  {
-//                            statusLabel.isHidden = false
-//                        }
-//                    } catch {
-//                        print(error.localizedDescription)
-//                    }
                 }
             }
        
@@ -85,13 +75,10 @@ class MDataAudioPopoverVC: UIViewController {
             sender.setImage(tintedImg, for: .normal)
             sender.tintColor = Colors.Base.baseRed.toUIColor()
             
-            if recorder?.startRecording() == true {
+            if recorder?.startRecording(takeURL: noteURL!) == true {
                 recording = true
                 recordingTimer.startTimer()
             }
-            
-            
-            
         } else {
             sender.tintColor = UIColor.lightGray
             
@@ -100,8 +87,10 @@ class MDataAudioPopoverVC: UIViewController {
                 recording = false
                 
                 // save note to audio MetadataItem
-                if take?.updateItem(id: "audio", value: (take?.takeName)!, section: .METADATASECTION) == false {
+                if take?.updateItem(id: "audioNote", value: (noteURL?.lastPathComponent)!, section: .METADATASECTION) == false {
                     print("Could not update item")
+                } else {
+                    _ = take?.saveMetadataItem(id: "audioNote", section: .METADATASECTION)
                 }
             }
             

@@ -35,7 +35,7 @@
                         <color key="textColor" systemColor="systemGray2Color"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="sunt in culpa qui officia deserunt " textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Ai9-L5-dfK">
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="onDrag" text="sunt in culpa qui officia deserunt " textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Ai9-L5-dfK">
                         <rect key="frame" x="8" y="60" width="359" height="125"/>
                         <color key="backgroundColor" systemColor="systemGray6Color"/>
                         <constraints>

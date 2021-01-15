@@ -17,6 +17,49 @@ extension Date {
         
         return dateFormatter.string(from: self)
     }
+    
+    func fromString( dateFormat format: String, dateString: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        
+        guard let date = dateFormatter.date(from: dateString) else {
+            return nil
+        }
+        return date
+    }
+    
+    
+    func encodeToJson() -> String? {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        encoder.dateEncodingStrategy = .iso8601
+            
+        do {
+            let encodedDate = try encoder.encode(self)
+            let jsonString = String(data: encodedDate, encoding: .utf8)
+            print("dateEnc: \(jsonString!)")
+            return jsonString!
+        } catch {
+            print(error.localizedDescription)
+        }
+        return nil
+    }
+    
+//    func decodeFromJson(date: String) -> Date? {
+//        struct createdAt: Decodable {
+//            let createdAt: Date
+//        }
+//        let json = """
+//        {"createdAt" : \(date)}
+//        """
+//        let data = Data(json.utf8)
+//        let decoder = JSONDecoder()
+//        decoder.dateDecodingStrategy = .iso8601
+//        decoder.keyDecodingStrategy = .convertFromSnakeCase
+//
+//        let dec = try! decoder.decode(createdAt.self, from: data)
+//        let createdAtValue = dec.createdAt
+//    }
 }
 
 

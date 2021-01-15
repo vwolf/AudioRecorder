@@ -104,7 +104,7 @@ extension ImagePicker: UIImagePickerControllerDelegate {
                 return self.pickerController(picker, didSelect: nil)
             }
             
-            let mediaType = info[UIImagePickerController.InfoKey.mediaType]
+            //let mediaType = info[UIImagePickerController.InfoKey.mediaType]
             guard let imageURL = info[UIImagePickerController.InfoKey.imageURL] as? URL else {
                 return self.pickerController(picker, didSelect: nil)
             }
@@ -116,7 +116,7 @@ extension ImagePicker: UIImagePickerControllerDelegate {
                 return self.pickerController(picker, didSelect: nil)
             }
             
-            let mediaType = info[UIImagePickerController.InfoKey.mediaType]
+            //let mediaType = info[UIImagePickerController.InfoKey.mediaType]
             
             guard let imageURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL else {
                 return self.pickerController(picker, didSelect: nil)

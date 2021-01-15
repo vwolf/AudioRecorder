@@ -36,14 +36,14 @@ class MDataStaticCellController: UICollectionViewCell {
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        print("MDataStaticCellController.preferredLayoutAttributesFitting maxWidth: \(String(describing: maxWidth))")
+       // print("MDataStaticCellController.preferredLayoutAttributesFitting maxWidth: \(String(describing: maxWidth))")
         
         descriptionLabel.preferredMaxLayoutWidth = maxWidth!
         ValueLabel.frame.size.width = maxWidth!
         
         layoutAttributes.bounds.size.width = maxWidth!
-        print("layoutFittingCompressedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height)")
-        print("layoutFittingExpandedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height)")
+        //print("layoutFittingCompressedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height)")
+        //print("layoutFittingExpandedSize.height: \(systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height)")
         
         layoutAttributes.bounds.size.height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
         //layoutAttributes.bounds.size.width = systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).width

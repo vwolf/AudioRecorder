@@ -146,10 +146,11 @@ class Recorder: NSObject, AVAudioRecorderDelegate {
             
         }
     }
-    /**
-     Get full path for recoding file.
-     Recordig settings
-    */
+    
+    
+    /// Get full path for recoding file.
+    /// Recordig settings
+    ///
     func startRecording(takeURL: URL) -> Bool {
         
         if recordingFormatSetting != nil {
@@ -218,12 +219,12 @@ class Recorder: NSObject, AVAudioRecorderDelegate {
        return power / CGFloat( (audioRecorder?.format.channelCount)! )
    }
     
-    /**
-     Recording end event message.
-     In case of an error during recording, audioRecorder delegate calls this function
-     
-     - parameter success: recording successful
-     */
+    
+    /// Recording end event message.
+    /// In case of an error during recording, audioRecorder delegate calls this function
+    ///
+    /// - parameter success: recording successful
+    ///
     func stopRecording(success: Bool, activateSession: Bool = true) -> Bool {
         if (audioRecorder != nil) {
             NSLog("stop recording take \(audioRecorder.url), success: \(success)")

@@ -40,6 +40,7 @@ class SettingsVC: UIViewController {
         //displaySetting = (settings?.settingForDisplay(name: settings!.currentSettingsName))!
     }
     
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -86,9 +87,9 @@ class SettingsVC: UIViewController {
         }
     }
     
-    /**
-     Update takename preset 
-     */
+    
+    /// Update takename preset
+    ///
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -150,25 +151,7 @@ class SettingsVC: UIViewController {
     private func updateUserDefaults(key: String, value: Any) {
         userSettings?.updateUserDefaults(name: key, value: value)
     }
-//    private func settingsToList() -> [[String]] {
-//        let currentSetting = settings?.getCurrentSetting()
-//        var settingsName = "Default"
-//
-//        if settings?.currentSettingsName != nil  {
-//            settingsName = (settings?.currentSettingsName)!
-//        }
-//
-//        let settingsList = [
-//            ["Name", settingsName],
-//            ["SampleRate", String(format: "%.3f", currentSetting?[AVSampleRateKey] as! CVarArg)],
-//            ["Bitdepths", "\(currentSetting?[AVLinearPCMBitDepthKey] as! CVarArg)" ],
-//            ["Channels", "\(currentSetting?[AVNumberOfChannelsKey] as! CVarArg)" ],
-//            ["Format", "\(currentSetting?[AVFormatIDKey] as! CVarArg)" ],
-//            ["Takename", "\(userSettings?.takeName)"]
-//        ]
-//
-//        return settingsList
-//    }
+
 
     @objc func switchState(sender : UISwitch) {
         print("switch value changed tag: \(sender.tag)")
@@ -178,6 +161,8 @@ class SettingsVC: UIViewController {
         updateUserDefaults(key: displaySetting[1][sender.tag].id, value: sender.isOn)
     }
 }
+
+// MARK: - TableView Delegate
 
 extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
@@ -247,17 +232,6 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             return cell
         }
         
-        
-        
-        
-        
-//        if set.format == SettingDefinitions.SettingFormat.preset {
-//            cell.backgroundColor = Colors.Base.baseGreen.toUIColor()
-//        }
-//        cell.nameLabel.text = settingData[indexPath.section][indexPath.row][0]
-//        cell.valueLabel.text = settingData[indexPath.section][indexPath.row][1]
-        
-//        return cell
     }
     
     
@@ -269,35 +243,26 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         if displaySetting[indexPath.section][indexPath.row].format == SettingDefinitions.SettingFormat.preset {
             switch displaySetting[indexPath.section][indexPath.row].id {
             case "recordingSettings" :
-                // get all awailable recording format preset names
-                //let names = settings?.getSettingsName()
+                // get all available recording format preset names
                 let editingParams = SettingDefinitions.recordingSetting.getSettingEditingParams()
-               // editingParams.presets = names ?? ["no Settings?"]
                 selectPreset(index: indexPath, params: editingParams)
-                //
-                //editValue(index: indexPath, values: names!)
+
                 
             case "style" :
                 let editingParams = SettingDefinitions.style.getSettingEditingParams()
                 selectPreset(index: indexPath, params: editingParams)
-                //let styles = ["dark", "light"]
-                //editValue(index: indexPath, values: styles)
              
             case "shareClient":
                 let editingParams = SettingDefinitions.shareClient.getSettingEditingParams()
                 selectPreset(index: indexPath, params: editingParams)
-//                editValue(index: indexPath, values: ["iCloud", "Dropbox"])
-             
+           
             case "takeNameExtension":
                 let editingParams = SettingDefinitions.takeNameExtension.getSettingEditingParams()
                 selectPreset(index: indexPath, params: editingParams)
-                
-//                editValue(index: indexPath, values: ["timestamp", "index"])
-                
+                               
             default:
                 print("nothing to edit")
             }
-            //editValue()
         }
         
         if displaySetting[indexPath.section][indexPath.row].format == SettingDefinitions.SettingFormat.userDefined {
@@ -308,21 +273,17 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
                 print("nothing to edit")
             }
         }
-        // setting name:
     }
     
 
-    /**
-     User can edit settings values
-     
-     - parameter index: selected tableView cell
-     - parameter values: Values to display in alert
-     */
+    
+    /// User can edit settings values
+    ///
+    /// - parameter index: selected tableView cell
+    /// - parameter values: Values to display in alert
+    ///
     func selectPreset(index: IndexPath, params: SettingEditingParams) {
-        
-//        let popoverContentController = PopoverVC(nibName: "PopoverTableView", bundle: nil)
-//        let section = tableHeaders[index.section]
-        
+                
         // user defined value -> show alert with textField to edit value
         let alert = UIAlertController(title: params.title, message: params.msg, preferredStyle: .alert)
         
@@ -348,12 +309,12 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         self.present(alert, animated: true, completion: nil)
     }
     
-    /**
-     User can enter a new value for selected setting
-     
-     - parameter indexPath: selected tableView cell
-     - parameter currentValue: currently value of cell at indexPath
-     */
+    
+    /// User can enter a new value for selected setting
+    ///
+    /// - parameter indexPath: selected tableView cell
+    /// - parameter currentValue: currently value of cell at indexPath
+    ///
     func newValue(indexPath: IndexPath, currentValue: String) {
         
         let alert = UIAlertController(title: "Enter Name Base", message: nil, preferredStyle: .alert)

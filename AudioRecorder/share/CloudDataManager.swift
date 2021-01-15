@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class CloudDataManager {
     
@@ -57,9 +58,17 @@ class CloudDataManager {
     }
     
     /// iCloudDocumentsURL is iCloudDrive URL + Container name
+    /// Only if 
     ///
     private func makeAppDirectory() {
-        let destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
+        
+        guard var destinationDirURL = DocumentsDirectory.iCloudDocumentsURL else {
+            print("No iCloudDocumentsDirectory")
+            return
+        }
+        destinationDirURL.appendPathComponent(takeDirectory, isDirectory: true)
+        //let destinationDirURL = DocumentsDirectory.iCloudDocumentsURL?.appendingPathComponent(takeDirectory, isDirectory: true)
+        
         
         var isDirectory: ObjCBool = true
         if !FileManager.default.fileExists(atPath: destinationDirURL.path, isDirectory: &isDirectory) {
@@ -103,35 +112,57 @@ class CloudDataManager {
     ///
     func takeFolderToCloud(takeName: String, takeDirectory: String) -> Bool {
         if isCloudEnabled() {
-            
+//            var sourceDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent(takeDirectory, isDirectory: true)
+//            sourceDirURL.appendPathComponent(takeName)
+//
+//            //let contents = try FileManager.default.contentsOfDirectory(atPath: sourceDirURL.path)
+//
+//            var destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
+//            destinationDirURL.appendPathComponent(takeName)
+//
+//            try FileManager.default.setUbiquitous(true, itemAt: sourceDirURL, destinationURL: destinationDirURL)
+//
+//            return true
             do {
                 var sourceDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent(takeDirectory, isDirectory: true)
                 sourceDirURL.appendPathComponent(takeName)
-                
+
                 let contents = try FileManager.default.contentsOfDirectory(atPath: sourceDirURL.path)
+
                 for file in contents {
                     print(file)
                 }
                 var destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
-   
+
                 destinationDirURL.appendPathComponent(takeName)
-                
+
                 try FileManager.default.setUbiquitous(true, itemAt: sourceDirURL, destinationURL: destinationDirURL)
                 takeDirectories.append(takeName)
                 return true
+//            } catch let error as NSError {
+//                print(error.localizedDescription)
+            } catch CocoaError.fileWriteFileExists {
+
+                print("Error fileWriteFileExists")
+
+            } catch  CocoaError.fileWriteOutOfSpace {
+
+                print("Error fileWriteOutOfSpace")
+
             } catch {
-                print(error.localizedDescription)
+
             }
+            
         }
         
         return false
     }
     
-    /**
-     Make take available in app.
-     
-     - parameter takeName:
-     */
+    
+    /// Make take available in app.
+    ///
+    /// - parameter takeName:
+    ///
     func takeFolderFromCloud(takeName: String) {
         let takeNameNoExtension = Takes().stripFileExtension(takeName)
         if isCloudEnabled() {
@@ -151,18 +182,24 @@ class CloudDataManager {
         }
     }
     
-    /**
-     Copy take folder with takeName to CloudDrive
-     ToDo: folder for all takes
-     - parameters takeName: 
-     */
-    func takeFolderToDrive(takeName: String) {
+    
+    /// Copy take folder with takeName to CloudDrive
+    /// ToDo: folder for all takes
+    ///
+    /// - Parameters:
+    ///   - takeName:
+    ///
+    func takeFolderToDrive(takeName: String, takeDirectory: String) throws {
         //let takeNameNoExtension = Takes().stripFileExtension(takeName)
         if isCloudEnabled() {
            
             var sourceDirURL = DocumentsDirectory.localDocumentsURL.appendingPathComponent("takes")
             sourceDirURL.appendPathComponent(takeName, isDirectory: true)
             
+            var destinationDirURL = DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(takeDirectory, isDirectory: true)
+            destinationDirURL.appendPathComponent(takeName)
+            
+            try FileManager.default.setUbiquitous(true, itemAt: sourceDirURL, destinationURL: destinationDirURL)
         }
     }
     
@@ -317,4 +354,5 @@ class CloudDataManager {
         metaDataQuery.stop()
         onChange!(true)
     }
+    
 }

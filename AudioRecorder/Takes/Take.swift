@@ -62,53 +62,109 @@ class Take {
     
     /// Reimport take
     /// Metadata.json file?
+    /// Import sections in right order -> RECORDINGDATA , METADATASECTION, FORMAT
     ///
     
     init(takeURL: URL, metaDataURL: URL?) {
         // set takeName and takeType and get items
-        var recordingDataItems = self.setURL(takeURL: takeURL)
+        let recordingDataItems = self.setURL(takeURL: takeURL)
         print("take name: \(String(describing: takeName))")
+        // add RECORDINGDATA section and items
+        itemSections.append(MetaDataSections.RECORDINGDATA)
+        items.append(recordingDataItems)
+        
         do {
-            let takeAttributes = try FileManager.default.attributesOfItem(atPath: takeURL.path)
-            
-            if let creationDate = takeAttributes[.creationDate] as? Date {
-                //creationDate.toString(dateFormat: "dd, mm, yy" )
-                recordingDataItems.append(self.setRecordedAt(date: creationDate))
-            }
-            
-            
-            
-            // location only if metadata file url
+            // parse metadate json file
             if metaDataURL != nil {
                 if let parserResult = JSONParser().parseJSONFile(metaDataURL!) as? [String: Any] {
+                    // add location
                     if parserResult.contains(where: { $0.key == "latitude" }) {
                         if let lat = parserResult["latitude"] as? Double {
                             if parserResult.contains(where: { $0.key == "longitude"}) {
                                 if let lon = parserResult["longitude"] as? Double {
                                     let userLocation = CLLocation(latitude: lat, longitude: lon)
-                                    recordingDataItems.append(self.setLocation(location: userLocation))
-                                   
+                                    let locationItem = self.setLocation(location: userLocation)
+                                    addItem(item: locationItem, section: .RECORDINGDATA )
                                 }
                             }
                         }
                     }
                     
-                    for item in parserResult {
-                        print(item.key)
-                        switch item.key {
-                        case "category" :
-                            if parserResult.contains(where: { $0.key == "subCategory" }) {
-                                let subCategory = parserResult["subcategory"] as? String
-                                if let category = parserResult["category"] as? String {
-                                    let categories = addCategory(category: category, subCategory: subCategory ?? "")
-                                    addItem(item: categories, section: .METADATASECTION)
-                                }
+                    // add createdAt
+                    if parserResult.contains(where: { $0.key == "creationDate" }) {
+                        if let creationDate = parserResult["creationDate"] as? String {
+                            print("creationDate: \(creationDate)")
+                            let formater = DateFormatter()
+                            formater.dateFormat = "yyyy-MM-dd'T'HH:mm:ssX"
+                            if let date = formater.date(from: creationDate) {
+                                let createdAtItem = setRecordedAt(date: date)
+                                addItem(item: createdAtItem, section: .RECORDINGDATA)
                             }
-                        default:
-                            print(item.key)
                         }
                     }
                     
+                    // now add metadata items
+                    // description and category are default items
+                    if parserResult.contains(where: { $0.key == "description" }) {
+                        if let description = parserResult["description"] as? String {
+                            let descriptionItem = addDescription(description: description)
+                            addItem(item: descriptionItem, section: .METADATASECTION)
+                        }
+                    }
+                    
+                    // category item has always a subcategory item, even if empty
+                    if parserResult.contains(where: { $0.key == "category" }) {
+                        if parserResult.contains(where: { $0.key == "subCategory" }) {
+                            let subCategory = parserResult["subcategory"] as? String
+                            if let category = parserResult["category"] as? String {
+                                let categories = addCategory(category: category, subCategory: subCategory ?? "")
+                                addItem(item: categories, section: .METADATASECTION)
+                            }
+                        }
+                    }
+                    
+                    // now add optional items (image, audio note ...)
+                    // Image
+                    if parserResult.contains(where: { $0.key == "image"}) {
+                        if let imageDescription = parserResult["image"] as? String {
+                            let imageItem = addImage(imageURL: imageDescription)
+                            addItem(item: imageItem, section: .METADATASECTION)
+                        }
+                    }
+                    // Note
+                    if parserResult.contains(where: { $0.key == "note" }) {
+                        if let note = parserResult["note"] as? String {
+                            let noteItem = addAudio(audioURL: note)
+                            addItem(item: noteItem, section: .METADATASECTION)
+                        }
+                    }
+//                    for item in parserResult {
+//                        print(item.key)
+//                        switch item.key {
+//                        case "category" :
+//                            if parserResult.contains(where: { $0.key == "subCategory" }) {
+//                                let subCategory = parserResult["subcategory"] as? String
+//                                if let category = parserResult["category"] as? String {
+//                                    let categories = addCategory(category: category, subCategory: subCategory ?? "")
+//                                    addItem(item: categories, section: .METADATASECTION)
+//                                }
+//                            }
+//
+//                        default:
+//                            print(item.key)
+//                        }
+//                    }
+                    
+                    // Recording format section
+                    if parserResult.contains(where: { $0.key == "takeFormat"}) {
+                        if let format = parserResult["takeFormat"] as? String {
+                            addAudioFormatData(formatString: format)
+                            //addItem(item: formatItem, section: .TAKEFORMAT)
+                        }
+                    }
+                    
+                    
+                    // TakeMO key's
                     if parserResult.contains(where: { $0.key == "length" }) {
                         if let length = parserResult["length"] as? Double {
                             takeLength = length
@@ -119,28 +175,10 @@ class Take {
                         let audioPlayer = try AVAudioPlayer(contentsOf: takeURL)
                         takeLength = audioPlayer.duration
                     }
-                    
-                    // Description
-                    if parserResult.contains(where: { $0.key == "description"}) {
-                        if let description = parserResult["description"] as? String {
-                            addDescription(description: description)
-                        }
-                    }
-                    // Image
-                    if parserResult.contains(where: { $0.key == "image"}) {
-                        if let imageDescription = parserResult["image"] as? String {
-                            addImage(imageURL: imageDescription)
-                        }
-                    }
-                    // Note
-                    
+                        
                 }
                 
             }
-            
-            itemSections.append(MetaDataSections.RECORDINGDATA)
-            items.append(recordingDataItems)
-            
             saveTake()
         } catch {
             
@@ -149,12 +187,16 @@ class Take {
     
     
     /// Init new recorded take
+    /// date is used in two places: TakeMO -> recordedAt and MetaDate -> createdAt
     ///
     init(takeURL: URL, date: Date, userLocation: CLLocation?, length: Double) {
         // set takeName and takeType and get items
         var recordingDataItems = self.setURL(takeURL: takeURL)
+        
         // recorded at
-        recordingDataItems.append(self.setRecordedAt(date: date))
+        let createdAtItem = setRecordedAt(date: date)
+        recordingDataItems.append(createdAtItem)
+        
         // location
         if userLocation != nil {
             recordingDataItems.append(self.setLocation(location: userLocation!))
@@ -164,6 +206,16 @@ class Take {
     
         itemSections.append(MetaDataSections.RECORDINGDATA)
         items.append(recordingDataItems)
+        
+        /// add default items
+        
+        addDefaultMetaData()
+        
+        self.takeFormat = self.getTakeFormat()
+        if self.takeFormat != nil {
+            let formatString = formatTakeFormat()
+            addAudioFormatData(formatString: formatString)
+        }
         
     }
     
@@ -244,7 +296,8 @@ class Take {
     }
     
     
-    /// Add data generated at recording of take
+    /// Add data generated at recording of take.
+    /// RecordedAt: use MetadataItem
     ///
     private func addRecordingData(takeMO: TakeMO) {
         var recordingData = [MetaDataItem]()
@@ -259,8 +312,8 @@ class Take {
             recordingData.append(locationItem)
         }
         
-        let recordedAtItem = self.setRecordedAt(date: takeMO.recordedAt!)
-        recordingData.append(recordedAtItem)
+//        let recordedAtItem = self.setRecordedAt(date: takeMO.recordedAt!)
+//        recordingData.append(recordedAtItem)
         
         itemSections.append(MetaDataSections.RECORDINGDATA)
         items.append(recordingData)
@@ -270,7 +323,9 @@ class Take {
     /// Category. Description
     ///
     private func addDefaultMetaData() {
-       
+        //itemSections.append(MetaDataSections.METADATASECTION)
+       // var defaultItems = [MetaDataItem]()
+        
         if getItemForID(id: "category", section: .METADATASECTION) == nil {
             let categories = addCategory()
             addItem(item: categories, section: .METADATASECTION)
@@ -281,6 +336,7 @@ class Take {
             addItem(item: description, section: .METADATASECTION)
         }
         
+        
 //        if getItemForID(id: "keyboard", section: .METADATASECTION) == nil {
 //            let descriptionDesc = MetaDataDefault().keyboard
 //            let keyboardItem  = MetaDataItem(description: descriptionDesc, value: "keyboard test item")
@@ -288,6 +344,10 @@ class Take {
 //        }
     }
     
+    /// Add take format to section TAKEFORMAT.
+    /// This creates the metadata item, add's it to section TAKEFORMAT and add section to sections
+    ///
+    /// - Parameter formatString
     private func addAudioFormatData(formatString: String) {
         if getItemForID(id: "addTakeFormat", section: .TAKEFORMAT) == nil {
             let descriptionDesc = MetaDataDefault().takeFormat
@@ -303,12 +363,13 @@ class Take {
         return (takeFormat?.asString())!
     }
     
-    /**
-     Entry point for new recorded take
-     Save new recorded take file name and url as MetaDataItem
-     
-     - parameter url: full path to new record
-    */
+    
+    /// Entry point for new recorded take.
+    /// Save new recorded take file name and url as MetaDataItem.
+    /// Also set take properties: takeName, takeType, url, takePath
+    ///
+    /// - parameter url: full path to new record
+    ///
     func setURL(takeURL: URL) -> [MetaDataItem] {
         var metaDateItems = [MetaDataItem]()
         
@@ -319,11 +380,7 @@ class Take {
         //takeName = pathNoExtension.lastPathComponent
         let takeNameItem = MetaDataItem(description: takeNameDesc, value: takeName!)
         metaDateItems.append(takeNameItem)
-        
-        //let pathDesc = MetaDataDefault().path
-        //let pathItem = MetaDataItem(description: pathDesc, value: takeURL.path)
-        //metaDateItems.append(pathItem)
-        
+       
         url = takeURL
         takePath = takeURL.path
         
@@ -334,33 +391,29 @@ class Take {
     func setLocation(location: CLLocation) -> MetaDataItem {
         //print("Take.location: \(location)")
         let locationDesc = MetaDataDefault().location
-//        let locationValue = "Lat: \(location.coordinate.latitude) Lon: \(location.coordinate.longitude)"
         let locationValue = ["lat" : location.coordinate.latitude, "lon": location.coordinate.longitude]
         let takeLocation = MetaDataItem(description: locationDesc, value: locationValue)
-        
-        //items.append(takeLocation)
-        //let loction = MetadataItem(type: MetadataItem.String, id: <#T##String#>)
         self.location = location
         return takeLocation
     }
     
+    /// Create an MetadataItem
+    /// Use MetadateItem value as the recordingAt value from TakeMO can change (reload from iCloud)
+    ///
+    /// - Parameter date:
     func setRecordedAt(date: Date) -> MetaDataItem {
+        self.recordedAt = date
         let recordingTimeDesc = MetaDataDefault().creationDate
         
-        let takeRecordingTime = MetaDataItem(description: recordingTimeDesc, value: date.toString(dateFormat: "dd.MM.YY' at' HH:mm:ss"))
-//        items.append(takeRecordingTime)
-        self.recordedAt = date
-        return takeRecordingTime
+        let takeRecordingTime = MetaDataItem(description: recordingTimeDesc, value: date.toString(dateFormat: "yyyy-MM-dd'T'HH:mm:ssX"))
+        return  takeRecordingTime
     }
+    
     
     // MARK: MetaData
     
     func addCategory(category: String = "", subCategory: String = "") -> MetaDataItem {
         
-//        let activeItemDescription = ["id": "addCategory",
-//                                     "type": MetaDataTypes.STRING.rawValue,
-//                                     "name": "Category",
-//                                     "description": "Add Category"]
         let categoryDesc = MetaDataOptional().category
         let activeItem = MetaDataItem(description: categoryDesc, value: category)
         
@@ -396,7 +449,7 @@ class Take {
     }
     
     func addAudio(audioURL: String = "") -> MetaDataItem {
-        let audioDesc = MetaDataOptional().audio
+        let audioDesc = MetaDataOptional().audioNote
         let audioItem = MetaDataItem(description: audioDesc, value: audioURL)
         
         return audioItem
@@ -405,12 +458,13 @@ class Take {
     
     // MARK: CoreData
     
-    /**
-     Save new take or update take in CoreData.
-     This are all default values, no user defined ones.
-     If fileName different to original, update fileName and filePath.
-     Rename file.
-     */
+    
+    /// Save new take or update take in CoreData.
+    /// This are all default values, no user defined ones.
+    /// If fileName different to original, update fileName and filePath.
+    /// Rename file.
+    ///
+    /// - Parameter writeJson: if true write metadata json file to take directory
     func saveTake(writeJson: Bool = false) {
         if newTake == true {
             let rename = renameTake(takeURL: url!)
@@ -446,11 +500,10 @@ class Take {
     
     
     
-    /**
-     Update take: take name changed - update filePath and file
-     Compare property takeName with item takeName.value (both are without extension)
-     
-     */
+    
+    /// Update take: take name changed - update filePath and file
+    /// Compare property takeName with item takeName.value (both are without extension)
+    ///
     func updateTake() {
         print("updateTake: \(String(describing: takeName))")
         
@@ -485,14 +538,14 @@ class Take {
         }
     }
     
-    /**
-     Is name in takeName item different to poperty takeName then try to rename.
-     Updata name of audio note.
-     
-     - Parameters:
-     - takeURL:
-     - newName: new name of take without extension
-     */
+    
+    /// Is name in takeName item different to poperty takeName then try to rename.
+    /// Update name of audio note?
+    ///
+    /// - Parameters:
+    /// - takeURL:
+    ///
+    ///
     func renameTake(takeURL: URL) -> (result: Bool, name: String?) {
         // get takeName from item
         if items.isEmpty {
@@ -521,12 +574,12 @@ class Take {
         return (false, nil)
     }
     
-    /**
-     Rename note file
-     
-     - parameters oldName: file name with extension
-     - parameters newName: file name without extension
-     */
+    
+    /// Rename note file
+    ///
+    /// - parameters oldName: file name with extension
+    /// - parameters newName: file name without extension
+    ///
     func renameTakeNote(oldName: String, newName: String) {
         if let noteURL = getNoteForTake() {
             let fextension = noteURL.pathExtension
@@ -543,10 +596,10 @@ class Take {
     }
     
     
-    /**
-     Read saved MetaData from CoreData MetaDataMO
-     
-     */
+    
+    /// Read saved MetaData from CoreData MetaDataMO
+    ///
+    ///
     func getMetaDateForTake(takeNameWithoutExtension: String) {
         var mdItems = [MetaDataItem]()
         let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeNameWithoutExtension)
@@ -581,12 +634,23 @@ class Take {
                 
                 mdItems.append(imageItem)
             
-            case "audio":
+            case "audioNote":
                 let audio = mdItem.value
                 let audioItem = addAudio(audioURL: audio!)
                 
                 mdItems.append(audioItem)
+            
+            // creationDate belongs to RECORDINGDATA section but value is an MetadateItem
+            // date value "2021-01-11T09:50:57+01" ? "2021-01-08T16:32:40Z"
+            case "creationDate":
+                let dateString = mdItem.value
+                let formater = DateFormatter()
+                formater.dateFormat = "yyyy-MM-dd'T'HH:mm:ssX"
                 
+                if let date = formater.date(from: dateString!) {
+                    let createdAtItem = setRecordedAt(date: date)
+                    addItem(item: createdAtItem, section: .RECORDINGDATA)
+                }
             default:
                 print("Unkown item name \(String(describing: mdItem.name))")
             }
@@ -595,6 +659,7 @@ class Take {
         itemSections.append(MetaDataSections.METADATASECTION)
         items.append(mdItems)
     }
+    
     
     func getTakeFormat() -> AudioFormatDescription? {
         //let takeNameWithExtension = takeName! + "." + takeType!
@@ -700,14 +765,13 @@ class Take {
                 
 
     
-    /**
-     Save user generatet metadata
-     [Category, SubCategory, Description, Image, Supporting Recording]
-     Extract this ones from items, use item.id as metadata name
-     
-     */
+    
+    /// Save user generatet metadata
+    /// [Category, SubCategory, Description, Image, Supporting Recording]
+    /// Extract this ones from items, use item.id as metadata name
+    ///
     func saveMetaDataForTake(takeNameWithExtension : String) {
-        var skip = ["creationDate"]
+        var skip = [String]()
         
         let takeNameWithoutExtension = Takes().stripFileExtension(takeNameWithExtension)
         if takeNameWithoutExtension != takeName {
@@ -722,11 +786,12 @@ class Take {
         coreDataController?.seedMetadataForTake(takeName: takeNameWithExtension, metadata: dataDict)
     }
     
-    /**
-     Update MetaData
-     Check for changed take name -> save RECORDINGDATA section
-     
-     */
+    
+    /// Update MetaData records in coreData.
+    /// Check for changed take name -> save RECORDINGDATA section
+    ///
+    /// - Parameter takeNameWithExtension
+    ///
     func updateMetaDataForTake(takeNameWithExtension: String) {
         var skip = ["creationDate"]
         
@@ -750,6 +815,7 @@ class Take {
                     let dataDict = makeTakeForSaving(skip: skip)
                     coreDataController?.updateMetadataForTake(takeName: takeNameWithoutExtension, metadata: dataDict)
                 }
+                takeName = tn
             }
             
             //updateItem(id: "path", value: <#T##String#>, section: .RECORDINGDATA)
@@ -763,7 +829,29 @@ class Take {
         
     }
     
+    /// Save or update metadata item.
+    ///
+    /// - Parameter id: item id
+    /// - Parameter section:
+    ///
+    func saveMetadataItem(id: String, section: MetaDataSections) -> Bool {
+        guard let sectionIndex = itemSections.firstIndex(of: section) else { return false }
+        guard let item = items[sectionIndex].first( where: { $0.id == id }) else {
+            return false
+        }
+        if let itemValue = item.value as? String {
+            let dataDict = [id: itemValue]
+            coreDataController?.updateMetadataForTake(takeName: takeName!, metadata: dataDict)
+            return true
+        }
+        
+        return false
+    }
     
+    /// Create dict using all items (key:value).
+    ///
+    /// - Parameter skip: Array of item key's to exclude
+    ///
     private func makeTakeForSaving(skip: [String] ) -> [String: String] {
         var metaDataDict = [String: String]()
         
@@ -811,26 +899,27 @@ class Take {
         return nil
     }
     
-    /**
-     Add a MetadataItem
-     
-     - parameters item: item objcect
-     */
+    
+    /// Add a MetadataItem
+    ///
+    /// - parameters item: item objcect
+    ///
     func addItem(item: MetaDataItem, section: MetaDataSections) {
         guard let sectionIndex = getItemSectionIndex(section: section) else {
             // no section, create section
             let sectionArray = [item]
             items.append(sectionArray)
+            itemSections.append(section)
             return
         }
         // section exist, add item
         items[sectionIndex].append(item)
     }
     
-    /**
-     Add new item to take
-     Create the item then add
-     */
+    
+    /// Add new item to take
+    /// Create the item then add
+    ///
     func addItem(name: String, section: MetaDataSections) -> Bool {
         if section == .METADATASECTION {
             // get description from MetaDataOptional
@@ -840,8 +929,8 @@ class Take {
                 let item = MetaDataItem(description: itemDescription, value: "")
                 addItem(item: item, section: .METADATASECTION)
                 
-            case "Audio" :
-                let itemDescription = MetaDataOptional().audio
+            case "Take Audio Note" :
+                let itemDescription = MetaDataOptional().audioNote
                 let item = MetaDataItem(description: itemDescription, value: "")
                 addItem(item: item, section: .METADATASECTION)
                 
@@ -855,9 +944,14 @@ class Take {
         return true
     }
     
-    /**
-     Check section for item
-     */
+    
+    /// Return item if item exist in section.
+    ///
+    /// - Parameter id: item id
+    /// - Parameter section: section item belongs to
+    ///
+    /// - Returns: Optional MetadataItem
+    ///
     func getItemForID(id: String, section: MetaDataSections) -> MetaDataItem? {
         guard let sectionIndex = itemSections.firstIndex(of: section) else { return nil }
         guard let item = items[sectionIndex].first(where: { $0.id == id }) else {
@@ -866,6 +960,13 @@ class Take {
         return item
     }
     
+    /// Update item in items. Does not update item record in MetadataMO
+    ///
+    /// - Parameters:
+    ///    - id: item id
+    ///    - value: new item value
+    ///    - section: MetadataSection  item belongs to
+    ///
     func updateItem(id: String, value: String, section: MetaDataSections) -> Bool {
         guard let sectionIndex = itemSections.firstIndex(of: section) else { return false }
         guard let item = items[sectionIndex].first( where: { $0.id == id }) else {
@@ -875,6 +976,14 @@ class Take {
         return true
     }
     
+    
+    /// Delete item from items array. Does not delete item in Metadata records
+    ///
+    /// - Parameters:
+    ///   - id: item id
+    ///   - section: MetadataSection item belongs to
+    /// - Returns: true if successful
+    ///
     func deleteItem(id: String, section: MetaDataSections) -> Bool? {
         guard let sectionIndex = itemSections.firstIndex(of: section) else { return false }
         guard let idx = items[sectionIndex].firstIndex(where: {$0.id == id}) else {
@@ -931,12 +1040,12 @@ class Take {
         return nil
     }
     
-    /**
-     Does a recorded note for take exist?
-     Save note to take directory
-     
-     - return URL?
-     */
+    
+    /// If a recorded note for take exist return note url.
+    /// Notes for a take are always in take directory -> take name + preset note name (AppConstants)
+    ///
+    /// - Return URL?
+    ///
     func getNoteForTake() -> URL? {
         let notesDirectoryName = RecordingTypes.TAKE.rawValue
         var notesDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -1036,7 +1145,7 @@ class Take {
         // fetch record
         CKContainer.default().publicCloudDatabase.fetch(withRecordID: takeCKRecord.record.recordID) { [unowned self] record, error in
             if (error != nil) {
-                print(error?.localizedDescription)
+                print(error!.localizedDescription)
             } else {
                 if let record = record {
                     // first create take directory
@@ -1197,7 +1306,14 @@ class Take {
         }
     }
     
-    
+    /// Copy image asset from assetURL (iCloud) to take's directory in app.
+    /// Assets have not media type extension in url, get image format using NSData imageFormat extension (Extensions.swift).
+    ///
+    /// - Parameters
+    /// - assetURL: Asset url in iCloud
+    /// -  destinationURL:
+    ///
+    ///
     func imageToApp(assetURL: URL, destinationURL: URL, with completion: @escaping (Bool, ImageFormat) -> Void) {
         DispatchQueue.main.async {
             do {
@@ -1255,16 +1371,7 @@ class Take {
         }
     }
     
-//    guard (coreDataController?.seedTake(name : takeName!,
-//                                        filePath: takePath,
-//                                        recordeAt: recordedAt!,
-//                                        length: takeLength,
-//                                        latitude: location?.coordinate.latitude,
-//                                        longitude: location?.coordinate.longitude)) != nil else {
-//
-//                                            print("error saving take")
-//                                            return
-//    }
+
     /// Read metadata.json file and make coredata record of it
     ///
     /// - Parameter url: metadata json file url
@@ -1286,28 +1393,36 @@ class Take {
         // update CoreData record
         updateMetaDataForTake(takeNameWithExtension: takeName!)
         if let takeMO = try? coreDataController?.getTake(takeName: takeName!) {
-            var jsonData = [String: Any]()
+            
             // this will update property items
-            getMetaDateForTake(takeNameWithoutExtension: takeName!)
+            //getMetaDateForTake(takeNameWithoutExtension: takeName!)
+            
+            // now add TakeMO attributes to jsonData
+            // use first one - more with same name?
+            var jsonData = [String: Any]()
+            if let firstTakeMO = takeMO.first {
+                jsonData["name"] = firstTakeMO.name
+                jsonData["length"] = firstTakeMO.length
+                jsonData["recordedAt"] = firstTakeMO.recordedAt!.toString(dateFormat: "dd-MM-YY'_at_'hh-mm-ss")
+                jsonData["latitude"] = firstTakeMO.latitude
+                jsonData["longitude"] = firstTakeMO.longitude
+            }
+            
+            
             // transform items format to be serialized or use MetadataMO
             if let takeMetaDataItems = coreDataController?.getMetadataForTake(takeName: takeName!) {
                 for item in takeMetaDataItems {
-                    jsonData[item.name!] = item.value
-                    print(item.value)
+                    if !jsonData.contains(where: { $0.key == item.name}) {
+                        jsonData[item.name!] = item.value
+                        print(item.value ?? "no value?")
+                    }
                 }
             } else {
                 // no metadata records for take
             }
             
-            // now add TakeMO attributes to jsonData
-            // use first one - more with same name?
-            if let firstTakeMO = takeMO.first {
-                jsonData["name"] = firstTakeMO.name
-                jsonData["length"] = firstTakeMO.length
-                jsonData["recordedAt"] = firstTakeMO.recordedAt!.toString(dateFormat: "dd-MM-YY")
-                jsonData["latitude"] = firstTakeMO.latitude
-                jsonData["longitude"] = firstTakeMO.longitude
-            }
+            
+            
             
             // validate json data and try to write file
             if JSONSerialization.isValidJSONObject(jsonData) {
@@ -1331,7 +1446,8 @@ class Take {
             
         }
     }
-        
+      
+    
 //        var metaData = [String: Any]()
 //        let itemIds = ["location", "description", "addCategory"]
 //        //let itemIds = [String]()
@@ -1409,6 +1525,7 @@ class Take {
     
 }
 
+
 enum TakeError: Error {
     case TakeNameError(String)
     case JSONWriteError(String)
@@ -1416,6 +1533,7 @@ enum TakeError: Error {
     case NoTakeCKRecord
     case NameNotUnique(String)
 }
+
 
 extension TakeError: LocalizedError {
     var errorDescription: String? {
@@ -1453,7 +1571,7 @@ struct AudioFormatDescription {
     }
 }
 
-
+/// Possible take storage states
 enum TakeStorageState {
     case LOCAL
     case ICLOUD

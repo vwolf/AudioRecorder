@@ -10,13 +10,12 @@ import UIKit
 import CloudKit
 import AVFoundation
 
-/// List of recorded takes in app's documents directory and in iCloud
+/// Screen with list of recorded takes in app's documents directory and in iCloud
 ///
 class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesTableCellDelegate {
    
     @IBOutlet weak var takesTableView: UITableView!
     
-    var takes = [String]()
     var coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
     
     var takeLoadedURL: URL?
@@ -30,18 +29,15 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesT
         super.viewWillAppear(animated)
         print("TakesVC viewWillAppear")
         
-        
-        
         if Takes.sharedInstance.reloadFlag {
             takesTableView.reloadData()
+            Takes.sharedInstance.reloadFlag = false
         }
     }
     
     
     func reloadTakes() {
-        takes = Takes().getAllTakeNames()
-        
-        takesTableView.reloadData()
+        Takes.sharedInstance.reloadFlag = true
     }
     
     
@@ -79,6 +75,12 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesT
         let recordOptionController = createTakeRecordOptionAlert(name: take.takeName!, completion: { createRecord in
             if createRecord {
                 if take.storageState == .ICLOUD {
+                    let indicatorView = IndicatorViewController()
+                    self.addChild(indicatorView)
+                    indicatorView.view.frame = self.view.frame
+                    self.view.addSubview(indicatorView.view)
+                    indicatorView.didMove(toParent: self)
+                    
                     // icloud takes without coredata record have no url
                     // each iCloud take should have a CoreData record
                     take.cloudTakeToLocal() { result in
@@ -88,6 +90,12 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesT
                             take.storageState = .LOCAL
                             
                             self.takesTableView.reloadData()
+                            
+                            indicatorView.willMove(toParent: nil)
+                            indicatorView.view.removeFromSuperview()
+                            indicatorView.removeFromParent()
+                            
+                            self.performSegue(withIdentifier: "TakeSegueIdentifier", sender: take)
                         }
                     }
                 }
@@ -300,30 +308,16 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesT
     ///    - indexPath:
     ///    - takeCKRecord:
     func prepearToPlayICloudTake(indexPath: IndexPath, takeCKRecord: TakeCKRecord) {
-//        if #available(iOS 13.0, *) {
-            let indicatorView = IndicatorViewController()
-            addChild(indicatorView)
-            indicatorView.view.frame = view.frame
-            view.addSubview(indicatorView.view)
-            indicatorView.didMove(toParent: self)
-//            let spinner = UIActivityIndicatorView(style: .large)
-//            spinner.tintColor = UIColor.lightGray
-//            spinner.startAnimating()
-//            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: spinner)
-//        } else {
-//            // Fallback on earlier versions
-//            let spinner = UIActivityIndicatorView(style: .gray)
-//            spinner.startAnimating()
-//            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: spinner)
-//        }
+        let indicatorView = IndicatorViewController()
+        addChild(indicatorView)
+        indicatorView.view.frame = view.frame
+        view.addSubview(indicatorView.view)
+        indicatorView.didMove(toParent: self)
         
-       
+        
         CKContainer.default().publicCloudDatabase.fetch(withRecordID: takeCKRecord.record.recordID) { [unowned self] record, error in
             if let error = error {
                 print(error.localizedDescription)
-//                DispatchQueue.main.async {
-//                    self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Download", style: .plain, target: self, action: #selector(self.downloadTapped))
-//                }
             } else {
                 if let record = record {
                     if let asset = record["take"] as? CKAsset {
@@ -342,10 +336,8 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesT
                 }
             }
         }
-       
+        
     }
-    
-    
     
     
     ///  Segue to full take page
@@ -430,14 +422,18 @@ class TakesVC: UIViewController, UIPopoverPresentationControllerDelegate, TakesT
     
 }
 
+// MARK: - TableView Delegate
+
 extension TakesVC: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        if !Takes.sharedInstance.takesCloud.isEmpty {
+            return 2
+        }
+        return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return takes.count
         switch section {
         case 0:
             return Takes.sharedInstance.takesLocal.count
@@ -446,7 +442,6 @@ extension TakesVC: UITableViewDelegate, UITableViewDataSource {
         default:
             return 0
         }
-//        return Takes.sharedInstance.takesLocal.count
     }
     
     
@@ -500,60 +495,10 @@ extension TakesVC: UITableViewDelegate, UITableViewDataSource {
             return "Local takes"
         }
     }
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print("TakesVC.didDelectRowAt: \(indexPath.row), name: \(takes[indexPath.row])")
-//
-//        let cell = tableView.cellForRow(at: indexPath)
-//        //self.loadTake(row: indexPath.row, cell: cell!)
-//        self.playTake(row: indexPath.row, cell: cell!)
-//
-//    }
-    
-//    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-//        print("accesoryButtonTappedForRow")
-//    }
-    
-//    @available(iOS 11.0, *)
-//    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-//
-//        let action = UIContextualAction(style: .destructive, title: "Delete", handler: { (action, view, completionHandler) in
-//            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
-//            completionHandler(true)
-//        })
-//
-//        let configuration = UISwipeActionsConfiguration(actions: [action])
-//        return configuration
-//    }
-//
-//    @available(iOS 11.0, *)
-//    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-//        let action = UIContextualAction(style: .normal, title: "More", handler: { (action, view, completionHandler) in
-//            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
-//            completionHandler(true)
-//        })
-//
-//        let configuration = UISwipeActionsConfiguration(actions: [action])
-//        return configuration
-//    }
-    
-    
-//    @available(iOS 10.0, *)
-//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-//        var actions = [UITableViewRowAction]()
-//
-//        let actionDelete = UITableViewRowAction(style: .destructive, title: "Delete") { (action, indexPath) in
-//            self.deleteTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath)!)
-//        }
-//        let actionMore = UITableViewRowAction(style: .normal, title: "More") { (action, indexPath) in
-//            self.loadTake(row: indexPath.row, cell: tableView.cellForRow(at: indexPath))
-//        }
-//
-//        actions.append(actionDelete)
-//        actions.append(actionMore)
-//
-//        return actions
-//    }
+
 }
+
+// MARK: -
 
 protocol TakesTableCellDelegate {
     func loadCellMetadata(cellIndex: IndexPath)

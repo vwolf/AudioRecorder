@@ -202,7 +202,7 @@ class ShareVC: UIViewController {
             }
             
             // test with just one selected take
-            CloudDataManager.sharedInstance.takeFolderToCloud(takeName: takeName!, takeDirectory: "takes")
+            _ = CloudDataManager.sharedInstance.takeFolderToCloud(takeName: takeName!, takeDirectory: "takes")
             takesInShare[(selectedRows?.first!)!].state = .DRIVE
             tableView.deselectRow(at: (selected?.first)!, animated: true)
             
@@ -547,34 +547,8 @@ extension ShareVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("indexPathForSelectedRows: \(tableView.indexPathsForSelectedRows?.count ?? -1)")
         print("indexpath.row: \(indexPath.row)")
-        if let cell = tableView.cellForRow(at: indexPath) {
-            
+        if tableView.cellForRow(at: indexPath) != nil {
             presentOptions(takeName: takesInShare[indexPath.row].name!, idx: indexPath.row)
-//            if takesInShare[indexPath.row].state == .LOCAL {
-//                if cell.accessoryType == .none {
-//                    cell.accessoryType = .checkmark
-//                } else {
-//                    cell.accessoryType = .none
-//                }
-//            }
-//            if newTakeNames.contains( takeNames[indexPath.row]) {
-//                if cell.accessoryType == .none {
-//                    cell.accessoryType = .checkmark
-//                } else {
-//                    cell.accessoryType = .none
-//                }
-//            } else {
-//                if cell.accessoryType == .none {
-//                    cell.accessoryType = .detailButton
-//                } else {
-//                    cell.accessoryType = .none
-//                }
-//            }
-            
-//            if (tableView.indexPathsForSelectedRows != nil) {
-//                toolbarSaveBtn.isEnabled = true
-//                toolbarCopyBtn.isEnabled = true
-//            }
         }
     }
     

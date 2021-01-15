@@ -31,14 +31,19 @@ struct MetaDataOptional {
     var description = MetaDataDescription(id: "description",  type: MetaDataTypes.STRING, name: "Description", description: "Enter description (max 255 char's")
     var category = MetaDataDescription(id: "category", type: MetaDataTypes.STRING, name: "Category", description: "Choose a category")
     var image = MetaDataDescription(id: "image", type: MetaDataTypes.ANY, name: "Image", description: "Add Image to take")
-    var audio = MetaDataDescription(id: "audio", type: MetaDataTypes.ANY, name: "Audio", description: "Record audio for take")
+    var audioNote = MetaDataDescription(id: "audioNote", type: MetaDataTypes.ANY, name: "Take Audio Note", description: "Record audio note for take")
    
     // display order of items
-    var itemOrder = ["category", "description", "image", "audio"]
+    var itemOrder = ["category", "description", "image", "audioNote", "creationDate"]
     
     func getAllNames() -> [String] {
-        return [description.name, category.name, image.name, audio.name]
+        return [description.name, category.name, image.name, audioNote.name]
     }
+    
+    func getAllID() -> [String] {
+        return [description.id, category.id, image.id, audioNote.id]
+    }
+    
     
     func getDescription(name: String) -> MetaDataDescription? {
         switch name {
@@ -48,8 +53,8 @@ struct MetaDataOptional {
             return category
         case "Image":
             return image
-        case "audio":
-            return audio
+        case "audioNote":
+            return audioNote
         default:
             return nil
         }
