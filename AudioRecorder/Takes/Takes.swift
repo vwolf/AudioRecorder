@@ -25,6 +25,8 @@ class Takes {
     
     var reloadFlag = false
     
+    var allTakeNames = [String]()
+    
     init() {
         /// get CoreDataController
         coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
@@ -82,6 +84,13 @@ class Takes {
             }
             
             print("Takes in app's take directory: \(takesLocal.count)")
+            
+            if takeMOs != nil {
+                if takesLocal.count < takeMOs!.count {
+                    validateCoreDataRecords(takeMOs: takeMOs!)
+                }
+            }
+            
             return true
         } catch {
             print(error.localizedDescription)
@@ -271,7 +280,7 @@ class Takes {
      Take folder are in directory "takes"
      
      */
-    func getAllTakeNames() -> [String] {
+    func getAllTakeNames() {
         var takeDirectorys: [URL] = []
         var takeNames: [String] = []
         let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -303,7 +312,8 @@ class Takes {
 //                self.addToTakesInShare(takeURLs:  CloudDataManager.sharedInstance.cloudURLs)
 //            }
 //        }
-        return takeNames
+        allTakeNames = takeNames
+        //return takeNames
     }
     
     
@@ -326,6 +336,22 @@ class Takes {
         
         
         return takesWithName
+    }
+    
+    
+    /// Check if take with name exists
+    ///
+    /// - Parameter name: name to check
+    ///
+    func fileWithNameExist(name: String) -> Bool {
+        if allTakeNames.isEmpty {
+            let takeWithNames = getAllTakeNames()
+            return allTakeNames.contains(name)
+        } else {
+            return allTakeNames.contains(name)
+        }
+        
+        
     }
     
     
@@ -450,14 +476,14 @@ class Takes {
         return true
     }
 
-    /**
-     Rename take if takes in subdirectory and each take is in own directory
-     
-     - parameter takeName: file name without extension
-     - parameter newTakeName:
-     - parameter fileExtension
-     - parameter takeDirectory: directory for all takes
-     */
+    
+    /// Rename take if takes in subdirectory and each take is in own directory
+    ///
+    /// - parameter takeName: file name without extension
+    /// - parameter newTakeName:
+    /// - parameter fileExtension
+    /// - parameter takeDirectory: directory for all takes
+    ///
     func renameTake( takeName: String, newTakeName: String, fileExtension: String, takesDirectory: String) -> Bool {
         
         guard let takeURL = getURLForFile(takeName: takeName, fileExtension: fileExtension, takeDirectory: takesDirectory) else {
@@ -608,6 +634,54 @@ class Takes {
             let formattedIndex = formatter.string(from: (maxIdx + 1) as NSNumber)
                 
             return formattedIndex!
+         
+        case "none":
+            // no take with name
+            if allTakeNames.contains(name) == false {
+                return name
+            }
+            
+            // get takes which start with name (less index length)
+            var takesWithName = allTakeNames.filter( {(item: String) -> Bool in
+                let stringMatch = item.range(of: nameWithSeperator)
+                return stringMatch != nil ? true : false
+            })
+            
+            // one take with name without an index
+            if takesWithName.isEmpty {
+                takesWithName.append(nameWithSeperator)
+                maxIdx = 0
+            } else {
+                // get takes with right length
+                let filteredLength = takesWithName.filter { word in
+                    return word.count == nameWithSeperator.count + indexLength
+                }
+                
+                // get end of take names
+                var indexes: [String] = []
+                _ = filteredLength.filter { word in
+                    let f = word[word.index(word.startIndex, offsetBy: nameWithSeperator.count)..<word.endIndex ]
+                    indexes.append(String(f))
+                    return (String(f).count == indexLength)
+                }
+                
+                for idx in indexes {
+                    let iToInt = Int(idx)
+                    
+                    if iToInt != nil {
+                       // print(iToInt!)
+                        maxIdx = max(maxIdx, iToInt!)
+                    }
+                }
+            }
+            
+            
+            let formatter = NumberFormatter()
+            formatter.minimumIntegerDigits = indexLength
+            
+            let formattedIndex = formatter.string(from: (maxIdx + 1) as NSNumber)
+                
+            return name + seperator + formattedIndex!
             
         default:
             print("no index1")
@@ -624,12 +698,12 @@ class Takes {
     
     // MARK: Take & CoreData
     
-    /**
-     Load take data from CoreData
-     
-     - Parameters:
-        - takeName: name of take without extension
-    */
+    
+    /// Load take data from CoreData
+    ///
+    /// - Parameters:
+    ///    - takeName: name of take without extension
+    ///
     func loadTakeRecord(takeName: String) -> TakeMO? {
         
         let coreDataController = (UIApplication.shared.delegate as! AppDelegate).coreDataController
@@ -643,6 +717,20 @@ class Takes {
         }
         
         return nil
+    }
+    
+    /// Validate takes and coreData records. Each record should have a take and each take should have a record
+    ///
+    /// - Parameter takeMOs: All CoreData take records
+    /// 
+    func validateCoreDataRecords(takeMOs: [TakeMO]) {
+        for take in takeMOs {
+            if getDirectoryForFile(takeName: take.name!, takeDirectory: "takes") == nil {
+                // no take directory - delete coredate record
+                print("Delete coredata record \(take.name!)")
+                _ = coreDataController?.deleteTake(takeName: take.name!)
+            }
+        }
     }
     
     // MARK: Take & ICloud

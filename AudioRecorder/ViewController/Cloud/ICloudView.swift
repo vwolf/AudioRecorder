@@ -19,14 +19,16 @@ class ICloudView: UIView {
         print("iCloudView addBtnAction")
     }
     
+    
 //    init() {
+//        super.init()
 //
 //        //label.text = "new label text"
 //
 //        super.init(frame: self.bounds)
 //
 //    }
-//
+    
 //
 //    required init?(coder: NSCoder) {
 //        //super.init(coder: coder)

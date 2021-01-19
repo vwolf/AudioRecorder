@@ -296,6 +296,7 @@ class CloudVC: UIViewController {
         iCloudView.addBtn.isEnabled = false
         iCloudView.addBtn.alpha = 0.4
         
+        iCloudView.addBtn.layer.cornerRadius = 4
 //        if take.iCloudState == .ICLOUD {
 //            iCloudView.label.text = CloudStrings.IniCloud.rawValue
 //            iCloudView.detailLabel.text = CloudStrings.ICloudBackDetails.rawValue
@@ -332,6 +333,10 @@ class CloudVC: UIViewController {
             iDriveView.addBtn.setTitle("Move to iDrive", for: .normal)
             iDriveView.addBtn.addTarget(self, action: #selector(iDriveAction(_:)), for: .touchUpInside)
         }
+        
+        iDriveView.addBtn.layer.cornerRadius = 4
+        iDriveView.addBtn.layer.borderWidth = 1
+        iDriveView.addBtn.layer.borderColor = UIColor.lightGray.cgColor
     }
     
     /// Using Dropbox needs two steps: activation in Settings and authorization with Dropbox
@@ -373,8 +378,11 @@ class CloudVC: UIViewController {
                 DropboxView.addBtn.isEnabled = false
                 DropboxView.addBtn.alpha = 0.4
             }
-            
         }
+        
+        DropboxView.addBtn.layer.cornerRadius = 4
+        DropboxView.addBtn.layer.borderWidth = 1
+        DropboxView.addBtn.layer.borderColor = UIColor.lightGray.cgColor
     }
     
     // MARK: - ERROR

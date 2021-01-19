@@ -81,6 +81,9 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     
     var audioInputDeviceMonitor: AudioInputDeviceMonitor!
     
+    var tapRecordingNameRecognizer = UITapGestureRecognizer()
+    var alertCtr: UIAlertController?
+    
     var iCloudActive = false
     
     override func viewWillAppear(_ animated: Bool) {
@@ -131,6 +134,9 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
             locationManager.startUpdatingLocation()
         }
         
+        tapRecordingNameRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.tapTakeName(_:)))
+        recordingName.isUserInteractionEnabled = true
+        recordingName.addGestureRecognizer(tapRecordingNameRecognizer)
     }
     
     /// First get [UserSetting](UserSettings), then load audio format setting depending on userSettings
@@ -434,6 +440,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         if success {
             let take = makeTake(audioRecorder: recorder.audioRecorder, length: takeLength)
             take.saveTake()
+            Takes.sharedInstance.getAllTakeNames()
             
             recorded = false
         }
@@ -446,6 +453,7 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         }
         recording = false
         recordingTimer.stopTimer()
+        recordingTimer.isHidden = true
         
         takeName = makeTakeName()
 //        audioInputVisualizer.stopVisualize()
@@ -529,6 +537,16 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
         case "date_time":
             let today = Date().toString(dateFormat: "dd-MM-YY'_at_'hh-mm-ss" )
             return "\(takeNamePreset)_\(today)"
+        
+        case "none" :
+            // here we have to check if take with name exist
+            // if take with name exist then add index to it
+            let newName = Takes.sharedInstance.getIndexForName(name: takeNamePreset,
+                                                               seperator: "_",
+                                                               type: userSettings!.takeNameExtension,
+                                                               indexLength: 2)
+            
+            return newName
             
         default:
             return takeNamePreset
@@ -591,4 +609,144 @@ class RecordVC: UIViewController, AVAudioRecorderDelegate, AVCaptureAudioDataOut
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         print("Data from captureSession received")
     }
+    
+    // MARK: RecordingName Label actions
+    
+    @objc func tapTakeName(_ sender: UITapGestureRecognizer) {
+        print("tapTakeName")
+        showInputDialog()
+    }
+    
+    func showInputDialog() {
+        
+//        class TextFieldObserver: NSObject, UITextFieldDelegate {
+//            let textFieldValueChanged: (UITextField) -> Void
+//            let textFieldShouldReturn: (UITextField) -> Bool
+//
+//            init(textField: UITextField, valueChanged: @escaping (UITextField) -> Void, shouldReturn: @escaping (UITextField) -> Bool) {
+//                self.textFieldValueChanged = valueChanged
+//                self .textFieldShouldReturn = shouldReturn
+//                super.init()
+//                textField.delegate = self
+//
+//                textField.addTarget(self, action: #selector(TextFieldObserver.textFieldValueChanged(sender:)), for: .editingChanged)
+//
+//            }
+//
+//            @objc func textFieldValueChanged(sender: UITextField) {
+//                textFieldValueChanged(sender)
+//            }
+//
+//            // UITextFieldDelegate
+//            func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+//                return textFieldShouldReturn(textField)
+//            }
+//        }
+        
+        
+//        var textFieldObserver: TextFieldObserver?
+        
+        
+        //let alertController = UIAlertController(title: "Enter Name", message: "Name for recorded take", preferredStyle: .alert)
+        
+        alertCtr = UIAlertController(title: "Enter Name",
+                                                message: "Name for recorded take",
+                                                cancelButtonTitle: "Cancel",
+                                                okButtonTitle: "OK",
+                                                validation: .unique,
+                                                textFieldConfiguration: { $0.placeholder = "take name"},
+                                                onCompletion: { result in
+                                                    switch result {
+                                                    case .cancel: print("cancelled")
+                                                    case .ok(let text):
+                                                        print("result: \(text)")
+                                                        // this should be unique take name
+                                                        self.takeName = text
+                                                        self.userSettings?.updateUserSetting(name: "takename", value: text)
+                                                    }
+                                                }
+        )
+        
+        self.present(alertCtr!, animated: true)
+    }
+                                                
+                                                
+        
+                                                
+//        let confirmAction = UIAlertAction(title: "Enter", style: .default) { (_) in
+//            let tf = alertController.textFields?.first
+//            if ((tf?.text?.isEmpty) == true) {
+//                print("isEmpty")
+//            } else {
+//                self.recordingName.text = tf!.text
+//            }
+//        }
+//
+//        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
+//
+//        }
+//
+//        alertController.addAction(confirmAction)
+//        //confirmAction.isEnabled = false
+//        alertController.addAction(cancelAction)
+//
+//        alertController.addTextField(configurationHandler: { textField in
+//            textField.placeholder = "Enter Take Name"
+            
+//            textFieldObserver = TextFieldObserver(textField: textField,
+//                                                  valueChanged: { textField in
+//                                                    confirmAction.isEnabled = TextValidationRule.nonEmpty.isValid(textField.text ?? "")
+//                                                  },
+//                                                  shouldReturn: { textField in
+//                                                    TextValidationRule.nonEmpty.isValid(textField.text ?? "")
+//                                                  })
+//        })
+        
+//        alertController.addTextField { (textField) in
+//            textField.placeholder = "Enter Take Name"
+//
+//            textFieldObserver = TextFieldObserver(textField: textField,
+//                                                  valueChanged: { textField in
+//                                                    confirmAction.isEnabled = TextValidationRule.nonEmpty.isValid(textField.text ?? "")
+//                                                  },
+//                                                  shouldReturn: { textField in
+//                                                    TextValidationRule.nonEmpty.isValid(textField.text ?? "")
+//                                                  })
+//        }
+        
+//        confirmAction.isEnabled = false
+//        if let alertTextInput = alertController.textFields?.first {
+//            let textFieldDelegate = AlertTextField(textField: alertTextInput)
+//            alertTextInput.delegate = textFieldDelegate
+//        }
+       
+//        self.present(alertController, animated: true, completion: nil)
+//    }
 }
+
+
+    
+
+
+
+
+//class AlertTextField: NSObject, UITextFieldDelegate {
+//
+//    let tf: UITextField
+//
+//    init(textField: UITextField) {
+//        //self.init()
+//        self.tf = textField
+//
+//    }
+//
+//    func textFieldDidBeginEditing(_ textField: UITextField) {
+//        print("AlertTextField DidBeginEditing")
+//    }
+//
+//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        return true
+//    }
+//
+//
+//}

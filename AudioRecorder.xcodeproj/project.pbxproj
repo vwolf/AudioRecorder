@@ -91,6 +91,7 @@
 		79DC8CEE25101CEC00396FE1 /* TakeCKRecordModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */; };
 		79DC8CF025116C8300396FE1 /* WaveformAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */; };
 		79DC8CF225116D6F00396FE1 /* TempiFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DC8CF125116D6F00396FE1 /* TempiFFT.swift */; };
+		79DDEC3D25B59C2F00AB531E /* AlertControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DDEC3C25B59C2E00AB531E /* AlertControllerExtension.swift */; };
 		79E257092598B2B500C18BC2 /* IndicatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79E257082598B2B500C18BC2 /* IndicatorViewController.swift */; };
 		79ECC8E8256E470C00F1E7FE /* TakeTableDetailViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79ECC8E7256E470C00F1E7FE /* TakeTableDetailViewCell.swift */; };
 		79F000322529CEDE00535143 /* DropboxVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F000312529CEDE00535143 /* DropboxVC.swift */; };
@@ -204,6 +205,7 @@
 		79DC8CED25101CEC00396FE1 /* TakeCKRecordModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakeCKRecordModel.swift; sourceTree = "<group>"; };
 		79DC8CEF25116C8300396FE1 /* WaveformAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformAnalyzer.swift; sourceTree = "<group>"; };
 		79DC8CF125116D6F00396FE1 /* TempiFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempiFFT.swift; sourceTree = "<group>"; };
+		79DDEC3C25B59C2E00AB531E /* AlertControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertControllerExtension.swift; sourceTree = "<group>"; };
 		79E257082598B2B500C18BC2 /* IndicatorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndicatorViewController.swift; sourceTree = "<group>"; };
 		79ECC8E7256E470C00F1E7FE /* TakeTableDetailViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakeTableDetailViewCell.swift; sourceTree = "<group>"; };
 		79F000312529CEDE00535143 /* DropboxVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropboxVC.swift; sourceTree = "<group>"; };
@@ -375,6 +377,7 @@
 			isa = PBXGroup;
 			children = (
 				79CDBBA724FE44E3005AA182 /* Extensions.swift */,
+				79DDEC3C25B59C2E00AB531E /* AlertControllerExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -701,6 +704,7 @@
 				795A0DE625149D0A00DE340B /* MetadataAddPopoverVC.swift in Sources */,
 				79BDA0802503C0D40000B18B /* MDataEditCellController.swift in Sources */,
 				79BDA07C250256900000B18B /* MDataStaticCellController.swift in Sources */,
+				79DDEC3D25B59C2F00AB531E /* AlertControllerExtension.swift in Sources */,
 				79BDA08D2506D2510000B18B /* CategoryParser.swift in Sources */,
 				79BDA0682500C9F50000B18B /* AudioCaptureSession.swift in Sources */,
 				795A0DDD25134D9600DE340B /* WaveformImageView.swift in Sources */,
@@ -920,7 +924,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorderDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
@@ -928,7 +932,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.01;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devwolf.AudioRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -942,7 +946,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AudioRecorder/AudioRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = X5Y6N27R4M;
 				INFOPLIST_FILE = AudioRecorder/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
@@ -950,7 +954,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.01;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devwolf.AudioRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

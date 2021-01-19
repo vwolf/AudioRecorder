@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 
+/// Popover view with tableView
+///
 class PopoverVC: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!

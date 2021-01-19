@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 
+/// This view display's audio input level. 
 class AudioInputLevelView: UIView {
 
     @IBOutlet var ContentView: UIView!

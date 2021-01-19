@@ -322,8 +322,8 @@ enum SettingDefinitions: CaseIterable {
             return SettingEditingParams(
                 title: "Select Extension",
                 msg: "Second part of take name",
-                presets: ["date_index", "date_time", "index"],
-                presetsMsg: ["Date & Index", "Date & Time", "Index (0001)"])
+                presets: ["date_index", "date_time", "index", "none"],
+                presetsMsg: ["Date & Index", "Date & Time", "Index (0001)", "None"])
          
         case .style:
             return SettingEditingParams(title: "Select Display Style",

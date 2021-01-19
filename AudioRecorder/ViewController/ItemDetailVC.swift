@@ -10,11 +10,10 @@ import Foundation
 import UIKit
 import MapKit
 
-/**
- Display item details.
- Only location item details implemented, extend if more items needs details
- 
- */
+
+/// Display item details.
+/// Only location item details implemented, extend if more items needs details
+///
 class ItemDetailVC: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
@@ -67,10 +66,9 @@ class ItemDetailVC: UIViewController {
     }
     
     
-    /**
-     Reverse geocoding a coordinate
-     
-     */
+    
+    /// Reverse geocoding a coordinate
+    ///
     func lookUpCurrentLocation(completionHandler: @escaping (CLPlacemark?)
                     -> Void ) {
         // Use the last reported location.

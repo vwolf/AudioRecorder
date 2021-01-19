@@ -48,7 +48,7 @@ class DropboxVC: UIViewController {
         
         listFiles(fileType: "wav")
 //        takeNames = Takes().getAllTakeNames(fileExtension: "wav", directory: nil, returnWithExtension: true)
-        takeNames = Takes().getAllTakeNames()
+        takeNames = Takes.sharedInstance.allTakeNames
         toolbarSaveBtn.isEnabled = false
     }
     

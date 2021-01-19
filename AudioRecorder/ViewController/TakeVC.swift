@@ -263,7 +263,7 @@ class TakeVC: UIViewController, UIPopoverPresentationControllerDelegate, Categor
         }
     }
     
-    func preseentAudioPlayerPopover(audioURL: URL) {
+    func presentAudioPlayerPopover(audioURL: URL) {
         let popoverContentController = self.storyboard?.instantiateViewController(withIdentifier: "ModalAudioPlayerView") as? ModalAudioPlayerVC
         
         popoverContentController?.modalPresentationStyle = .popover
@@ -736,7 +736,7 @@ extension TakeVC: UICollectionViewDataSource, UICollectionViewDelegate {
     
     @objc func recordAudioCellPlayBtntTouched(_ sender: UIButton) {
         guard let audioURL = take.getNoteForTake() else { return  }
-        preseentAudioPlayerPopover(audioURL: audioURL)
+        presentAudioPlayerPopover(audioURL: audioURL)
     }
 }
 
